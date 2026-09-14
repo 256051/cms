@@ -2,7 +2,7 @@ using System.Security.Claims;
 using System.Threading.RateLimiting;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using AutoMapper;
+using MapsterMapper;
 using Cms.Api;
 using Cms.Data;
 using Cms.Services;
@@ -28,11 +28,7 @@ builder.Host.ConfigureContainer<ContainerBuilder>(container =>
     container.RegisterType<ThemeService>().InstancePerLifetimeScope();
     container.RegisterType<AssetService>().InstancePerLifetimeScope();
 });
-builder.Services.AddSingleton<IMapper>(sp => new MapperConfiguration(c =>
-{
-    c.AddProfile<MappingProfile>();
-    if (builder.Configuration["AutoMapper:LicenseKey"] is { Length: > 0 } key) c.LicenseKey = key;
-}, sp.GetRequiredService<ILoggerFactory>()).CreateMapper());
+builder.Services.AddSingleton<IMapper>(new Mapper(MappingConfiguration.Create()));
 var keys = Path.GetFullPath(builder.Configuration["Security:KeyPath"] ?? "data/keys");
 Directory.CreateDirectory(keys);
 builder.Services.AddDataProtection().SetApplicationName("Cms").PersistKeysToFileSystem(new DirectoryInfo(keys));

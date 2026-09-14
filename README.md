@@ -49,6 +49,7 @@ npm --prefix web ci
 - [站点设置说明](docs/settings.md)：基本信息、图标、分页、搜索收录、评论和页脚。
 - [站点设置验收](docs/settings-verification.md)：当前 schema 5 升级和实际测试结果。
 - [登录保护](docs/login-security.md)：图形验证码、账号连续失败限制、IP 限流及单实例边界。
+- [修改记录](CHANGELOG.md)：功能与依赖调整、部署影响及对应验证结果。
 
 首版只支持 **一个 API 实例**。多管理员可同时操作；内容、主题、菜单和站点设置使用版本号防止覆盖。尚未实现多 API 实例之间的写锁协调。SQLite 还要求本地单文件存储。
 
@@ -64,7 +65,7 @@ web/tests        Playwright 浏览器验收
 deploy           镜像与同域反向代理配置
 ```
 
-调用链为 `Controller → Service → Repository → FreeSql`，没有其他 ORM。Autofac 注册服务，AutoMapper 映射安全账号输出，FluentValidation 校验内容输入，HtmlSanitizer 在后端净化富文本。
+调用链为 `Controller → Service → Repository → FreeSql`，没有其他 ORM。Autofac 注册服务，Mapster 映射安全账号输出并在启动时校验映射配置，FluentValidation 校验内容输入，HtmlSanitizer 在后端净化富文本。
 
 接口分为 `/api/v1/auth`、`/api/v1/admin`、`/api/v1/public`。统一响应字段是 `code`、`message`、`data`、`traceId`；分页提供 `items`、`total`、`page`、`pageSize`，错误同时保留 HTTP 状态。
 
@@ -83,6 +84,6 @@ npm --prefix web run typecheck
 - Redis、RabbitMQ/CAP 没有接入，不是启动依赖。Consul 可选；启用后读取失败会终止启动。
 - 搜索为标题、摘要关键词查询；正文最多 500,000 字符。附件引用检查扫描站点内容，适用于首版中小型站点。
 - 已发布 URL 固定；重新发布会替换公开快照，不提供历史版本回滚或跨数据库数据迁移。
-- AutoMapper 16.2.0 是具有许可证要求的依赖。项目已接入 `AutoMapper:LicenseKey`；部署生产环境前按实际用途获取适用许可。开发和测试未配置商业密钥，相关日志保留。参考 [官方许可证配置](https://docs.automapper.io/en/latest/License-configuration.html)。
+- 对象映射使用 Mapster 10.0.12，采用 [MIT 许可证](https://github.com/MapsterMapper/Mapster/blob/v10.0.12/LICENSE)，无需配置映射库许可证密钥。
 
 本仓库没有复制 Halo 源码，不声明兼容其主题、插件或数据库。交付范围为源码与本地验收，没有部署到外部服务器。

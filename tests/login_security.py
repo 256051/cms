@@ -34,7 +34,9 @@ with (output / "api.log").open("w", encoding="utf-8") as log:
         for _ in range(60):
             try: Client(base).call("/health/ready"); break
             except Exception: time.sleep(.25)
-        admin = client(1); admin.login("cmsadmin", password)
+        admin = client(1); owner = admin.login("cmsadmin", password)
+        assert owner == dict(id=owner["id"], username="cmsadmin", displayName="管理员", role="Admin", enabled=True)
+        assert admin.call("auth/me") == owner
         schema = admin.call("/openapi/v1.json")
         schema["servers"] = [{"url":"/"}]
         (ROOT / "docs/openapi.json").write_text(json.dumps(schema, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -61,7 +63,15 @@ with (output / "api.log").open("w", encoding="utf-8") as log:
         reader.call("auth/login", "POST", dict(username="cmsadmin", password=password, **fresh))
         passed("cross-browser copy rejected, wrong answers consume challenges, refresh replaces old image")
 
-        admin.call("admin/users", "POST", dict(username="disabled", displayName="停用测试", role="Editor", enabled=False, password=password))
+        user_input = dict(username="disabled", displayName="停用测试", role="Editor", enabled=False, password=password)
+        created = admin.call("admin/users", "POST", user_input)
+        expected_user = dict(id=created["id"], username="disabled", displayName="停用测试", role="Editor", enabled=False)
+        assert created == expected_user
+        user_input["displayName"] = "编辑账号 🎉"
+        expected_user["displayName"] = user_input["displayName"]
+        assert admin.call("admin/users/" + created["id"], "PUT", user_input) == expected_user
+        assert sorted(admin.call("admin/users"), key=lambda user: user["id"]) == sorted([owner, expected_user], key=lambda user: user["id"])
+        passed("login, current user, create, update and list expose exactly five safe fields with correct record, role and enabled values")
         for i, username in enumerate(("missing", "disabled", "cmsadmin"), start=5):
             response = client(i).login(username, "incorrect-password", expected=401)
             assert response["code"] == "INVALID_CREDENTIALS" and response["message"] == "账号或密码错误。"

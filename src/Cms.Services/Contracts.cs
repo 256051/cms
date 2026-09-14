@@ -1,4 +1,4 @@
-using AutoMapper;
+using Mapster;
 using FluentValidation;
 using Cms.Data;
 
@@ -68,11 +68,17 @@ public record AssetView(string Id, string Name, string ContentType, long Size, D
 /// <summary>Live overview counts.</summary>
 public record StatsView(long Posts, long Published, long Pages, long PendingComments, long Assets);
 
-/// <summary>Only explicitly safe account fields are projected.</summary>
-public class MappingProfile : Profile
+/// <summary>Explicit entity-to-browser mappings shared by the application.</summary>
+public static class MappingConfiguration
 {
-    /// <summary>Configure entity-to-browser mappings.</summary>
-    public MappingProfile() => CreateMap<CmsUser, UserView>();
+    /// <summary>Validate and compile mappings before the application starts serving requests.</summary>
+    public static TypeAdapterConfig Create()
+    {
+        var config = new TypeAdapterConfig { RequireExplicitMapping = true, RequireDestinationMemberSource = true };
+        config.NewConfig<CmsUser, UserView>();
+        config.Compile();
+        return config;
+    }
 }
 
 /// <summary>Editorial trust-boundary validation.</summary>

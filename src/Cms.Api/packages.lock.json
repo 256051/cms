@@ -38,14 +38,6 @@
         "resolved": "9.3.1",
         "contentHash": "WCDp+kYLr+r9enkRDt4PYRzj321P/c+8SICxHhWo9gkVNqE9EziiYyUMa7A0ce27SK6qgRWYCK0zp19J2ykVHw=="
       },
-      "AutoMapper": {
-        "type": "Transitive",
-        "resolved": "16.2.0",
-        "contentHash": "PE8HgPc5BZJnAFwjvDTE72gWL6YrYib+V7+vxtLXDYz0CH/fFgbVcwLUC9UHk5ALwspZ6Vbmoo6PHvseIk/0ZA==",
-        "dependencies": {
-          "Microsoft.IdentityModel.JsonWebTokens": "8.14.0"
-        }
-      },
       "Azure.Core": {
         "type": "Transitive",
         "resolved": "1.38.0",
@@ -131,6 +123,19 @@
           "AngleSharp": "1.7.2",
           "AngleSharp.Css": "1.0.2"
         }
+      },
+      "Mapster": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "ap0sVf4YxqYVSj2wafyrknuj2hWkWhpSm+SXTvrOQlc2vLG7u51dJ8GazaSHLLG6saHN5uPCBeP+YIqXS0a1vg==",
+        "dependencies": {
+          "Mapster.Core": "10.0.12"
+        }
+      },
+      "Mapster.Core": {
+        "type": "Transitive",
+        "resolved": "10.0.12",
+        "contentHash": "iLPB0xAzxMWKhbBjWb4ZdQMV/TNEuZafDOoONhtDjBD4bEmf6BwcZt2v0MHhS7xbjwi1JUR266XMarfEs9BUIw=="
       },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
@@ -376,10 +381,11 @@
       "cms.services": {
         "type": "Project",
         "dependencies": {
-          "AutoMapper": "[16.2.0, )",
           "Cms.Data": "[1.0.0, )",
           "FluentValidation": "[12.1.1, )",
-          "HtmlSanitizer": "[9.2.1039, )"
+          "HtmlSanitizer": "[9.2.1039, )",
+          "Mapster": "[10.0.12, )",
+          "Microsoft.IdentityModel.JsonWebTokens": "[8.14.0, )"
         }
       }
     }

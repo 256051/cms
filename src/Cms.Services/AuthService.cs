@@ -1,4 +1,4 @@
-using AutoMapper;
+using MapsterMapper;
 using Cms.Data;
 using Microsoft.AspNetCore.Identity;
 

@@ -11,7 +11,6 @@
 - `Security:KeyPath`：ASP.NET Core Data Protection 密钥目录，必须持久化。
 - `Setup:Username`、`Setup:Password`：仅显式初始化首个管理员时需要。
 - `Consul:Enabled`、`Consul:Address`、`Consul:Key`、`Consul:Token`：Consul 连接；默认关闭。
-- `AutoMapper:LicenseKey`：适用许可证密钥，仅后端持有。
 - `ForwardedHeaders:KnownNetworks`：可信反向代理网段数组；不要配置任意互联网网段。
 - `Logging:LogLevel`：ASP.NET Core 标准日志等级。
 

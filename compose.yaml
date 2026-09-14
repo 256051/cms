@@ -12,7 +12,6 @@ services:
       Consul__Address: ${CONSUL_ADDRESS:-http://consul:8500}
       Consul__Key: ${CONSUL_KEY:-cms/config}
       Consul__Token: ${CONSUL_TOKEN:-}
-      AutoMapper__LicenseKey: ${AUTOMAPPER_LICENSE_KEY:-}
       ForwardedHeaders__KnownNetworks__0: ${CMS_NETWORK_SUBNET:-172.30.46.0/24}
       Setup__Username: ${SETUP_USERNAME:-}
       Setup__Password: ${SETUP_PASSWORD:-}

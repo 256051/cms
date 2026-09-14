@@ -2,7 +2,13 @@ import type { CSSProperties } from "react";
 import type { ThemeView } from "./types";
 
 export type ThemeContext = { theme: ThemeView; preview?: string };
-export const themeIds = ["classic", "paper", "magazine", "midnight"] as const;
+export const themeIds = ["classic", "paper", "magazine", "midnight", "fuwari", "retypeset", "cactus"] as const;
+export const communityThemes = [
+  { id: "fuwari", name: "Fuwari", url: "https://github.com/saicaca/fuwari" },
+  { id: "retypeset", name: "Retypeset", url: "https://github.com/radishzzz/astro-theme-retypeset" },
+  { id: "cactus", name: "Cactus", url: "https://github.com/probberechts/hexo-theme-cactus" },
+] as const;
+export function themeSource(id: string) { return communityThemes.find(theme => theme.id === id); }
 export function defaultCopyright() { return `© ${new Date().getFullYear()} IT猫 · itmao.club`; }
 
 export function siteHref(href: string, preview?: string) {
@@ -31,9 +37,11 @@ function accessible(color: string, background: string, light: boolean) {
   return light ? "#FFFFFF" : "#000000";
 }
 export function themeStyle(theme: ThemeView): CSSProperties {
-  const dark = theme.themeId === "midnight", paper = theme.themeId === "paper";
-  const background = dark ? "#0F172A" : paper ? "#FAF8F4" : "#FFFFFF";
-  const soft = dark ? "#172B3F" : paper ? "#EDEAE2" : "#F1F5F9";
+  const cactus = theme.themeId === "cactus", fuwari = theme.themeId === "fuwari";
+  const retypeset = theme.themeId === "retypeset", paper = theme.themeId === "paper";
+  const dark = theme.themeId === "midnight" || cactus;
+  const background = cactus ? "#1D1F21" : dark ? "#0F172A" : retypeset ? "#FAF9F6" : paper ? "#FAF8F4" : "#FFFFFF";
+  const soft = cactus ? "#282A2E" : dark ? "#172B3F" : fuwari ? "#EFEBF7" : retypeset ? "#EEEAE3" : paper ? "#EDEAE2" : "#F1F5F9";
   const accent = theme.options.accentColor;
   return {
     "--theme-accent": accent,
@@ -41,11 +49,11 @@ export function themeStyle(theme: ThemeView): CSSProperties {
     "--blue": accessible(accent, soft, dark),
     "--blue-dark": accessible(accent, soft, dark),
     "--blue-soft": soft,
-    "--surface": dark ? "#0F172A" : background,
-    "--bg": dark ? "#090F1C" : background,
-    "--ink": dark ? "#E2E8F0" : "#202B40",
-    "--muted": dark ? "#A8B6C9" : "#626F80",
-    "--line": dark ? "#334155" : "#E6E7E9",
+    "--surface": background,
+    "--bg": cactus ? background : dark ? "#090F1C" : fuwari ? "#F2F0F5" : background,
+    "--ink": cactus ? "#C9CACC" : dark ? "#E2E8F0" : retypeset ? "#35312D" : "#202B40",
+    "--muted": cactus ? "#A3A6AA" : dark ? "#A8B6C9" : retypeset ? "#716A62" : "#626F80",
+    "--line": cactus ? "#424549" : dark ? "#334155" : "#E6E7E9",
     colorScheme: dark ? "dark" : "light",
   } as CSSProperties;
 }

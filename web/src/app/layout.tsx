@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./themes.css";
 import "./menus.css";
+import "./community-themes.css";
 import { publicApi, siteUrl } from "@/lib/server";
 import type { Settings } from "@/lib/types";
 

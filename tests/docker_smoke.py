@@ -17,6 +17,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
 from integration import Client
+from remote_api import check_remote, machine, send
 
 ROOT = Path(__file__).resolve().parents[1]
 run_id = "docker-" + uuid.uuid4().hex[:10]
@@ -87,9 +88,15 @@ try:
     assert base in admin.call("/sitemap.xml").decode()
     assert base in admin.call("/robots.txt").decode()
     assert admin.call("/media/" + asset["id"]) == png
+    from editor import check_editor
+    editor_checks = []
+    check_editor(admin, editor_checks.append)
+    integration_checks = []
+    persistent = check_remote(admin, integration_checks.append)
     command(compose + ["restart", "api", "web", "gateway"])
     ready()
     assert admin.call("auth/me")["username"] == "cmsadmin"
+    assert send(machine(admin, persistent["secret"]), "contents", "POST", persistent["input"], key=persistent["key"]) == persistent["draft"]
     assert admin.call("/media/" + asset["id"]) == png
     assert "容器服务端渲染正文" in admin.call("/posts/docker-proof").decode()
     credentials = local / "browser-credentials.json"
@@ -108,10 +115,15 @@ try:
     assert admin.call("admin/menu") == menu_state
     assert admin.call("admin/settings") == settings_state
     assert admin.call("auth/me")["username"] == "cmsadmin"
-    result = {"status":"passed", "timestamp":now.isoformat(), "checks":["non-root API and Next.js Docker images", "Compose initialization and Nginx HTTPS same-origin routing", "Production secure session and CSRF cookies", "login, upload, publish and server-rendered article", "runtime SITE_URL in sitemap and robots", "restart preserves database, media and authenticated session", "Playwright publication, unsaved forms, SEO, loading recovery, keyboard and audit acceptance", "four theme layouts, private preview navigation, independent profiles, accessible colors, SSR SEO and restart persistence"]}
-    result["checks"].append("five menu target types, nested keyboard navigation in four themes at three widths, protected editing, preview links and restart persistence")
+    result = {"status":"passed", "timestamp":now.isoformat(), "checks":["non-root API and Next.js Docker images", "Compose initialization and Nginx HTTPS same-origin routing", "Production secure session and CSRF cookies", "login, upload, publish and server-rendered article", "runtime SITE_URL in sitemap and robots", "restart preserves database, media and authenticated session", "Playwright publication, unsaved forms, SEO, loading recovery, keyboard and audit acceptance", "seven theme layouts, private preview navigation, independent profiles, accessible colors, SSR SEO and restart persistence"]}
+    result["checks"].append("five menu target types, nested keyboard navigation in seven themes at three widths, protected editing, preview links and restart persistence")
     result["checks"].append("site settings, favicon and language, live pagination and search indexing policy, comment controls, conflict protection and restart persistence")
     result["checks"].append("login image challenge over HTTPS, secure browser binding, refresh, retained inputs, retry countdown and mobile keyboard login")
+    result["checks"].extend(integration_checks)
+    result["checks"].extend(editor_checks)
+    result["checks"].append("rich editor insertion, paste/upload, table editing, media playback, formatting round trip and responsive public rendering in seven themes")
+    result["checks"].append("Fuwari, Retypeset and Cactus preview isolation, keyboard-operated article TOC, unique heading anchors and body HTML without JavaScript")
+    result["checks"].append("integration tokens and replay receipts survive restart; token UI, one-time secrets, remote publishing, responsive layouts and keyboard revocation")
     (output / "results.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     print("PASS: Docker Compose HTTPS, publication and restart; results:", output / "results.json")
 finally:

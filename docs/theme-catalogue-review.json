@@ -1,0 +1,2614 @@
+{
+  "checkedAtUtc": "2026-09-14T15:41:46.676402+00:00",
+  "source": "https://raw.githubusercontent.com/halo-sigs/awesome-halo/main/README.md",
+  "scope": "63 Halo 2.0 themes plus 4 starters: root LICENSE/README/theme metadata triage; focused source assessments are separate below. No theme implementation, runtime acceptance, full asset audit or blanket license clearance.",
+  "entries": [
+    {
+      "name": "theme-starter",
+      "repository": "halo-sigs/theme-starter",
+      "url": "https://github.com/halo-sigs/theme-starter",
+      "ref": "HEAD",
+      "starter": true,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/halo-sigs/theme-starter/HEAD/LICENSE",
+          "sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/halo-sigs/theme-starter/HEAD/README.md",
+          "sha256": "8e5a1c7d427f6f384744af54c9de8c273b69ad7af961172c93e9d4fe4c2d2699"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/halo-sigs/theme-starter/HEAD/theme.yaml",
+          "sha256": "947f7482f99c1522b8b02256b521854bc7893607939f53fc2e1117b7b1825b5c"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "开发脚手架，不计入成品主题",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "theme-vite-starter",
+      "repository": "halo-sigs/theme-vite-starter",
+      "url": "https://github.com/halo-sigs/theme-vite-starter",
+      "ref": "HEAD",
+      "starter": true,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/halo-sigs/theme-vite-starter/HEAD/LICENSE",
+          "sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/halo-sigs/theme-vite-starter/HEAD/README.md",
+          "sha256": "f6d1483d301bfd46301d724154606acb14d854bb9355014dd01c4187897c5d3e"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/halo-sigs/theme-vite-starter/HEAD/theme.yaml",
+          "sha256": "f859f5e08076513a5ab589fc23d005e34d9d63b335e8626667d50535a776585c"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "开发脚手架，不计入成品主题",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "theme-modern-starter",
+      "repository": "halo-sigs/theme-modern-starter",
+      "url": "https://github.com/halo-sigs/theme-modern-starter",
+      "ref": "HEAD",
+      "starter": true,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/halo-sigs/theme-modern-starter/HEAD/LICENSE",
+          "sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/halo-sigs/theme-modern-starter/HEAD/README.md",
+          "sha256": "3548fd61e849cc257546cc0d90002dd5a2291107508a7550577500acc8dea84f"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/halo-sigs/theme-modern-starter/HEAD/theme.yaml",
+          "sha256": "c4d84a482bb353720b5b5c6062b8fba03e4b45d2f2edc149f8ccacfc4c1354ca"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "开发脚手架，不计入成品主题",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "theme-astro-starter",
+      "repository": "halo-sigs/theme-astro-starter",
+      "url": "https://github.com/halo-sigs/theme-astro-starter",
+      "ref": "HEAD",
+      "starter": true,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "LICENSE",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.md",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.txt",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "COPYING",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/halo-sigs/theme-astro-starter/HEAD/README.md",
+          "sha256": "2f0698695c05238e40c4c6644f833cf2925d1fca7e47ff5d5b091f28f6572213"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/halo-sigs/theme-astro-starter/HEAD/theme.yaml",
+          "sha256": "7615ab498a23f8ca463e931ee1d5db930c090e904da30514440ab58ecb510bb6"
+        }
+      },
+      "rootLicenseObservation": "Unresolved: root license not retrieved",
+      "decision": "开发脚手架，不计入成品主题",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "theme-earth",
+      "repository": "halo-dev/theme-earth",
+      "url": "https://github.com/halo-dev/theme-earth",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/halo-dev/theme-earth/HEAD/LICENSE",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/halo-dev/theme-earth/HEAD/README.md",
+          "sha256": "a0deb5144dafac01ca02ad6f07d254f880454376cc36cd2167b5df69d54ed796"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/halo-dev/theme-earth/HEAD/theme.yaml",
+          "sha256": "14e99b02b9e962b4571f97e2e03605b59e3827f9ceeb31a9653c408bf915a9be"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "有条件，后续排期",
+      "note": "GPL-3.0；技术可改，先处理组合发布要求。"
+    },
+    {
+      "name": "halo-theme-anatole",
+      "repository": "halo-dev/halo-theme-anatole",
+      "url": "https://github.com/halo-dev/halo-theme-anatole",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "LICENSE",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.md",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.txt",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "COPYING",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/halo-dev/halo-theme-anatole/HEAD/README.md",
+          "sha256": "f329d4d0481e664a4723ad678c18dd5408717fdcffedf498aeeb6994ecccaf2e"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/halo-dev/halo-theme-anatole/HEAD/theme.yaml",
+          "sha256": "2c083b33b71cb1b424d9238cd24cbe76d22d499ff5ff8dae44998caa6256f84d"
+        }
+      },
+      "rootLicenseObservation": "Unresolved: root license not retrieved",
+      "decision": "有条件，后续排期",
+      "note": "Halo next 包写 GPL-3.0；原作 README 声明 MIT，许可全文及归属需进一步核对。"
+    },
+    {
+      "name": "theme-xue",
+      "repository": "xzhuz/halo-theme-xue",
+      "url": "https://github.com/xzhuz/halo-theme-xue/tree/next",
+      "ref": "next",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "LICENSE",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.md",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.txt",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "COPYING",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/xzhuz/halo-theme-xue/next/README.md",
+          "sha256": "6be0f7620ae97d2eac30ad2db9c1423ee204ce5214682253ce216576d969133d"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/xzhuz/halo-theme-xue/next/theme.yaml",
+          "sha256": "cb9ee392568a944ea76a94ed6da9e66ed6e1dfd407cc98c414d9f63635e4c8d1"
+        }
+      },
+      "rootLicenseObservation": "Unresolved: root license not retrieved",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "theme-hao",
+      "repository": "liuzhihang/halo-theme-hao",
+      "url": "https://github.com/liuzhihang/halo-theme-hao",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/liuzhihang/halo-theme-hao/HEAD/LICENSE",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/liuzhihang/halo-theme-hao/HEAD/README.md",
+          "sha256": "33e7a0496069270df050008f0e5245e8e51300bce070ce2586404aa68d913393"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/liuzhihang/halo-theme-hao/HEAD/theme.yaml",
+          "sha256": "fb70da8b8b2ad993fae68c85f507d00e233c9f493aeb3d95e30e9069a3e9f9d6"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "有条件，后续排期",
+      "note": "GPL-3.0；配置和交互复杂，完整插件功能另定。"
+    },
+    {
+      "name": "theme-higan",
+      "repository": "guqing/halo-theme-higan",
+      "url": "https://github.com/guqing/halo-theme-higan",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/guqing/halo-theme-higan/HEAD/LICENSE",
+          "sha256": "61f0121d48d8c3329f34c4c5f1a359cffee1fa5dd16aabff8da6f30e54e65141"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/guqing/halo-theme-higan/HEAD/README.md",
+          "sha256": "e3d00cfc0b1a18a36056f98563fa2b0036235023ea38665a4b89a059d1d9dcfb"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/guqing/halo-theme-higan/HEAD/theme.yaml",
+          "sha256": "4d42dbf1fbb50d0da04c17595ff8f4cd838d29c9c4a2e7b04944c5ae65ed2cfc"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "第一批候选",
+      "note": "从 MIT 的 Cactus 原作适配；Halo Higan LICENSE 与 package.json 不一致，不直接复制 Halo 新增代码。"
+    },
+    {
+      "name": "theme-sakura",
+      "repository": "LIlGG/halo-theme-sakura",
+      "url": "https://github.com/LIlGG/halo-theme-sakura/tree/next",
+      "ref": "next",
+      "starter": false,
+      "files": {
+        "license": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "LICENSE",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.md",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.txt",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "COPYING",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "readme": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "README.md",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "theme": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "theme.yaml",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        }
+      },
+      "rootLicenseObservation": "Unresolved: root license not retrieved",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "theme-terminal",
+      "repository": "wan92hen/theme-terminal",
+      "url": "https://github.com/wan92hen/theme-terminal",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "LICENSE",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.md",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.txt",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "COPYING",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/wan92hen/theme-terminal/HEAD/README.md",
+          "sha256": "2fb9cb67a2ca799127e1034ad95a7bd994060d3ed4c658954e7b3fb59649985d"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/wan92hen/theme-terminal/HEAD/theme.yaml",
+          "sha256": "f74284dbebc80b6fa5613996ebaab2d6cfaa25df9515d108dd30c0b2e89a0088"
+        }
+      },
+      "rootLicenseObservation": "Unresolved: root license not retrieved",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "theme-stack",
+      "repository": "jiewenhuang/halo-theme-stack",
+      "url": "https://github.com/jiewenhuang/halo-theme-stack",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/jiewenhuang/halo-theme-stack/HEAD/LICENSE",
+          "sha256": "8b1ba204bb69a0ade2bfcf65ef294a920f6bb361b317dba43c7ef29d96332b9b"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/jiewenhuang/halo-theme-stack/HEAD/README.md",
+          "sha256": "c5e8e784a6974322721d76bd8cb7591746d6f94e1d8f807f50ce2196c8756053"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/jiewenhuang/halo-theme-stack/HEAD/theme.yaml",
+          "sha256": "313f287bf88d7e6c8ffbf33ab53cb2cb87b7fcef5d368079155dc643029296cd"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "有条件，后续排期",
+      "note": "GPL-3.0；核心博客可做，处理组合发布要求。"
+    },
+    {
+      "name": "theme-moderna",
+      "repository": "liuchangfitcloud/theme-moderna",
+      "url": "https://github.com/liuchangfitcloud/theme-moderna",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/liuchangfitcloud/theme-moderna/HEAD/LICENSE",
+          "sha256": "7bafdc67d8ad0235f011c9002d6f0878506ff78bf118bbd8be0bd75668d8d5e8"
+        },
+        "readme": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "README.md",
+              "error": "<urlopen error [SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)>"
+            }
+          ]
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/liuchangfitcloud/theme-moderna/HEAD/theme.yaml",
+          "sha256": "3c2112f0d5f488754f1c28d195f2026d5680ac4465818da2627c3aaeeb7224f0"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "暂缓纳入",
+      "note": "根文件标 MIT，但 BootstrapMade 上游限制 CMS 主题批量再分发，未发现独立授权。"
+    },
+    {
+      "name": "theme-geek",
+      "repository": "mytianya/halo-theme-geek",
+      "url": "https://github.com/mytianya/halo-theme-geek",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "LICENSE",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.md",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.txt",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "COPYING",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/mytianya/halo-theme-geek/HEAD/README.md",
+          "sha256": "721d2121df95830dab99e4d58194c37af8d2d0cf2674968a6e04743d6c4358db"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/mytianya/halo-theme-geek/HEAD/theme.yaml",
+          "sha256": "6d7710fcda412e5b94df2901d2916bf4262e026538006210d263ae35d1c5c899"
+        }
+      },
+      "rootLicenseObservation": "Unresolved: root license not retrieved",
+      "decision": "暂缓纳入",
+      "note": "尚未找到清楚的项目级授权，不能由个别 JS 许可推定全主题可复制。"
+    },
+    {
+      "name": "theme-butterfly",
+      "repository": "dhjddcn/halo-theme-butterfly",
+      "url": "https://github.com/dhjddcn/halo-theme-butterfly",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/dhjddcn/halo-theme-butterfly/HEAD/LICENSE",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/dhjddcn/halo-theme-butterfly/HEAD/README.md",
+          "sha256": "002980cd935c1f3e55391e97ea3f4682f32a5c0308ae0b7feed78a5cd09f45bd"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/dhjddcn/halo-theme-butterfly/HEAD/theme.yaml",
+          "sha256": "e8c11568a53d5117af151d9033c3543d9e9f3617c7d0c5ff75af4d8a14bc888e"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "theme-oranges",
+      "repository": "WuWenL0/halo-theme-oranges",
+      "url": "https://github.com/WuWenL0/halo-theme-oranges",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "LICENSE",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.md",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.txt",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "COPYING",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/WuWenL0/halo-theme-oranges/HEAD/README.md",
+          "sha256": "23adf4df36d385e0aa13bfc9577ac489b5db3a1676d2cdce8ea026d46cf9dda9"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/WuWenL0/halo-theme-oranges/HEAD/theme.yaml",
+          "sha256": "456903dd1d57fa7aa50abce54a812069cb7c684bc81c24430d9ecbb0ae5285fd"
+        }
+      },
+      "rootLicenseObservation": "Unresolved: root license not retrieved",
+      "decision": "第二批候选",
+      "note": "从 Hexo MIT 原作适配；Halo 包声明 GPL-3.0。"
+    },
+    {
+      "name": "theme-ocean",
+      "repository": "f2ccloud/theme-ocean",
+      "url": "https://github.com/f2ccloud/theme-ocean",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/f2ccloud/theme-ocean/HEAD/LICENSE",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/f2ccloud/theme-ocean/HEAD/README.md",
+          "sha256": "734c6b773019316b8347121b92a716093565b60b0bc641b6ae53f6456d95b62f"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/f2ccloud/theme-ocean/HEAD/theme.yaml",
+          "sha256": "fbbe1679962e03da18d335849c834cfba9984632a1817d2bc2ab49c10e390adc"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "有条件，后续排期",
+      "note": "GPL-3.0；文章分类可复用，完整效果需分类外观与模块/统计设置。"
+    },
+    {
+      "name": "theme-next",
+      "repository": "AeroWang/theme-next",
+      "url": "https://github.com/AeroWang/theme-next",
+      "ref": "HEAD",
+      "starter": false,
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/AeroWang/theme-next/HEAD/LICENSE",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/AeroWang/theme-next/HEAD/README.md",
+          "sha256": "b8c06b9a06dc8b0bb488e60efc16d509aeb80039bb0ed283206870e030c0b4c8"
+        },
+        "theme": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "theme.yaml",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "有条件，后续排期",
+      "note": "AeroWang Next.js 版；GPL-3.0，需替换旧 Halo API/路由/ISR。"
+    },
+    {
+      "name": "halo-theme-chirpy",
+      "repository": "AirboZH/halo-theme-chirpy",
+      "url": "https://github.com/AirboZH/halo-theme-chirpy",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/AirboZH/halo-theme-chirpy/HEAD/LICENSE",
+          "sha256": "20a19418738a87ea37f222aa4a577572cf35d05dbed0de4c305bc5a8a5e273fb"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/AirboZH/halo-theme-chirpy/HEAD/README.md",
+          "sha256": "fd2561eca6150ab42924f0f74709b1e3fc7f04c3a64d1c69a10167f65f8f7a08"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/AirboZH/halo-theme-chirpy/HEAD/theme.yaml",
+          "sha256": "f516c120f1617e0a614015d1a07510bee9984a667e13cac39f9ff55b14d2a7e2"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "第二批候选",
+      "note": "从 Jekyll MIT 原作适配；Halo 版许可声明存在冲突。"
+    },
+    {
+      "name": "halo-theme-aurora",
+      "repository": "Roozenlz/halo-theme-aurora",
+      "url": "https://github.com/Roozenlz/halo-theme-aurora",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/Roozenlz/halo-theme-aurora/HEAD/LICENSE",
+          "sha256": "20a42bd66c75203ba879d515d2335e24a62aa63f37b70bb373b9d3b93a87e94d"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/Roozenlz/halo-theme-aurora/HEAD/README.md",
+          "sha256": "27e0832e1b0384c552b1878a419448a4a13eaabef7c98aa5b766c553545801f4"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/Roozenlz/halo-theme-aurora/HEAD/theme.yaml",
+          "sha256": "0f219b729ef1f2a89910a45c6fe5ca3f40fcae7517b6ae550452b5fcc921ae00"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "第二批候选",
+      "note": "原作及 Halo 根许可 MIT；核心博客可评估，插件和完整配置另适配。"
+    },
+    {
+      "name": "halo-theme-joe3.0",
+      "repository": "jiewenhuang/halo-theme-joe3.0",
+      "url": "https://github.com/jiewenhuang/halo-theme-joe3.0",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/jiewenhuang/halo-theme-joe3.0/HEAD/LICENSE",
+          "sha256": "58032a8173195237068ab02d429948bc3233d8e6858d1b9ddfdc47e3bbc3d847"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/jiewenhuang/halo-theme-joe3.0/HEAD/README.md",
+          "sha256": "5f4a8499a4d650b3749c7d416583530e9a0a1c30b49a7f94e42dac29113b7a96"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/jiewenhuang/halo-theme-joe3.0/HEAD/theme.yaml",
+          "sha256": "25cf08ea883e035e0a5b6f3965afb1538af535b59a0c6333a507a2802cac3d6a"
+        }
+      },
+      "rootLicenseObservation": "Creative Commons (terms to verify)",
+      "decision": "暂缓纳入",
+      "note": "CC BY-NC-SA 4.0，不能当无限制 MIT 内容合并。"
+    },
+    {
+      "name": "theme-mainroad",
+      "repository": "liuchangfitcloud/theme-mainroad",
+      "url": "https://github.com/liuchangfitcloud/theme-mainroad",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "file": "LICENSE.md",
+          "url": "https://raw.githubusercontent.com/liuchangfitcloud/theme-mainroad/HEAD/LICENSE.md",
+          "sha256": "2b0d4dda4bf8034e1506507a67f80f982131137afe62bf144d248f9faea31da4"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/liuchangfitcloud/theme-mainroad/HEAD/README.md",
+          "sha256": "a3bba2a6c6efd4f00fa7338036b2217d3e86319129fd611b7dd984454c5f096d"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/liuchangfitcloud/theme-mainroad/HEAD/theme.yaml",
+          "sha256": "a7f90406899bf0f7d87d3ffc60a8ce36097942c70db256375d3bbff350cd8ede"
+        }
+      },
+      "rootLicenseObservation": "GPL-2.0",
+      "decision": "有条件，后续排期",
+      "note": "GPLv2；杂志布局可改，先处理组合发布要求。"
+    },
+    {
+      "name": "halo-theme-meaword",
+      "repository": "Meayair/Halo-Theme-MeaWord",
+      "url": "https://github.com/Meayair/Halo-Theme-MeaWord",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "LICENSE",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.md",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.txt",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "COPYING",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/Meayair/Halo-Theme-MeaWord/HEAD/README.md",
+          "sha256": "e4ff75b79b07a515296c9e44b8f02d32de078a821ee167b304c15bc6eb0c6b6d"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/Meayair/Halo-Theme-MeaWord/HEAD/theme.yaml",
+          "sha256": "f1a3c77aef0dcc3ac174146002a610222e33cbe143999c53b185ebe3a1f7eebc"
+        }
+      },
+      "rootLicenseObservation": "Unresolved: root license not retrieved",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-zero",
+      "repository": "adozhao/halo-theme-zero",
+      "url": "https://github.com/adozhao/halo-theme-zero",
+      "ref": "HEAD",
+      "starter": false,
+      "files": {
+        "license": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "LICENSE",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.md",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.txt",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "COPYING",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "readme": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "README.md",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "theme": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "theme.yaml",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        }
+      },
+      "rootLicenseObservation": "Unresolved: root license not retrieved",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-fresh",
+      "repository": "adozhao/halo-theme-fresh",
+      "url": "https://github.com/adozhao/halo-theme-fresh",
+      "ref": "HEAD",
+      "starter": false,
+      "files": {
+        "license": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "LICENSE",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.md",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.txt",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "COPYING",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "readme": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "README.md",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "theme": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "theme.yaml",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        }
+      },
+      "rootLicenseObservation": "Unresolved: root license not retrieved",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-aircloud",
+      "repository": "bit15k/halo-theme-aircloud",
+      "url": "https://github.com/bit15k/halo-theme-aircloud",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "LICENSE",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.md",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.txt",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "COPYING",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/bit15k/halo-theme-aircloud/HEAD/README.md",
+          "sha256": "33fcbe9327895afd0d190858b6d6f32a7958f4585338f22e4fbbcf5bcee700ee"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/bit15k/halo-theme-aircloud/HEAD/theme.yaml",
+          "sha256": "388a9293beb49fbf4b0c367586612297e3d807736d0682758cbfbfba485add05"
+        }
+      },
+      "rootLicenseObservation": "Unresolved: root license not retrieved",
+      "decision": "第二批候选",
+      "note": "从 Hexo MIT 原作适配；Halo ISC / CC BY-NC-SA 声明不一致。"
+    },
+    {
+      "name": "halo-theme-material",
+      "repository": "chengzhongxue/halo-theme-material",
+      "url": "https://github.com/chengzhongxue/halo-theme-material",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "LICENSE",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.md",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.txt",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "COPYING",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-material/HEAD/README.md",
+          "sha256": "d4e4a12a74da267de15d10e27e133681b4d204b070a0d52f1c213ca3e67c7cd4"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-material/HEAD/theme.yaml",
+          "sha256": "3121de36cc41f50512a1f6b95dbb7e3986349d9bf2eacfe0c351108d5b055980"
+        }
+      },
+      "rootLicenseObservation": "Unresolved: root license not retrieved",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-fluid",
+      "repository": "chengzhongxue/halo-theme-fluid",
+      "url": "https://github.com/chengzhongxue/halo-theme-fluid",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "LICENSE",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.md",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.txt",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "COPYING",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-fluid/HEAD/README.md",
+          "sha256": "4214eea478fcbe048feca80016741ac29af2b277511722fcc91ce86cbd47e368"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-fluid/HEAD/theme.yaml",
+          "sha256": "f673ed182da2da5912161c3eadcaa0fea844cb43dce1a505926112fb3a878be5"
+        }
+      },
+      "rootLicenseObservation": "Unresolved: root license not retrieved",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-farallon",
+      "repository": "chengzhongxue/halo-theme-farallon",
+      "url": "https://github.com/chengzhongxue/halo-theme-farallon",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "LICENSE",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.md",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.txt",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "COPYING",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-farallon/HEAD/README.md",
+          "sha256": "d8a266bcf6fbd1add652c68076aa07dcb30ff1900c7209c9d1831620eb6f24ca"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-farallon/HEAD/theme.yaml",
+          "sha256": "5a4b1366058132262fe6f8c6495a8bcfc9d81326099a15e8f70719339c40303f"
+        }
+      },
+      "rootLicenseObservation": "Unresolved: root license not retrieved",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-heolink",
+      "repository": "zhheo/halo-theme-heolink",
+      "url": "https://github.com/zhheo/halo-theme-heolink",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/zhheo/halo-theme-heolink/HEAD/LICENSE",
+          "sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/zhheo/halo-theme-heolink/HEAD/README.md",
+          "sha256": "65df6ebb5016c6436de4d05bfba29f685316ad31d29d6466b717cbd2f5b663ac"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/zhheo/halo-theme-heolink/HEAD/theme.yaml",
+          "sha256": "f0365a9f715551fa5789553e22c70e972dd24afdbbb5dc5fccde96872e0a16b0"
+        }
+      },
+      "rootLicenseObservation": "Apache-2.0",
+      "decision": "有条件，后续排期",
+      "note": "Apache-2.0；需要链接分组、图标、描述等目录数据。"
+    },
+    {
+      "name": "halo-theme-iemo",
+      "repository": "chengzhongxue/halo-theme-iemo",
+      "url": "https://github.com/chengzhongxue/halo-theme-iemo",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-iemo/HEAD/LICENSE",
+          "sha256": "f3b3b8c4437bbf62d8e7b10fc3bb57c308166534f3addf17272288cfa0e96ef1"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-iemo/HEAD/README.md",
+          "sha256": "74c950ec8c19bff6098f486f7eb92f25404e460ab4322e309bbacce1511aa600"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-iemo/HEAD/theme.yaml",
+          "sha256": "e8d5ea873a698d13d7d28fd91bc1eb178c047fc2f768b152c16b3b1360fe3d08"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "第二批候选",
+      "note": "原作及 Halo 根许可 MIT；下一轮细查模板，独立插件页面不直接带入。"
+    },
+    {
+      "name": "halo-theme-hellopage",
+      "repository": "Anyexyz/halo-theme-hellopage",
+      "url": "https://github.com/Anyexyz/halo-theme-hellopage",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/Anyexyz/halo-theme-hellopage/HEAD/LICENSE",
+          "sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/Anyexyz/halo-theme-hellopage/HEAD/README.md",
+          "sha256": "7bae0d10deccae89e01dc8a815242c1850d8dbfed801eac83aa19e53fb38894c"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/Anyexyz/halo-theme-hellopage/HEAD/theme.yaml",
+          "sha256": "6e7f5e6b52d037f6f9a5fe4536fe0c276d206128fa18b63ac8a12c35cfb86644"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-mcnav",
+      "repository": "chengzhongxue/halo-theme-mcnav",
+      "url": "https://github.com/chengzhongxue/halo-theme-mcnav",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-mcnav/HEAD/LICENSE",
+          "sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-mcnav/HEAD/README.md",
+          "sha256": "fb13ce44c98255dc4de26221a6978b5d141dab8e5fc0aff11d2a3725f45366e8"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-mcnav/HEAD/theme.yaml",
+          "sha256": "6ad9ee31a693ced5c4ebbbfc8fe2df04385075d46e0491472c70d2746222093b"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "有条件，后续排期",
+      "note": "GPL-3.0；需要链接目录业务并处理组合发布。"
+    },
+    {
+      "name": "halo-theme-hingle2.0",
+      "repository": "Pedro-null/halo-theme-hingle2.0",
+      "url": "https://github.com/Pedro-null/halo-theme-hingle2.0",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/Pedro-null/halo-theme-hingle2.0/HEAD/LICENSE",
+          "sha256": "421b8987748a1af36a2f95b4aa166271580b583f4b28aad93861a7b0eac73e4a"
+        },
+        "readme": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "README.md",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/Pedro-null/halo-theme-hingle2.0/HEAD/theme.yaml",
+          "sha256": "ecc81980f262a7250817bbc3017944e0947f08562c80ca9b0106a0c008695958"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-twentytwelve",
+      "repository": "chengzhongxue/halo-theme-twentytwelve",
+      "url": "https://github.com/chengzhongxue/halo-theme-twentytwelve",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-twentytwelve/HEAD/LICENSE",
+          "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-twentytwelve/HEAD/README.md",
+          "sha256": "1de3edf06db8fbd36cf3769f940957055b125f4c06398dea4e2124a8093117f2"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-twentytwelve/HEAD/theme.yaml",
+          "sha256": "659d23e57eaea19bde71e8aca02a1f7c7579c490d132089226b8040afaddc9e4"
+        }
+      },
+      "rootLicenseObservation": "GPL-2.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-Mego",
+      "repository": "w-flac/theme-mego",
+      "url": "https://github.com/w-flac/theme-mego",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/w-flac/theme-mego/HEAD/LICENSE",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/w-flac/theme-mego/HEAD/README.md",
+          "sha256": "886ef1077a6824d04a28d98d3ecfbf3968b223071e20416737ca72b8525241d3"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/w-flac/theme-mego/HEAD/theme.yaml",
+          "sha256": "dc6eb0c8ee3e60021893147bec6e01652140ced96a3604b6732da8548e0ba640"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-higan-hz",
+      "repository": "HowieHz/halo-theme-higan-hz",
+      "url": "https://github.com/HowieHz/halo-theme-higan-hz",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/HowieHz/halo-theme-higan-hz/HEAD/LICENSE",
+          "sha256": "d9b33b6e672f82b0a06d3f7dc650edbd8c9f568c53fa7f97ec976fcfa0dde6fd"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/HowieHz/halo-theme-higan-hz/HEAD/README.md",
+          "sha256": "1b555161c519115fd0c91e6bd2661ef39d6390a68e5dae504996ef219559be4a"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/HowieHz/halo-theme-higan-hz/HEAD/theme.yaml",
+          "sha256": "2b87c28aa4d1b804723c593f38b1dcf77f35b4e56c1fda979948aa084df2c34d"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-crux-4zero4",
+      "repository": "haoanlan/halo-theme-crux-4zero4",
+      "url": "https://github.com/haoanlan/halo-theme-crux-4zero4",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/haoanlan/halo-theme-crux-4zero4/HEAD/LICENSE",
+          "sha256": "085976f2d70fa238510585f569d6241cfa6143fa4bb02c862cbd3b3e675459fe"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/haoanlan/halo-theme-crux-4zero4/HEAD/README.md",
+          "sha256": "06ee4167638c994d6dcadaf27b128a6191ff51f7ee2b848deed3d8e9c0a8d1d5"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/haoanlan/halo-theme-crux-4zero4/HEAD/theme.yaml",
+          "sha256": "5f4c08c8c76b18a27407f0ebdd17051b9c0567e36299749061d90580e6bffffe"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "theme-vcard4",
+      "repository": "Anyexyz/theme-vcard4",
+      "url": "https://github.com/Anyexyz/theme-vcard4",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/Anyexyz/theme-vcard4/HEAD/LICENSE",
+          "sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/Anyexyz/theme-vcard4/HEAD/README.md",
+          "sha256": "1199f41de5ab735c282b67c199f575b59c62cbf89a449d58470b88800110564b"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/Anyexyz/theme-vcard4/HEAD/theme.yaml",
+          "sha256": "2499548f1305a36146364e8f68f87109649492e491f994656564843d7c4362ff"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-next",
+      "repository": "bit15k/halo-theme-next",
+      "url": "https://github.com/bit15k/halo-theme-next",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/bit15k/halo-theme-next/HEAD/LICENSE",
+          "sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/bit15k/halo-theme-next/HEAD/README.md",
+          "sha256": "168b25934c922bd14f779ca71210bbfed59db5c93b024eec2d812a50771c0aea"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/bit15k/halo-theme-next/HEAD/theme.yaml",
+          "sha256": "d5583cb60b711a339eb6bfa936b2f923666cc03a07e777fae95d34083fc83484"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-stellar",
+      "repository": "chengzhongxue/halo-theme-stellar",
+      "url": "https://github.com/chengzhongxue/halo-theme-stellar",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-stellar/HEAD/LICENSE",
+          "sha256": "cee5f38ec1d492d468f2cfc88e23841e421f18671bf5dfebb3d11656beb1f7a7"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-stellar/HEAD/README.md",
+          "sha256": "813923b4795af605e875274c1784cf3665c28a789d1d988c5582a04cc1d069c0"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/chengzhongxue/halo-theme-stellar/HEAD/theme.yaml",
+          "sha256": "c47cd98fadf194394b91b6ccce3ab8cc99f7e18f7ad701883f60b915a00fbdcd"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "第二批候选",
+      "note": "MIT；只限博客布局，完整文档系统另定范围。"
+    },
+    {
+      "name": "halo-theme-lapis",
+      "repository": "Aziteee/halo-theme-lapis",
+      "url": "https://github.com/Aziteee/halo-theme-lapis",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/Aziteee/halo-theme-lapis/HEAD/LICENSE",
+          "sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/Aziteee/halo-theme-lapis/HEAD/README.md",
+          "sha256": "6e8d6673bcf7955aa4d8f955caca73aaf02370a2cd65b099abee6c12d322f04e"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/Aziteee/halo-theme-lapis/HEAD/theme.yaml",
+          "sha256": "0c1df0dfbb0e963e45c9d35011a83a5c57fea53685b075811c5e78d2f57ce921"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-s1mp1e",
+      "repository": "luijp/theme-s1mp1e",
+      "url": "https://github.com/luijp/theme-s1mp1e",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/luijp/theme-s1mp1e/HEAD/LICENSE",
+          "sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/luijp/theme-s1mp1e/HEAD/README.md",
+          "sha256": "31718314ab4a12e86b42580f65f2c56855c20eb14d45399cdc6d6b516c81c7ce"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/luijp/theme-s1mp1e/HEAD/theme.yaml",
+          "sha256": "c8e5d8dc202d623946cdf4aed7b5d6420e7951b207a0e56892a7ff4d8f1dd7c1"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "有条件，后续排期",
+      "note": "GPL-3.0；技术简单，与现有简约主题接近。"
+    },
+    {
+      "name": "halo-theme-Ying",
+      "repository": "MagicBreeze/halo-theme-Ying",
+      "url": "https://github.com/MagicBreeze/halo-theme-Ying",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/MagicBreeze/halo-theme-Ying/HEAD/LICENSE",
+          "sha256": "6efb6b5ebdc8d46dea6742a7cec7d2ee276d9771070065ff637caebbc8fb8be0"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/MagicBreeze/halo-theme-Ying/HEAD/README.md",
+          "sha256": "980d0913af3f7cb8eb01d25f654324d5832b074a9ae745731b9054436efaafe6"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/MagicBreeze/halo-theme-Ying/HEAD/theme.yaml",
+          "sha256": "56359ba42233da2d8bf7bef05870c470b127b46a0c09a63ecb9de47faac27d2c"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-word",
+      "repository": "cklx0719/halo-theme-word",
+      "url": "https://github.com/cklx0719/halo-theme-word",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/cklx0719/halo-theme-word/HEAD/LICENSE",
+          "sha256": "1989a7755ff6c308da568321ff937d917b6a56f4ea9b27377986d4efa303abc6"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/cklx0719/halo-theme-word/HEAD/README.md",
+          "sha256": "f8e26385b51786918a31a61ca3067a642d76e708c3fd3ad04d92e40c0593ade1"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/cklx0719/halo-theme-word/HEAD/theme.yaml",
+          "sha256": "e552b637494ac871f592e2cfa3de262a3a0b39fdad3d1871615ed09e4096bb9d"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。 根文件采用 UTF-16，含作者占位文字，需进一步核对来源。"
+    },
+    {
+      "name": "halo-theme-dream2.0-plus",
+      "repository": "hcjike/halo-theme-dream2.0-plus",
+      "url": "https://github.com/hcjike/halo-theme-dream2.0-plus",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/hcjike/halo-theme-dream2.0-plus/HEAD/LICENSE",
+          "sha256": "41679a4d7c2025af363bf74b5d3c0884dfa2fbdd3b66002110b67bd2ff00476e"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/hcjike/halo-theme-dream2.0-plus/HEAD/README.md",
+          "sha256": "fac89ac826f0f7e2bcc127cba16262601b0df8afde5e1113f583c8711e6a0b48"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/hcjike/halo-theme-dream2.0-plus/HEAD/theme.yaml",
+          "sha256": "f3d787c812a4e4fd8bd5f93678e94674b15a31005c330ce21baf281956a4f93c"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-kui-niu",
+      "repository": "lyujp/halo-theme-kui-niu",
+      "url": "https://github.com/lyujp/halo-theme-kui-niu",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/lyujp/halo-theme-kui-niu/HEAD/LICENSE",
+          "sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/lyujp/halo-theme-kui-niu/HEAD/README.md",
+          "sha256": "e557a29ee8c91159983b8621fc7ab45d321969d2016f94cc2f0d7ad63fd38df4"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/lyujp/halo-theme-kui-niu/HEAD/theme.yaml",
+          "sha256": "77faac07c003163df065041aed9df1db57b186180f0e9add38a726a9c5dcc3bf"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-sora",
+      "repository": "Liksone/halo-theme-sora",
+      "url": "https://github.com/Liksone/halo-theme-sora",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/Liksone/halo-theme-sora/HEAD/LICENSE",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/Liksone/halo-theme-sora/HEAD/README.md",
+          "sha256": "b6422a9cd2099eae102c68e807dbb0f5aae947ae1e6b039a958fa3a834a6e6a9"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/Liksone/halo-theme-sora/HEAD/theme.yaml",
+          "sha256": "e8fc7257d5fdbf196d0379bb1c12e9a5b4f82970c4bf99a0b0f9d1b7305e420f"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-Ideaflow",
+      "repository": "Idea-flow/theme-Ideaflow",
+      "url": "https://github.com/Idea-flow/theme-Ideaflow",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/Idea-flow/theme-Ideaflow/HEAD/LICENSE",
+          "sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/Idea-flow/theme-Ideaflow/HEAD/README.md",
+          "sha256": "529f84d4dbdd368d39b8fc1ed50478edc4fa3dd0611928da492c5528764c26a8"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/Idea-flow/theme-Ideaflow/HEAD/theme.yaml",
+          "sha256": "f7225f93e03ca70c8c37105168aefbe0e86bc6c85b205d6e3a5a240e8ff63afa"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-terminal-ez",
+      "repository": "Erzbir/halo-theme-terminal",
+      "url": "https://github.com/Erzbir/halo-theme-terminal",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/Erzbir/halo-theme-terminal/HEAD/LICENSE",
+          "sha256": "a2a53d0c5ec067194b7976cb4eefca2be9c0eab7e1b2f9a83a2abd1ff8f42c34"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/Erzbir/halo-theme-terminal/HEAD/README.md",
+          "sha256": "70e968092c7875bee93ebf928faabadb52d754aa073554a3bb185490ecf9aade"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/Erzbir/halo-theme-terminal/HEAD/theme.yaml",
+          "sha256": "1a3d6cd56b6fe16f74cb618a373bcc2f68656eb2815161b84012441405227074"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-vapor",
+      "repository": "iscottt/halo-theme-vapor",
+      "url": "https://github.com/iscottt/halo-theme-vapor",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/iscottt/halo-theme-vapor/HEAD/LICENSE",
+          "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/iscottt/halo-theme-vapor/HEAD/README.md",
+          "sha256": "b56d4e4dee18a132fc2342ffb84b056209ec434af1b4c0bdc1b6eaabdcf9ad77"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/iscottt/halo-theme-vapor/HEAD/theme.yaml",
+          "sha256": "63e57ee2d993b5116fa013e02796b0bc60eb7bfa09983b7ffd2b6339718d85bd"
+        }
+      },
+      "rootLicenseObservation": "Apache-2.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "go-halo-theme",
+      "repository": "dengxiwang/go-halo-theme",
+      "url": "https://github.com/dengxiwang/go-halo-theme",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/dengxiwang/go-halo-theme/HEAD/LICENSE",
+          "sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/dengxiwang/go-halo-theme/HEAD/README.md",
+          "sha256": "8e61e0ff2f708df424a1334280f691e26980a583f64177ec1af7eacde7052501"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/dengxiwang/go-halo-theme/HEAD/theme.yaml",
+          "sha256": "9ef565dbb3de628a58f33db6c847fdcd785fc0a092c4d65e41b06ca20ed1319e"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-fuwari",
+      "repository": "jiewenhuang/halo-theme-fuwari",
+      "url": "https://github.com/jiewenhuang/halo-theme-fuwari",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/jiewenhuang/halo-theme-fuwari/HEAD/LICENSE",
+          "sha256": "3103a7a0992e277a65a199d7681d850fe194d6c5c4df0e7f9364cd0a21350665"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/jiewenhuang/halo-theme-fuwari/HEAD/README.md",
+          "sha256": "fee0d8cbe631f0a7390040ef7f8623644b3ff7c9c37109fc08b49b331be3756c"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/jiewenhuang/halo-theme-fuwari/HEAD/theme.yaml",
+          "sha256": "961352f84ce0b7562e3ecef62896255e6c5bcb723624df76569dad077ab03d8f"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "第一批候选",
+      "note": "Fuwari 核心博客布局；MIT 原作优先，按实际来源保留署名。"
+    },
+    {
+      "name": "theme-sky-weather",
+      "repository": "huohuo-huo/-theme-sky-weather",
+      "url": "https://github.com/huohuo-huo/-theme-sky-weather",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/huohuo-huo/-theme-sky-weather/HEAD/LICENSE",
+          "sha256": "230184f60bae2feaf244f10a8bac053c8ff33a183bcc365b4d8b876d2b7f4809"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/huohuo-huo/-theme-sky-weather/HEAD/README.md",
+          "sha256": "980681faa195351a999a9996f4b99596995a1353727821e6089105baaff1a5ec"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/huohuo-huo/-theme-sky-weather/HEAD/theme.yaml",
+          "sha256": "34dbd6d048327a7340e25838a8f52b82fec7368ca6750c32dce5bd964ee81428"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-sky-blog-1",
+      "repository": "sky121666/halo-theme-sky-blog-1",
+      "url": "https://github.com/sky121666/halo-theme-sky-blog-1",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/sky121666/halo-theme-sky-blog-1/HEAD/LICENSE",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/sky121666/halo-theme-sky-blog-1/HEAD/README.md",
+          "sha256": "273c39afa5fc03469ea101bd3ef5b451876b76369b0ebbb0e47e9131f535319d"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/sky121666/halo-theme-sky-blog-1/HEAD/theme.yaml",
+          "sha256": "4396d5d84641ffdf7f66b70897d876eba713dcbe955153eedb782e0832b0bc07"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "theme-clarity",
+      "repository": "acanyo/theme-clarity",
+      "url": "https://github.com/acanyo/theme-clarity",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/acanyo/theme-clarity/HEAD/LICENSE",
+          "sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/acanyo/theme-clarity/HEAD/README.md",
+          "sha256": "ed083d0cc6dba9937938723cdf24bf2fb6da3203f7c678645b9eb2366d9a1cc6"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/acanyo/theme-clarity/HEAD/theme.yaml",
+          "sha256": "2a953eb3ca6cdf6432f8b3becd670009298fc4c693906289b8b7f625c0526c15"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "第二批候选",
+      "note": "Halo GPL-3.0；可后续从代码 MIT 的 blog-v3 原作适配，原作者文章不复制。"
+    },
+    {
+      "name": "halo-theme-archer",
+      "repository": "Azincc/halo-theme-archer",
+      "url": "https://github.com/Azincc/halo-theme-archer",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/Azincc/halo-theme-archer/HEAD/LICENSE",
+          "sha256": "02df97562bd20029f569430e1578a52f5d16631e66cf95528d5a945e49778a6a"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/Azincc/halo-theme-archer/HEAD/README.md",
+          "sha256": "9ca3f9924a3a490b7940b06a58bce27b64a224fa0c9b4517f99c6aa85a8e38ef"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/Azincc/halo-theme-archer/HEAD/theme.yaml",
+          "sha256": "b931cf39a3a3c2c47c945d08205d0c03936aca3fd83043f5b19f24ba88f50b2c"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "theme-Jyf",
+      "repository": "PpKoK/theme-jyf",
+      "url": "https://github.com/PpKoK/theme-jyf",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/PpKoK/theme-jyf/HEAD/LICENSE",
+          "sha256": "ffffca0edaa60fea2cd975e435f9c5a6a5c441fa2e69c17711841b9ed3f2a453"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/PpKoK/theme-jyf/HEAD/README.md",
+          "sha256": "1ac2e2cb3110f4fa75fc97cafea14aea8e5b71aaaa6d772901b264a5d14ee258"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/PpKoK/theme-jyf/HEAD/theme.yaml",
+          "sha256": "7b1fd423338cf008f91cf1e98056610322534c9d1cc6cb8eb412562f811f9352"
+        }
+      },
+      "rootLicenseObservation": "Custom: no redistribution",
+      "decision": "暂缓纳入",
+      "note": "自定义许可禁止再分发，未额外授权前不复制进开源包。"
+    },
+    {
+      "name": "theme-sky blog 2",
+      "repository": "sky121666/theme-sky-blog-2",
+      "url": "https://github.com/sky121666/theme-sky-blog-2",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/sky121666/theme-sky-blog-2/HEAD/LICENSE",
+          "sha256": "7f9216221f0f1e2b96fca600323bae0d781e303d65e1fe51864d8f67c8cd9fc5"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/sky121666/theme-sky-blog-2/HEAD/README.md",
+          "sha256": "9db454498de70f26072a7390421c7914ffa57cf3c1cabc272d8a0b2e4642574c"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/sky121666/theme-sky-blog-2/HEAD/theme.yaml",
+          "sha256": "0ee8855d05078aef6db4ed9d2270d1f539965f812981bcbc874c0a793333cc7d"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "theme-Serenity-Grace",
+      "repository": "atangccc/Serenity-Grace",
+      "url": "https://github.com/atangccc/Serenity-Grace",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/atangccc/Serenity-Grace/HEAD/LICENSE",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/atangccc/Serenity-Grace/HEAD/README.md",
+          "sha256": "89f345af457bb5a62a09d5e388d9bdd8ed61c9d163aae6cf4c16552814cf2509"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/atangccc/Serenity-Grace/HEAD/theme.yaml",
+          "sha256": "c037a35de2181b232ef0bd037b9900aed40dace9b20928083c64e3e1fa4691bd"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "theme-retypeset",
+      "repository": "picsky/halo-theme-retypeset",
+      "url": "https://github.com/picsky/halo-theme-retypeset",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/picsky/halo-theme-retypeset/HEAD/LICENSE",
+          "sha256": "1c46671691d05e9404d740ca700aa5ed5445e0d5c819e0550677db2dd8aeefa6"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/picsky/halo-theme-retypeset/HEAD/README.md",
+          "sha256": "ee030c40e08de6c3b0e8842a35dd2145980d68912edfa1832d5dd0d837588a08"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/picsky/halo-theme-retypeset/HEAD/theme.yaml",
+          "sha256": "63175d9f96154bdc89080f817e01854a81ef11dac77ea09f60f1d6623d3e5bc9"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "第一批候选",
+      "note": "Retypeset 核心阅读布局；MIT，使用系统字体，附带字体未逐项核验。"
+    },
+    {
+      "name": "theme-daisym",
+      "repository": "ting1e/halo-theme-daisym",
+      "url": "https://github.com/ting1e/halo-theme-daisym",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "",
+      "files": {
+        "license": {
+          "unresolved": true,
+          "attempts": [
+            {
+              "file": "LICENSE",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.md",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "LICENSE.txt",
+              "error": "HTTP Error 404: Not Found"
+            },
+            {
+              "file": "COPYING",
+              "error": "HTTP Error 404: Not Found"
+            }
+          ]
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/ting1e/halo-theme-daisym/HEAD/README.md",
+          "sha256": "3ad81d4cb9de48404f94f0ab14a3428e7e2754b171626fddc37c6aa5f3f29384"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/ting1e/halo-theme-daisym/HEAD/theme.yaml",
+          "sha256": "49415666433553cb88e548d4ff1fa8175e9a9b6fd5a576d28babd7dd4b23623f"
+        }
+      },
+      "rootLicenseObservation": "Unresolved: root license not retrieved",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "Wing",
+      "repository": "waistu/halo-theme-Wing",
+      "url": "https://github.com/waistu/halo-theme-Wing",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/waistu/halo-theme-Wing/HEAD/LICENSE",
+          "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/waistu/halo-theme-Wing/HEAD/README.md",
+          "sha256": "8a5fd70017b777ddc68a4ea7dc724208fe4993be3c0161781500cd7fd4ebfa4a"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/waistu/halo-theme-Wing/HEAD/theme.yaml",
+          "sha256": "a16fd0ba24f748c8894545ec33ec913fa9ee9d44b607385cb00b3a1eb07c4019"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "theme-sky-blog-3(macos)",
+      "repository": "sky121666/theme-sky-blog-3",
+      "url": "https://github.com/sky121666/theme-sky-blog-3",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/sky121666/theme-sky-blog-3/HEAD/LICENSE",
+          "sha256": "ad32ef8b0fc59b334fd60e3302f7bd9fb4ed4dac946eab2a1dd57f8ed7521353"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/sky121666/theme-sky-blog-3/HEAD/README.md",
+          "sha256": "843a301ac47c36efac6cbd12363d9735160d3fa3bf82df457102718d2c438211"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/sky121666/theme-sky-blog-3/HEAD/theme.yaml",
+          "sha256": "e93d8b47954b35e63e0c9576c611a1854e4b1db597de64ca09727a036d0ca17f"
+        }
+      },
+      "rootLicenseObservation": "MIT",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-gui",
+      "repository": "CirillaQL/halo-theme-gui",
+      "url": "https://github.com/CirillaQL/halo-theme-gui",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/CirillaQL/halo-theme-gui/HEAD/LICENSE",
+          "sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/CirillaQL/halo-theme-gui/HEAD/README.md",
+          "sha256": "eda3895364a221410ed57f3a6fcb7cb67d0cd29da3353eb05f35886ad26375a0"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/CirillaQL/halo-theme-gui/HEAD/theme.yaml",
+          "sha256": "a33da69f0860ec18d34026304731374f524bcb8347d4a0f65c6ce67445dfa650"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    },
+    {
+      "name": "halo-theme-halorum",
+      "repository": "xzyone/halo-theme-halorum",
+      "url": "https://github.com/xzyone/halo-theme-halorum",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/xzyone/halo-theme-halorum/HEAD/LICENSE",
+          "sha256": "ad7b3b45ff2452b3fdb26dfae07838ec1cac0f366bd9891a4666169c9ba5b429"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/xzyone/halo-theme-halorum/HEAD/README.md",
+          "sha256": "71457c8815deb7126e587acedd8b3235aa1c1104d49036615312e392c967817c"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/xzyone/halo-theme-halorum/HEAD/theme.yaml",
+          "sha256": "12671a24d838638b135366796cc228b3732a773927c244d9f307b704aa7ec625"
+        }
+      },
+      "rootLicenseObservation": "BSD (variant to verify)",
+      "decision": "第二批候选",
+      "note": "BSD-3-Clause；只限文章列表外观，非完整论坛功能。"
+    },
+    {
+      "name": "halo-theme-vahlok",
+      "repository": "Aziteee/halo-theme-vahlok",
+      "url": "https://github.com/Aziteee/halo-theme-vahlok",
+      "ref": "HEAD",
+      "starter": false,
+      "declaredLicense": "license:",
+      "files": {
+        "license": {
+          "file": "LICENSE",
+          "url": "https://raw.githubusercontent.com/Aziteee/halo-theme-vahlok/HEAD/LICENSE",
+          "sha256": "c53a65c2fd561c87eaabf1072ef5dcab8653042bc15308465f52413585eb6271"
+        },
+        "readme": {
+          "file": "README.md",
+          "url": "https://raw.githubusercontent.com/Aziteee/halo-theme-vahlok/HEAD/README.md",
+          "sha256": "2150bb41c0a3e1a7132785d7df3e574dd08f7ec205767515214ef4e609e43f14"
+        },
+        "theme": {
+          "file": "theme.yaml",
+          "url": "https://raw.githubusercontent.com/Aziteee/halo-theme-vahlok/HEAD/theme.yaml",
+          "sha256": "7c98e7b7c444e547455939bc4cff68ae07ba846ad486d0c2c338f5c1fb61c9b0"
+        }
+      },
+      "rootLicenseObservation": "GPL-3.0",
+      "decision": "仅初筛，待核对源码/上游/资源",
+      "note": "根许可观察不等于全项目或附带资源已通过授权审核。"
+    }
+  ],
+  "focusedReviews": {
+    "simple": {
+      "reviewedAt": "2026-09-14",
+      "scope": "Six simple/blog themes from awesome-halo. Read-only source review; no installation, builds, runtime validation or business-code changes.",
+      "evidenceRoot": ".local/theme-review/simple-sources",
+      "method": "Downloaded each named current default/Halo2 branch via GitHub codeload, retained text files and complete path list, inspected README/license/package/theme/settings/layout/index/post and plugin references. Upstream licenses fetched directly from official raw GitHub URLs. No GitHub API token used.",
+      "commonInference": "Core blog layouts can be adapted to existing Next.js components and CMS content APIs. Halo Thymeleaf, finder calls, widget elements and old jQuery/Alpine scripts cannot be installed unchanged. Porting scope is existing CMS pages, search and comments; moments/photos/friend-link pages, visitor counts, likes, RSS and full upstream settings need separately matched capabilities. Difficulty is source-based estimation, not measured implementation.",
+      "themes": [
+        {
+          "id": "higan",
+          "repository": "https://github.com/guqing/halo-theme-higan",
+          "branch": "main",
+          "themeVersion": "2.10.0",
+          "haloRequires": ">=2.19.0",
+          "license": "Conflicting declarations: LICENSE and theme.yaml explicitly MIT, but package.json line 32 says GPL-3.0. Do not present current Halo branch as fully cleared MIT until scope is clarified.",
+          "licenseUrl": "https://github.com/guqing/halo-theme-higan/blob/main/LICENSE",
+          "upstream": "Pieter Robberechts / hexo-theme-cactus; LICENSE also credits Gabriela Thumé and Natalya Kosenko for colour schemes",
+          "upstreamLicense": "MIT full text verified",
+          "upstreamLicenseUrl": "https://github.com/probberechts/hexo-theme-cactus/blob/master/LICENSE",
+          "priority": "First batch via original MIT hexo-theme-cactus; current Halo fork licensing clarification needed",
+          "difficulty": "Low-to-medium for core blog; more work for full parity",
+          "visual": "Text-first developer blog; compact dated lists, monochrome schemes, article table of contents",
+          "requiredForCoreBlog": [],
+          "optional": [
+            "Halo search widget (replace with CMS search)",
+            "Halo comment widget (replace with CMS comments)",
+            "highlightjs",
+            "lightgallery",
+            "links",
+            "moments",
+            "photos",
+            "author archive",
+            "RSS",
+            "hitokoto service",
+            "visitor counts"
+          ],
+          "evidence": [
+            "README.md names upstream and search/highlight/gallery plugins",
+            "templates/index.html and templates/fragments/posts.html define dated list/summary variants",
+            "templates/post.html calls halo:comment, post.stats.visit and includes jQuery/ClipboardJS/TOC behaviour",
+            "templates has distinct links/moments/photos/author pages",
+            "theme.yaml explicitly carries MIT license link",
+            "package.json declares GPL-3.0 despite explicit MIT theme/license declarations",
+            "Full path list contains Meslo TTFs, multiple third-party highlighter CSS themes, compiled Iconify bundle and stock images"
+          ],
+          "portNotes": "Good first-batch visual candidate from original MIT cactus, not an unconditional green light to copy current Halo branch. Keep all three original copyright holders, replace Halo data/widget calls and DOM scripts with existing CMS rendering. Use system font and existing safe body renderer instead of bundling unreviewed font/icon/highlight resources; extra pages are not prerequisite for standard blog."
+        },
+        {
+          "id": "oranges",
+          "repository": "https://github.com/allendevx/halo-theme-oranges",
+          "previousRepository": "https://github.com/WuWenL0/halo-theme-oranges",
+          "branch": "main",
+          "themeVersion": "1.0.4",
+          "license": "package.json declares GPL-3.0; no root LICENSE in inspected full file list. Package metadata still names Halo theme-vite-starter, so declaration needs careful provenance review before redistribution.",
+          "licenseUrl": "https://github.com/allendevx/halo-theme-oranges/blob/main/package.json",
+          "upstream": "zchengsite / hexo-theme-oranges",
+          "upstreamLicense": "MIT full text verified; Copyright 2020 Hexo-Theme-Oranges",
+          "upstreamLicenseUrl": "https://github.com/zchengsite/hexo-theme-oranges/blob/master/LICENSE",
+          "priority": "First batch if adapting the MIT Hexo original directly; Halo fork conditional",
+          "difficulty": "Low-to-medium",
+          "visual": "Very spare dated title list, narrow reading layout, optional dark switch and article TOC",
+          "requiredForCoreBlog": [],
+          "optional": [
+            "Halo search widget",
+            "comment widget",
+            "tocbot",
+            "RSS",
+            "pinned posts",
+            "dark switch"
+          ],
+          "evidence": [
+            "README.md credits zchengsite",
+            "package.json line 32 declares GPL-3.0, but author/repository fields retain starter metadata",
+            "templates/index.html is a dated title list and pagination",
+            "templates/modules/search.html gates search on PluginSearchWidget",
+            "settings.yaml has 91 lines"
+          ],
+          "portNotes": "Prefer original MIT implementation as source, preserve original attribution, do not silently mix Halo fork additions into that MIT port. GPL does permit adaptation when its distribution conditions are satisfied; this fork is not automatically MIT just because its original was."
+        },
+        {
+          "id": "aircloud",
+          "repository": "https://github.com/bit15k/halo-theme-aircloud",
+          "branch": "main",
+          "themeVersion": "1.1.3",
+          "license": "Conflicting declarations: package.json ISC, README badge CC BY-NC-SA 4.0; no root LICENSE in full file list. Do not classify Halo fork as cleared permissive source.",
+          "licenseUrls": [
+            "https://github.com/bit15k/halo-theme-aircloud/blob/main/package.json",
+            "https://github.com/bit15k/halo-theme-aircloud/blob/main/README.md"
+          ],
+          "upstream": "Xiaotao Nie / aircloud/hexo-theme-aircloud",
+          "upstreamLicense": "MIT full text verified; Copyright 2018 XiaotaoNie",
+          "upstreamLicenseUrl": "https://github.com/aircloud/hexo-theme-aircloud/blob/master/LICENSE",
+          "priority": "Second batch from MIT Hexo original; Halo fork on hold for licensing clarification",
+          "difficulty": "Low-to-medium for core; 340-line Halo settings would enlarge exact parity scope",
+          "visual": "Minimal personal navigation/sidebar and dated text list, no mandatory covers or excerpts",
+          "requiredForCoreBlog": [],
+          "optional": [
+            "comment widget",
+            "search widget",
+            "links plugin",
+            "highlightjs",
+            "tocbot",
+            "busuanzi statistics",
+            "social links"
+          ],
+          "evidence": [
+            "README.md line 12 contains CC BY-NC-SA 4.0 badge URL",
+            "package.json line 10 says ISC",
+            "README plugin section explicitly states all plugins optional",
+            "templates/index.html renders dates/titles with optional tags/categories",
+            "templates/_partial/footer.html calls siteStatsFinder"
+          ],
+          "portNotes": "Source-based technical feasibility is good. Prefer direct MIT original adaptation to avoid unclear Halo additions; do not take original author's identity images/demo content as production defaults."
+        },
+        {
+          "id": "mainroad",
+          "repository": "https://github.com/Arch4AI/theme-mainroad",
+          "previousRepository": "https://github.com/liuchangfitcloud/theme-mainroad",
+          "branch": "master",
+          "themeVersion": "1.0.0",
+          "license": "GPL-2.0 full LICENSE.md, README and package.json agree",
+          "licenseUrl": "https://github.com/Arch4AI/theme-mainroad/blob/master/LICENSE.md",
+          "upstream": "Vimux/Mainroad (Hugo), itself credited as based on MH Magazine lite WordPress theme",
+          "upstreamLicense": "Vimux/Mainroad GPLv2 full text verified; deeper MH Magazine lite assets not audited",
+          "upstreamLicenseUrl": "https://github.com/Vimux/Mainroad/blob/master/LICENSE.md",
+          "priority": "Second batch, after GPL distribution approach decided",
+          "difficulty": "Medium",
+          "visual": "Content magazine layout with strong header, image excerpts, configurable sidebar/category/tag widgets",
+          "requiredForCoreBlog": [],
+          "optional": [
+            "comment widget",
+            "search widget",
+            "links",
+            "photos",
+            "moments",
+            "GitHub star iframe"
+          ],
+          "evidence": [
+            "README.md names Vimux Mainroad and five plugins",
+            "templates/modules/aside.html gates search, loads all categories/tags and optional HTML sidebar text",
+            "templates includes separate links/photos/moments",
+            "settings.yaml 59 lines"
+          ],
+          "portNotes": "Core data can mostly reuse CMS. Current three theme options cannot represent sidebar placement/widgets; choose fixed sensible layout or explicitly expand settings. Keep arbitrary sidebar HTML out of safe theme options. GPL is an authorization/distribution task, not technical impossibility or automatic prohibition."
+        },
+        {
+          "id": "geek",
+          "repository": "https://github.com/mytianya/halo-theme-geek",
+          "branch": "master",
+          "themeVersion": "1.0",
+          "license": "No project-wide LICENSE or license declaration found in complete file list, README or theme.yaml; isolated third-party JS MIT header does not license the whole theme",
+          "licenseUrl": "https://github.com/mytianya/halo-theme-geek",
+          "upstream": "README says references Octopress without pinning a repository/version; likely imathis/octopress classic visual lineage, but that mapping is inference",
+          "upstreamLicense": "imathis/octopress README contains full MIT grant, Copyright 2009-2013 Brandon Mathis; does not clear Halo author's additions",
+          "upstreamLicenseUrl": "https://github.com/imathis/octopress/blob/master/README.markdown#license",
+          "priority": "Hold direct Halo code reuse; consider independently adapting verified Octopress original if desired",
+          "difficulty": "Low-to-medium technically",
+          "visual": "Traditional technical blog with dark header, content column and recent-post/category/tag sidebar",
+          "requiredForCoreBlog": [],
+          "optional": [
+            "search widget",
+            "comment widget",
+            "RSS",
+            "jqcloud tag cloud",
+            "font-awesome CDN",
+            "social links"
+          ],
+          "evidence": [
+            "README.md credits Octopress by name only",
+            "templates/layout.html gates PluginSearchWidget, contains RSS and external FontAwesome",
+            "templates/post.html gates PluginCommentWidget",
+            "templates/sidebar.html calls postFinder.list(1,10)",
+            "templates/assets/js/main.js contains a small MIT-licensed function; not a theme-wide license"
+          ],
+          "portNotes": "Do not label an unlicensed Halo repository as generally reusable. Wait for a clear theme-wide license or choose original Octopress as distinct source; no need to bring jQuery/Modernizr into modern CMS."
+        },
+        {
+          "id": "anatole",
+          "repository": "https://github.com/halo-dev/halo-theme-anatole",
+          "branch": "next",
+          "themeVersion": "2.1.0",
+          "haloRequires": ">=2.2.0",
+          "license": "package.json declares GPL-3.0; root LICENSE absent in inspected file list",
+          "licenseUrl": "https://github.com/halo-dev/halo-theme-anatole/blob/next/package.json",
+          "upstream": "Caicai / hi-caicai/farbox-theme-Anatole",
+          "upstreamLicense": "Official original README explicitly states MIT; no root LICENSE file found (raw LICENSE 404), so record as MIT declaration rather than full license text verified",
+          "upstreamLicenseUrl": "https://github.com/hi-caicai/farbox-theme-Anatole#license",
+          "priority": "First/second batch via original after notice/provenance completion; GPL Halo branch conditional",
+          "difficulty": "Medium",
+          "visual": "Distinct fixed profile/sidebar at desktop left, post list at right, stacked mobile layout",
+          "requiredForCoreBlog": [],
+          "optional": [
+            "comment widget",
+            "search widget",
+            "moments",
+            "photos",
+            "links",
+            "Alpine-driven likes/comment controls",
+            "social links"
+          ],
+          "evidence": [
+            "README.md credits Caicai and lists comment/search/moments/photos",
+            "package.json line 30 GPL-3.0",
+            "src/partials/layout.html composes sidebar/page-top/content",
+            "src/partials/sidebar.html renders site logo/title/subtitle and Designed by CaiCai",
+            "src includes links/moments/photos pages",
+            "settings.yaml 76 lines"
+          ],
+          "portNotes": "Distinct visual addition worth pursuing. Use existing CMS logo/site description/menu for basic profile; author stats/social links/full Halo configuration would be extras. Do not confuse package GPL declaration with the original MIT declaration."
+        }
+      ]
+    },
+    "modern": {
+      "checkedAt": "2026-09-14",
+      "scope": "只读源码筛选，未移植、未运行上游主题、未验证每个附带字体/图片/依赖的授权。难度为根据源码的工程判断。",
+      "themes": [
+        {
+          "name": "Fuwari",
+          "repo": "https://github.com/jiewenhuang/halo-theme-fuwari",
+          "license": "MIT（LICENSE 保留 saicaca 2024 与 Jevon 2025；theme.yaml 同为 MIT；package.json 未声明 license 字段，不存在 GPL package 声明；README 图片 alt 残留 GPL 字样）",
+          "upstream": "https://github.com/saicaca/fuwari",
+          "upstreamLicense": "MIT / Copyright 2024 saicaca",
+          "recommendation": "首批候选；直接从 MIT 原作移植布局与所需样式，或使用经核实的 Halo MIT 部分，保留对应作者和许可声明。",
+          "difficulty": "中。原作 Astro/Svelte，Halo 版仍用 Astro/Svelte/Vue 构建后生成 Thymeleaf，须转 React。",
+          "coreDependencyFinding": "已检查 index.astro -> MainGridLayout/Layout -> PostList/PostCard 和 Navbar/SideBar。文章主列表只用 posts.items；未发现额外 Halo 插件会阻断主博客首页。默认侧栏为分类/标签。Search.svelte 交互时请求 /apis/api.halo.run/v1alpha1/indices/-/search，具有 catch，可用现有 CMS 搜索替换。",
+          "mvp": "圆角卡片、侧栏、封面/无封面列表、响应式导航、文章/独立页/分类标签/搜索/分页/评论、现有主题预览与基础设置；正文复用已净化 HTML。若需要与原作相同的个性横幅和头像，应增加受控图片设置，否则使用站点 Logo 和本地自有背景。",
+          "notInMvp": "图库、瞬间、友情链接管理、音乐/Meting、任意 HTML 小部件、访客自由色相、完整国际化、原作 Markdown 扩展/GitHub 卡片、代码高亮插件及原版所有动画。多级菜单需保留 CMS 能力，Halo Fuwari 的配置只声称一级菜单。",
+          "sources": [
+            "https://github.com/saicaca/fuwari/blob/main/LICENSE",
+            "https://github.com/jiewenhuang/halo-theme-fuwari/blob/main/LICENSE",
+            "https://github.com/jiewenhuang/halo-theme-fuwari/blob/main/src/components/PostList.astro",
+            "https://github.com/jiewenhuang/halo-theme-fuwari/blob/main/src/components/Search.svelte",
+            "https://github.com/jiewenhuang/halo-theme-fuwari/blob/main/settings.yaml"
+          ]
+        },
+        {
+          "name": "Retypeset / 重新编排",
+          "repo": "https://github.com/picsky/halo-theme-retypeset",
+          "license": "MIT / Copyright 2025 radishzz（原作）与 picsky（Halo 适配）；package.json、theme.yaml 也声明 MIT，无发现矛盾",
+          "upstream": "https://github.com/radishzzz/astro-theme-retypeset",
+          "upstreamLicense": "MIT / Copyright 2025 radishzz",
+          "recommendation": "首批候选；原作 Astro 或 Halo 模板均可作为授权来源转 React，保留实际所用来源的署名和许可。",
+          "difficulty": "低至中。主要是留白、窄栏、文本列表、侧边导航与文章目录，核心数据和当前 CMS 接近。",
+          "coreDependencyFinding": "index/post 是普通 Thymeleaf 内容模板；数学和搜索不是核心页面的强制依赖。src/main.ts 对 Vditor、KaTeX、MathJax、Mermaid 都检测函数存在才调用；搜索检测 SearchWidget.open。layout 通过 pluginFinder.available('PluginMoments') 决定瞬间入口。没有数学库照样可以呈现普通正文。",
+          "mvp": "书籍式阅读留白、文本列表、日期、侧边导航、正文标题层次、目录、分类标签、独立页面、现有 CMS 搜索/评论、预览和基础设置；使用系统字体。",
+          "notInMvp": "原作全部语言、LaTeX/Mermaid/MDX、外部评论系统、瞬间、自定义 CSS/Head、原作自制客户端路由与所有形变转场。搜索按钮替换 CMS 搜索，不能保留无效果的 SearchWidget 调用。",
+          "assetCaution": "base-head.html 预载 EarlySummer、Snell-Black-SF、Snell-Bold-SF、STIX 字体。根 MIT 不能替代逐字体核验；尤其 Snell 来源/再分发授权本次未确认，首版不复制这些字体，视觉验收不承诺字形完全相同。",
+          "sources": [
+            "https://github.com/picsky/halo-theme-retypeset/blob/main/LICENSE",
+            "https://github.com/radishzzz/astro-theme-retypeset/blob/master/LICENSE",
+            "https://github.com/picsky/halo-theme-retypeset/blob/main/src/main.ts",
+            "https://github.com/picsky/halo-theme-retypeset/blob/main/templates/modules/base-head.html",
+            "https://github.com/picsky/halo-theme-retypeset/blob/main/templates/modules/layout.html"
+          ]
+        },
+        {
+          "name": "Chirpy",
+          "repo": "https://github.com/AirboZH/halo-theme-chirpy",
+          "license": "声明不一致：根 LICENSE 与 README 是 MIT（AirboZH 2023），package.json 标 GPL-3.0。移植 Halo 版前需澄清范围。",
+          "upstream": "https://github.com/cotes2020/jekyll-theme-chirpy",
+          "upstreamLicense": "MIT / Copyright 2019 Cotes Chung",
+          "recommendation": "可选候选，但优先从 MIT 的 Jekyll 原作改造，不混入 Halo 版新增代码来回避其声明冲突。",
+          "difficulty": "中。Liquid/Thymeleaf 转 React，技术博客侧栏、目录和分类结构可映射。",
+          "dependencies": "Halo README 明确全部效果需 halo-plugin-chirpy。核心博客可复用 CMS 数据；原作搜索/评论要替换，PWA、统计、数学、Mermaid、原作多评论系统为额外功能。默认头像/favicon 来自 ClipartMAX，不直接复制。",
+          "sources": [
+            "https://github.com/AirboZH/halo-theme-chirpy/blob/master/LICENSE",
+            "https://github.com/AirboZH/halo-theme-chirpy/blob/master/package.json",
+            "https://github.com/AirboZH/halo-theme-chirpy#readme",
+            "https://github.com/cotes2020/jekyll-theme-chirpy/blob/master/LICENSE"
+          ]
+        },
+        {
+          "name": "Clarity",
+          "repo": "https://github.com/acanyo/theme-clarity",
+          "license": "GPL-3.0（LICENSE、README、package.json 和 theme.yaml 一致）",
+          "upstream": "https://github.com/L33Z22L11/blog-v3",
+          "upstreamLicense": "原作项目代码 MIT / Copyright 2024 Zhilu；README 将博客文章另列为 CC BY-NC-SA 4.0。",
+          "recommendation": "后续候选。若采用 MIT 原作路线，需要直接从 blog-v3 的 Nuxt/Vue 源码改造并保留署名，不混入 GPL Halo 版特有代码；如采用 Halo 版则另处理 GPL 组合发布要求。",
+          "difficulty": "中至高。三栏布局可适配，完整小部件和特殊内容块明显超出现有设置。",
+          "dependencies": "Halo 核心博客加可选插件/外部功能：天气 API、瞬间、Twikoo、友链 RSS（theme.yaml 注明 plugin-links >=2.2.0）、海报生成、统计、自定义 HTML、复杂文章块。首版可只用三栏文章/目录与 CMS 评论搜索。",
+          "sources": [
+            "https://github.com/acanyo/theme-clarity/blob/main/LICENSE",
+            "https://github.com/acanyo/theme-clarity/blob/main/theme.yaml",
+            "https://github.com/acanyo/theme-clarity#readme",
+            "https://github.com/L33Z22L11/blog-v3/blob/main/LICENSE",
+            "https://github.com/L33Z22L11/blog-v3#许可证"
+          ]
+        },
+        {
+          "name": "S1mp1e",
+          "repo": "https://github.com/lyujp/theme-s1mp1e",
+          "license": "GPL-3.0（LICENSE 和 theme.yaml）",
+          "upstream": "https://github.com/halo-dev/theme-starter",
+          "upstreamLicense": "仓库标记 generated from theme-starter；本次未进一步复核 starter 具体版本，不将其视为替代授权路线。",
+          "recommendation": "技术可改、优先级较低；与现有简约主题接近，并需处理 GPL 发布要求。",
+          "difficulty": "低。简单 Thymeleaf 列表、标语、上下页和普通正文。",
+          "dependencies": "核心首页没有另一个内容插件；文章和独立页通过 halo:comment 接评论，替换现有 CMS 评论。配置仅三种颜色和基础站点资料。",
+          "sources": [
+            "https://github.com/lyujp/theme-s1mp1e/blob/main/LICENSE",
+            "https://github.com/lyujp/theme-s1mp1e/blob/main/settings.yaml",
+            "https://github.com/lyujp/theme-s1mp1e/blob/main/templates/index.html"
+          ]
+        },
+        {
+          "name": "Next（AeroWang 版）",
+          "repo": "https://github.com/AeroWang/theme-next",
+          "license": "GPL-3.0（根 LICENSE）",
+          "upstream": null,
+          "upstreamLicense": "README 未声明另一主题原作；不能推断全部附带资源授权。",
+          "recommendation": "技术可改、后续候选，不因同属 Next.js 就当成可直接复用组件。",
+          "difficulty": "中。package.json 是 Next 13.4/React 18；依赖 Halo 2.7 API、原有路由、ISR 和 Basic Auth。需接 CMS 公共 API 与实时 SSR，保持 CMS 权限/预览语义。",
+          "dependencies": "README 明确独立部署且不能在 Halo 后台直接安装；归档搁置，搜索/点赞/统计仍列 TODO。动态/友链路由需要对应能力。核心博客可改，完整性仍需补足并处理 GPL 组合发布要求。",
+          "sources": [
+            "https://github.com/AeroWang/theme-next/blob/main/LICENSE",
+            "https://github.com/AeroWang/theme-next/blob/main/package.json",
+            "https://github.com/AeroWang/theme-next#readme",
+            "https://github.com/AeroWang/theme-next/blob/main/config/Init.md"
+          ]
+        }
+      ]
+    },
+    "complex": {
+      "reviewedAt": "2026-09-14",
+      "scope": "Read-only source and licence triage. These are adaptation estimates, not completed ports or legal clearance of every bundled asset.",
+      "themes": [
+        {
+          "name": "Stellar",
+          "repo": "https://github.com/chengzhongxue/halo-theme-stellar",
+          "license": "MIT; upstream xaoxuu/hexo-theme-stellar also MIT",
+          "priority": "Suitable early candidate when limited to blog layout",
+          "feasibility": "Sidebar navigation, card article stream, reading column, archive, search and comments can use existing CMS data. Port Thymeleaf fragments to React and scope CSS.",
+          "gaps": "Full documentation/column product is separate scope. Current theme includes topic/category templates and many document-related settings; do not promise full documentation runtime from the ordinary blog port. Links, moments and photos are optional plugin pages absent from current CMS.",
+          "coreNewEntities": false,
+          "sources": [
+            "https://github.com/chengzhongxue/halo-theme-stellar/blob/main/LICENSE",
+            "https://github.com/xaoxuu/hexo-theme-stellar/blob/main/LICENSE",
+            "https://github.com/chengzhongxue/halo-theme-stellar/blob/main/README.md",
+            "https://github.com/chengzhongxue/halo-theme-stellar/blob/main/templates/index.html",
+            "https://github.com/chengzhongxue/halo-theme-stellar/blob/main/templates/category_topic.html",
+            "https://github.com/chengzhongxue/halo-theme-stellar/blob/main/settings.yaml"
+          ]
+        },
+        {
+          "name": "Stack",
+          "repo": "https://github.com/jiewenhuang/halo-theme-stack",
+          "license": "GPL-3.0; upstream CaiJimmy/hugo-theme-stack also GPL-3.0",
+          "priority": "Strong blog candidate after combination/distribution licence decision",
+          "feasibility": "Three-column card layout and reading page map well to current article/category/tag/search/comment data. Source has maintainable SCSS and TS with Vite. Replace Halo search/comment integration and Thymeleaf fragments.",
+          "gaps": "Photo album, moments and friend-link pages require additional domain support if retained. Core blog does not require those. TOC, theme mode and code-copy interactions need frontend adaptation.",
+          "coreNewEntities": false,
+          "sources": [
+            "https://github.com/jiewenhuang/halo-theme-stack/blob/main/LICENSE",
+            "https://github.com/CaiJimmy/hugo-theme-stack/blob/master/LICENSE",
+            "https://github.com/jiewenhuang/halo-theme-stack/blob/main/README.md",
+            "https://github.com/jiewenhuang/halo-theme-stack/blob/main/templates/index.html",
+            "https://github.com/jiewenhuang/halo-theme-stack/blob/main/templates/post.html"
+          ]
+        },
+        {
+          "name": "Hao",
+          "repo": "https://github.com/chengzhongxue/halo-theme-hao",
+          "license": "GPL-3.0. README identifies Heo/Butterfly ancestry. Butterfly upstream currently Apache-2.0; precise Heo-derived assets were not exhaustively traced.",
+          "priority": "Later visual-rich batch, with licence/source inventory",
+          "feasibility": "Core cover cards, article details, sidebar and category navigation are feasible. Existing pages can support a reduced blog edition without backend entity changes.",
+          "gaps": "Very extensive settings (over 100 KB YAML) and frontend behaviours. README explicitly makes plugins optional, including links, moments, bangumi, gallery, equipment, KaTeX and donations. Full fidelity would expand scope greatly; map search/comments to CMS and postpone those separate domains.",
+          "coreNewEntities": false,
+          "sources": [
+            "https://github.com/chengzhongxue/halo-theme-hao/blob/main/LICENSE",
+            "https://github.com/chengzhongxue/halo-theme-hao/blob/main/README.md",
+            "https://github.com/chengzhongxue/halo-theme-hao/blob/main/settings.yaml",
+            "https://github.com/chengzhongxue/halo-theme-hao/blob/main/templates/index.html",
+            "https://github.com/jerryc127/hexo-theme-butterfly/blob/master/LICENSE"
+          ]
+        },
+        {
+          "name": "Ocean",
+          "repo": "https://github.com/lxware-dev/theme-ocean",
+          "previousRepo": "https://github.com/f2ccloud/theme-ocean",
+          "license": "GPL-3.0; README identifies GPL Earth as base",
+          "priority": "Separate knowledge-base style batch; technically simpler than full document system",
+          "feasibility": "Public knowledge-base presentation actually uses categories, tags, menus and posts. Homepage calls categoryFinder.listAsTree, menuFinder.getByName, postFinder.listByCategory/listByTag. Core can reuse current entities with new view queries/configuration.",
+          "gaps": "Category icons/covers/descriptions/colour metadata and structured module settings need explicit mapping. Article likes/visit stats and cursor navigation are not simply a CSS change. Do not invent separate knowledge-base entities just to render category/post views.",
+          "coreNewEntities": false,
+          "sources": [
+            "https://github.com/lxware-dev/theme-ocean/blob/master/LICENSE",
+            "https://github.com/lxware-dev/theme-ocean/blob/master/README.md",
+            "https://github.com/lxware-dev/theme-ocean/blob/master/templates/modules/index/category-filter.html",
+            "https://github.com/lxware-dev/theme-ocean/blob/master/templates/modules/index/tag-filter.html",
+            "https://github.com/lxware-dev/theme-ocean/blob/master/templates/modules/index/popular-posts.html",
+            "https://github.com/lxware-dev/theme-ocean/blob/master/templates/post.html"
+          ]
+        },
+        {
+          "name": "HeoLink",
+          "repo": "https://github.com/zhheo/halo-theme-heolink",
+          "license": "Apache-2.0",
+          "priority": "Wait for link-directory capability, or deliberately implement a simpler menu-based directory",
+          "feasibility": "Navigation style is feasible, but its core homepage is grouped website links, not an article list. Existing menus only cover a reduced edition.",
+          "gaps": "index.html directly calls linkFinder.groupBy and consumes group/item visibility flags, logo, description, related article and external icon service settings. Full adaptation needs link/group management and decisions about login-only visibility. An article detail template exists but is secondary.",
+          "coreNewEntities": true,
+          "sources": [
+            "https://github.com/zhheo/halo-theme-heolink/blob/main/LICENSE",
+            "https://github.com/zhheo/halo-theme-heolink/blob/main/README.md",
+            "https://github.com/zhheo/halo-theme-heolink/blob/main/templates/index.html",
+            "https://github.com/zhheo/halo-theme-heolink/blob/main/settings.yaml"
+          ]
+        },
+        {
+          "name": "Mcnav",
+          "repo": "https://github.com/chengzhongxue/halo-theme-mcnav",
+          "license": "GPL-3.0; upstream fordes123/ITEM is GPL-3.0",
+          "priority": "Wait for link-directory capability and licence decision",
+          "feasibility": "Navigation dashboard layout can be ported, but faithfully implementing its homepage requires grouped links and selected hot link groups. It is not an ordinary blog skin.",
+          "gaps": "Homepage calls linkFinder.groupBy/listBy and postFinder.getByName for link-to-article association. Need link metadata/management for equivalent functionality. Blog-style pages alone would remove its defining feature.",
+          "coreNewEntities": true,
+          "sources": [
+            "https://github.com/chengzhongxue/halo-theme-mcnav/blob/main/LICENSE",
+            "https://github.com/fordes123/ITEM/blob/main/LICENSE.txt",
+            "https://github.com/chengzhongxue/halo-theme-mcnav/blob/main/README.md",
+            "https://github.com/chengzhongxue/halo-theme-mcnav/blob/main/templates/index.html"
+          ]
+        },
+        {
+          "name": "Halorum",
+          "repo": "https://github.com/xzyone/halo-theme-halorum",
+          "license": "BSD-3-Clause; upstream mulingyuer/Typecho_Theme_JJ is also BSD-3-Clause, original copyright preserved in Halo LICENSE",
+          "priority": "Later forum-style blog edition; full community is separate work",
+          "feasibility": "Three-column forum-looking article feed and comment presentation can reuse existing posts/categories/comments. Source uses Astro to produce Halo templates, so rebuild components in React.",
+          "gaps": "Current generated templates call /uc/posts/editor, /uc/notifications, /apis/notification.halo.run/v1alpha1/notifications, user profile and comments APIs. Full version needs public account/user-centre, notification, posting permissions, replies/activity ordering and visit/like statistics. Do not expose non-working controls or enable raw custom HTML/JS setting options from upstream.",
+          "coreNewEntities": false,
+          "sources": [
+            "https://github.com/xzyone/halo-theme-halorum/blob/main/LICENSE",
+            "https://github.com/mulingyuer/Typecho_Theme_JJ/blob/main/LICENSE",
+            "https://github.com/xzyone/halo-theme-halorum/blob/main/README.md",
+            "https://github.com/xzyone/halo-theme-halorum/blob/main/templates/index.html",
+            "https://github.com/xzyone/halo-theme-halorum/blob/main/settings.yaml"
+          ]
+        },
+        {
+          "name": "Moderna",
+          "repo": "https://github.com/Arch4AI/theme-moderna",
+          "previousRepo": "https://github.com/liuchangfitcloud/theme-moderna",
+          "license": "Halo repository MIT, but imported CSS identifies BootstrapMade Moderna v4.11.0 and points to BootstrapMade licence. Upstream present terms prohibit mass redistribution as CMS themes; no separate grant located.",
+          "priority": "Hold copying/distribution until explicit upstream grant or choose an independently implemented alternative",
+          "feasibility": "Corporate landing/about/services/team/contact/blog layouts are technically portable using structured options and existing pages, but root MIT alone does not clear inherited assets.",
+          "gaps": "Corporate page templates and structured service/team/carousel data differ from current three-field theme options. Most important blocker is upstream distribution permission, not framework compatibility. A normal Pro/Premium purchase is not stated to allow CMS mass redistribution.",
+          "coreNewEntities": false,
+          "sources": [
+            "https://github.com/Arch4AI/theme-moderna/blob/master/LICENSE",
+            "https://github.com/Arch4AI/theme-moderna/blob/master/README.md",
+            "https://github.com/Arch4AI/theme-moderna/blob/master/templates/assets/css/style.css",
+            "https://bootstrapmade.com/license/",
+            "https://github.com/Arch4AI/theme-moderna/blob/master/theme.yaml",
+            "https://github.com/Arch4AI/theme-moderna/blob/master/settings.yaml"
+          ]
+        }
+      ]
+    }
+  }
+}

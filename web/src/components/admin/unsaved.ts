@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-const message = "有尚未保存的修改，确定放弃吗？";
 
 /** Confirm before an action such as logout invalidates the current editing session. */
 export function confirmNavigation() {
@@ -15,7 +14,7 @@ export function discardChanges() {
 }
 
 /** Admin links use native navigation, so history traversal also runs beforeunload. */
-export function useUnsavedChanges() {
+export function useUnsavedChanges(message = "有尚未保存的修改，确定放弃吗？") {
   const current = useRef(false);
   const [dirty, update] = useState(false);
   const setDirty = (value: boolean) => {
@@ -41,7 +40,7 @@ export function useUnsavedChanges() {
       window.removeEventListener("cms:confirm-leave", confirm);
       window.removeEventListener("cms:discard-changes", discard);
     };
-  }, [dirty]);
+  }, [dirty, message]);
   return {
     dirty,
     setDirty,

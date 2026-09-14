@@ -5,6 +5,7 @@ import { api } from "@/lib/client";
 import type { ThemeDefinition, ThemeOptions, ThemesView } from "@/lib/types";
 import { Heading, Notice, LoadState, useLoad } from "./shared";
 import { useUnsavedChanges } from "./unsaved";
+import { themeSource } from "@/lib/theme";
 
 export default function ThemeManager() {
   const { data, setData, error, setError, loading } = useLoad<ThemesView>("admin/themes");
@@ -32,6 +33,7 @@ export default function ThemeManager() {
         <div className="theme-card-body">
           <div className="theme-card-title"><h2>{theme.name}</h2>{data.activeThemeId === theme.id && <span className="badge green"><Check size={14} />当前主题</span>}</div>
           <p>{theme.description}</p>
+          {themeSource(theme.id) && <a className="theme-source-link" href={themeSource(theme.id)!.url} target="_blank" rel="noopener noreferrer">{themeSource(theme.id)!.name} 原作 · MIT ↗</a>}
           <button className="secondary" disabled={busy || selected?.id === theme.id} onClick={() => choose(theme)}>{selected?.id === theme.id ? "正在编辑" : `配置 ${theme.name}`}</button>
         </div>
       </article>)}

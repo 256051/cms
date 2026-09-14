@@ -19,7 +19,7 @@ with socket.socket() as sock:
 base = f"http://127.0.0.1:{port}"
 password = "Login!" + secrets.token_hex(20)
 env = dict(os.environ, Database__Type="Sqlite", Database__ConnectionString="Data Source=" + str(local / "test.db"), Security__KeyPath=str(local / "keys"), Storage__Path=str(local / "uploads"), ASPNETCORE_ENVIRONMENT="Development", Urls=base, Setup__Username="cmsadmin", Setup__Password=password)
-api = ["dotnet", str(ROOT / "src/Cms.Api/bin/Debug/net10.0/Cms.Api.dll")]
+api = ["dotnet", str(ROOT / "src/Cms.Api/bin" / os.environ.get("CMS_TEST_CONFIGURATION", "Debug") / "net10.0/Cms.Api.dll")]
 flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
 checks = []
 def passed(message):

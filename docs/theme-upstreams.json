@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-09-14",
+  "scope": "采用原作布局和视觉规则，重新编写 CMS 的 React 组件与普通 CSS。复用 CMS 已有内容、菜单、搜索、评论及主题管理，不复制原作 JavaScript 运行时，不提供 Halo 主题包或插件兼容运行时。",
+  "assets": "使用系统字体、站点自身附件和本项目自有素材；不包含上游字体、演示图片、头像、第三方服务 SDK 或文章内容。",
+  "licenseHandling": "保留所用原作的作者和完整 MIT 许可。转换到 React 不改变原作许可证。",
+  "excludedSources": [
+    "Halo Higan 的新增代码",
+    "其他 Halo 移植版本的新增代码"
+  ],
+  "themes": [
+    {
+      "themeId": "fuwari",
+      "name": "Fuwari",
+      "repository": "https://github.com/saicaca/fuwari",
+      "commit": "6d39b0dec41282e7852e23e032998a5789abee28",
+      "commitUrl": "https://github.com/saicaca/fuwari/commit/6d39b0dec41282e7852e23e032998a5789abee28",
+      "authors": [
+        "saicaca"
+      ],
+      "license": "MIT",
+      "licenseFile": "licenses/themes/fuwari.txt",
+      "upstreamLicenseUrl": "https://github.com/saicaca/fuwari/blob/6d39b0dec41282e7852e23e032998a5789abee28/LICENSE",
+      "licenseSha256": "6b8a446a639c963e76a03328a38b08b0b201f1c2b08a4fd6069cafcbb2d8bb34",
+      "reviewedSourceFiles": [
+        "LICENSE",
+        "README.md",
+        "package.json",
+        "src/config.ts",
+        "src/layouts/Layout.astro",
+        "src/layouts/MainGridLayout.astro",
+        "src/components/Navbar.astro",
+        "src/components/PostCard.astro",
+        "src/components/PostPage.astro",
+        "src/components/PostMeta.astro",
+        "src/components/widget/SideBar.astro",
+        "src/components/widget/Profile.astro",
+        "src/styles/main.css",
+        "src/styles/markdown.css",
+        "src/styles/variables.styl"
+      ],
+      "adaptedFiles": [
+        "web/src/app/community-themes.css",
+        "web/src/lib/theme.ts",
+        "web/src/components/ContentList.tsx",
+        "web/src/components/SiteShell.tsx",
+        "web/src/components/ThemeSidebar.tsx"
+      ],
+      "adaptationNotes": "采用原作支持的无横幅布局配置，使用系统字体、站点自身附件和 CMS 组件。"
+    },
+    {
+      "themeId": "retypeset",
+      "name": "Retypeset",
+      "repository": "https://github.com/radishzzz/astro-theme-retypeset",
+      "commit": "a636b6d393be714cab52d3fc4baddd3f3905f701",
+      "commitUrl": "https://github.com/radishzzz/astro-theme-retypeset/commit/a636b6d393be714cab52d3fc4baddd3f3905f701",
+      "authors": [
+        "radishzz"
+      ],
+      "license": "MIT",
+      "licenseFile": "licenses/themes/retypeset.txt",
+      "upstreamLicenseUrl": "https://github.com/radishzzz/astro-theme-retypeset/blob/a636b6d393be714cab52d3fc4baddd3f3905f701/LICENSE",
+      "licenseSha256": "0f1d31d10de526f41db77490d5119b836cbe6cc87360adcb8dcbe35cf8c2cce7",
+      "reviewedSourceFiles": [
+        "LICENSE",
+        "README.md",
+        "package.json",
+        "src/config.ts",
+        "src/layouts/Layout.astro",
+        "src/layouts/Head.astro",
+        "src/components/Header.astro",
+        "src/components/Navbar.astro",
+        "src/components/PostList.astro",
+        "src/components/PostDate.astro",
+        "src/components/Widgets/TOC.astro",
+        "src/styles/global.css",
+        "src/styles/markdown.css"
+      ],
+      "adaptedFiles": [
+        "web/src/app/community-themes.css",
+        "web/src/lib/theme.ts",
+        "web/src/components/ContentList.tsx",
+        "web/src/components/SiteShell.tsx",
+        "web/src/components/PublicPages.tsx"
+      ],
+      "adaptationNotes": "采用原作阅读布局和视觉规则，使用系统字体，不复制原作字体文件。"
+    },
+    {
+      "themeId": "cactus",
+      "name": "Cactus",
+      "repository": "https://github.com/probberechts/hexo-theme-cactus",
+      "commit": "7a6074d830ac5d524582f142ac524c041077aad7",
+      "commitUrl": "https://github.com/probberechts/hexo-theme-cactus/commit/7a6074d830ac5d524582f142ac524c041077aad7",
+      "authors": [
+        "Pieter Robberechts",
+        "Gabriela Thumé (light colorscheme)",
+        "Natalya Kosenko (white colorscheme)"
+      ],
+      "license": "MIT",
+      "licenseFile": "licenses/themes/cactus.txt",
+      "upstreamLicenseUrl": "https://github.com/probberechts/hexo-theme-cactus/blob/7a6074d830ac5d524582f142ac524c041077aad7/LICENSE",
+      "licenseSha256": "61f0121d48d8c3329f34c4c5f1a359cffee1fa5dd16aabff8da6f30e54e65141",
+      "reviewedSourceFiles": [
+        "LICENSE",
+        "README.md",
+        "package.json",
+        "_config.yml",
+        "layout/layout.ejs",
+        "layout/index.ejs",
+        "layout/archive.ejs",
+        "layout/post.ejs",
+        "layout/page.ejs",
+        "layout/_partial/header.ejs",
+        "layout/_partial/footer.ejs",
+        "layout/_partial/pagination.ejs",
+        "source/css/style.styl",
+        "source/css/_variables.styl",
+        "source/css/_colors/dark.styl",
+        "source/css/_colors/light.styl",
+        "source/css/_partial/index.styl",
+        "source/css/_partial/archive.styl",
+        "source/css/_partial/article.styl",
+        "source/css/_partial/header.styl",
+        "source/css/_partial/footer.styl"
+      ],
+      "adaptedFiles": [
+        "web/src/app/community-themes.css",
+        "web/src/lib/theme.ts",
+        "web/src/components/ContentList.tsx",
+        "web/src/components/SiteShell.tsx",
+        "web/src/components/PublicPages.tsx"
+      ],
+      "adaptationNotes": "从 Hexo Cactus 原作适配文章索引和阅读布局，没有使用 Halo Higan 新增代码。"
+    }
+  ],
+  "originalCmsComponents": [
+    {
+      "path": "web/src/components/ArticleToc.tsx",
+      "description": "本项目自行实现的 DOM 目录增强，不属于从原作逐行复制的代码。"
+    }
+  ]
+}

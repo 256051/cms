@@ -175,6 +175,10 @@ public class SiteSettings : Entity
 [Table(Name = "cms_audit")]
 public class AuditEntry : Entity
 {
+    /// <summary>Integration credential identifier, never its secret.</summary>
+    [Column(StringLength = 32)] public string TokenId { get; set; } = "";
+    /// <summary>Integration name retained after revocation.</summary>
+    [Column(StringLength = 100)] public string TokenName { get; set; } = "";
     /// <summary>Actor identity.</summary>
     [Column(StringLength = 160)] public string Actor { get; set; } = "";
     /// <summary>Business action.</summary>
@@ -185,6 +189,42 @@ public class AuditEntry : Entity
     [Column(StringLength = 32)] public string TargetId { get; set; } = "";
     /// <summary>Safe object name at the time of the operation; never credentials or body text.</summary>
     [Column(StringLength = 300)] public string TargetName { get; set; } = "";
+}
+
+/// <summary>Revocable machine credential; plaintext secrets are never persisted.</summary>
+[Table(Name = "cms_access_tokens"), Index("ix_token_user", nameof(UserId), false)]
+public class AccessToken : Entity
+{
+    /// <summary>Human-readable integration name.</summary>
+    [Column(StringLength = 100)] public string Name { get; set; } = "";
+    /// <summary>Account whose content permissions bound this token.</summary>
+    [Column(StringLength = 32)] public string UserId { get; set; } = "";
+    /// <summary>SHA-256 of the cryptographically random secret.</summary>
+    [Column(StringLength = 64)] public string SecretHash { get; set; } = "";
+    /// <summary>Space-separated allowlisted permissions.</summary>
+    [Column(StringLength = 200)] public string Scopes { get; set; } = "";
+    /// <summary>UTC expiry, always required.</summary>
+    public DateTime ExpiresAt { get; set; }
+    /// <summary>UTC last successful authentication, updated at most once per minute.</summary>
+    public DateTime? LastUsedAt { get; set; }
+    /// <summary>UTC revocation timestamp; revocation cannot be undone.</summary>
+    public DateTime? RevokedAt { get; set; }
+}
+
+/// <summary>Committed integration response for bounded retry deduplication.</summary>
+[Table(Name = "cms_integration_requests"), Index("ux_token_request", "TokenId,KeyHash", true), Index("ix_request_expiry", nameof(ExpiresAt), false)]
+public class IntegrationRequest : Entity
+{
+    /// <summary>Credential namespace for the idempotency key.</summary>
+    [Column(StringLength = 32)] public string TokenId { get; set; } = "";
+    /// <summary>Hash of the caller's idempotency key.</summary>
+    [Column(StringLength = 64)] public string KeyHash { get; set; } = "";
+    /// <summary>Hash of operation, target and logical request body.</summary>
+    [Column(StringLength = 64)] public string RequestHash { get; set; } = "";
+    /// <summary>Sanitized business response committed with the original write.</summary>
+    [Column(StringLength = -1)] public string ResponseJson { get; set; } = "";
+    /// <summary>UTC end of the retry window.</summary>
+    public DateTime ExpiresAt { get; set; }
 }
 
 /// <summary>Versioned appearance with independent built-in theme profiles.</summary>

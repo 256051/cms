@@ -35,7 +35,10 @@ public sealed class ThemeService(CmsRepository repository, ThemeOptionsValidator
         Define("classic", "经典博客", "清爽蓝白、舒展首页与图文卡片。", "#2563EB", "让每一个想法，\n都值得被看见。"),
         Define("paper", "极简阅读", "暖白纸感、单列目录，留出安静阅读的空间。", "#166534", "记录日常，认真阅读。"),
         Define("magazine", "杂志资讯", "醒目的头条与多列图文，让新鲜内容成为焦点。", "#B45309", "值得关注，值得阅读。"),
-        Define("midnight", "暗色科技", "深色背景、青色强调，专注技术与灵感。", "#38BDF8", "探索，记录，持续创造。")
+        Define("midnight", "暗色科技", "深色背景、青色强调，专注技术与灵感。", "#38BDF8", "探索，记录，持续创造。"),
+        Define("fuwari", "Fuwari · 清新卡片", "柔和色彩、圆角卡片与个人侧栏，让日常记录轻盈展开。", "#7C5CC4", "记录生活，也记录灵感。"),
+        Define("retypeset", "Retypeset · 重新编排", "舒展留白、细致排版与时间目录，让文字成为阅读主角。", "#9A5B36", "把日子写成值得重读的篇章。"),
+        Define("cactus", "Cactus · 极简技术", "紧凑目录、清晰代码与绿色点缀，专注技术分享。", "#2BBC8A", "保持好奇，持续构建。")
     ];
     private static ThemeDefinition Define(string id, string name, string description, string color, string title)
     {

@@ -1853,10 +1853,664 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/integration/contents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List drafts; requires content:read. */
+        get: {
+            parameters: {
+                query?: {
+                    kind?: string;
+                    q?: string;
+                    page?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfPageResultOfContentView"];
+                        "application/json": components["schemas"]["ApiResponseOfPageResultOfContentView"];
+                        "text/json": components["schemas"]["ApiResponseOfPageResultOfContentView"];
+                    };
+                };
+                /** @description Invalid input or missing idempotency key */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid, expired or revoked token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Version or idempotency conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Rate limited; see Retry-After */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /** Create a draft once; requires content:write and Idempotency-Key. */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    "Idempotency-Key": string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ContentInput"];
+                    "text/json": components["schemas"]["ContentInput"];
+                    "application/*+json": components["schemas"]["ContentInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfContentView"];
+                        "application/json": components["schemas"]["ApiResponseOfContentView"];
+                        "text/json": components["schemas"]["ApiResponseOfContentView"];
+                    };
+                };
+                /** @description Invalid input or missing idempotency key */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid, expired or revoked token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Version or idempotency conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Rate limited; see Retry-After */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/integration/contents/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a draft and its version; requires content:read. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfContentView"];
+                        "application/json": components["schemas"]["ApiResponseOfContentView"];
+                        "text/json": components["schemas"]["ApiResponseOfContentView"];
+                    };
+                };
+                /** @description Invalid input or missing idempotency key */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid, expired or revoked token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Version or idempotency conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Rate limited; see Retry-After */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        /** Update the expected draft version once; requires content:write and Idempotency-Key. */
+        put: {
+            parameters: {
+                query?: never;
+                header: {
+                    "Idempotency-Key": string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ContentInput"];
+                    "text/json": components["schemas"]["ContentInput"];
+                    "application/*+json": components["schemas"]["ContentInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfContentView"];
+                        "application/json": components["schemas"]["ApiResponseOfContentView"];
+                        "text/json": components["schemas"]["ApiResponseOfContentView"];
+                    };
+                };
+                /** @description Invalid input or missing idempotency key */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid, expired or revoked token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Version or idempotency conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Rate limited; see Retry-After */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/integration/taxonomy": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read category and tag identifiers; requires content:read. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfListOfTaxonomy"];
+                        "application/json": components["schemas"]["ApiResponseOfListOfTaxonomy"];
+                        "text/json": components["schemas"]["ApiResponseOfListOfTaxonomy"];
+                    };
+                };
+                /** @description Invalid input or missing idempotency key */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid, expired or revoked token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Version or idempotency conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Rate limited; see Retry-After */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/integration/contents/{id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Publish the expected version once; requires content:publish and Idempotency-Key. */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    "Idempotency-Key": string;
+                };
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["VersionInput"];
+                    "text/json": components["schemas"]["VersionInput"];
+                    "application/*+json": components["schemas"]["VersionInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfIntegrationPublication"];
+                        "application/json": components["schemas"]["ApiResponseOfIntegrationPublication"];
+                        "text/json": components["schemas"]["ApiResponseOfIntegrationPublication"];
+                    };
+                };
+                /** @description Invalid input or missing idempotency key */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid, expired or revoked token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Version or idempotency conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Rate limited; see Retry-After */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/integration/assets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload one validated file once; requires asset:upload and Idempotency-Key. */
+        post: {
+            parameters: {
+                query?: never;
+                header: {
+                    "Idempotency-Key": string;
+                };
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        file?: components["schemas"]["IFormFile"];
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfAssetView"];
+                        "application/json": components["schemas"]["ApiResponseOfAssetView"];
+                        "text/json": components["schemas"]["ApiResponseOfAssetView"];
+                    };
+                };
+                /** @description Invalid input or missing idempotency key */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid, expired or revoked token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Version or idempotency conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Rate limited; see Retry-After */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/access-tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read paged token metadata; never returns the credential secret or hash. */
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfPageResultOfAccessTokenView"];
+                        "application/json": components["schemas"]["ApiResponseOfPageResultOfAccessTokenView"];
+                        "text/json": components["schemas"]["ApiResponseOfPageResultOfAccessTokenView"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Issue a credential and return its plaintext once. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AccessTokenInput"];
+                    "text/json": components["schemas"]["AccessTokenInput"];
+                    "application/*+json": components["schemas"]["AccessTokenInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfIssuedAccessToken"];
+                        "application/json": components["schemas"]["ApiResponseOfIssuedAccessToken"];
+                        "text/json": components["schemas"]["ApiResponseOfIssuedAccessToken"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/access-tokens/{id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Irreversibly revoke a token. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfboolean"];
+                        "application/json": components["schemas"]["ApiResponseOfboolean"];
+                        "text/json": components["schemas"]["ApiResponseOfboolean"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description Administrator request to issue an expiring machine credential. */
+        AccessTokenInput: {
+            name: string;
+            userId: string;
+            scopes: string[];
+            /** Format: date-time */
+            expiresAt: string;
+        };
+        /** @description Safe credential metadata, with no secret or hash. */
+        AccessTokenView: {
+            id: string;
+            name: string;
+            userId: string;
+            userDisplayName: string;
+            scopes: string[];
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            expiresAt: string;
+            /** Format: date-time */
+            lastUsedAt: null | string;
+            /** Format: date-time */
+            revokedAt: null | string;
+            status: string;
+        };
         /** @description Consistent HTTP response envelope. */
         ApiResponseOfAssetView: {
             code: string;
@@ -1893,6 +2547,13 @@ export interface components {
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
+        ApiResponseOfIntegrationPublication: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["IntegrationPublication"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
         ApiResponseOfIReadOnlyListOfContentView: {
             code: string;
             message: string;
@@ -1914,6 +2575,13 @@ export interface components {
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
+        ApiResponseOfIssuedAccessToken: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["IssuedAccessToken"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
         ApiResponseOfListOfTaxonomy: {
             code: string;
             message: string;
@@ -1925,6 +2593,13 @@ export interface components {
             code: string;
             message: string;
             data: null | components["schemas"]["MenuView"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfPageResultOfAccessTokenView: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["PageResultOfAccessTokenView"];
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
@@ -2017,6 +2692,10 @@ export interface components {
         };
         /** @description Successful write audit; never stores passwords or content. */
         AuditEntry: {
+            /** @description Integration credential identifier, never its secret. */
+            tokenId?: string;
+            /** @description Integration name retained after revocation. */
+            tokenName?: string;
             /** @description Actor identity. */
             actor?: string;
             /** @description Business action. */
@@ -2098,6 +2777,16 @@ export interface components {
         };
         /** Format: binary */
         IFormFile: string;
+        /** @description Published state and its site-relative reading address. */
+        IntegrationPublication: {
+            content: components["schemas"]["ContentView"];
+            path: string;
+        };
+        /** @description The secret is returned only in this issuance response. */
+        IssuedAccessToken: {
+            token: components["schemas"]["AccessTokenView"];
+            secret: string;
+        };
         /** @description Login credentials. */
         LoginInput: {
             username: string;
@@ -2149,6 +2838,16 @@ export interface components {
         /** @description Comment moderation input. */
         ModerateInput: {
             approved: boolean;
+        };
+        /** @description Server-side paginated result. */
+        PageResultOfAccessTokenView: {
+            items: components["schemas"]["AccessTokenView"][];
+            /** Format: int64 */
+            total: number;
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
         };
         /** @description Server-side paginated result. */
         PageResultOfAssetView: {

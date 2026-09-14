@@ -94,6 +94,8 @@ def suite(base, username, password, output=None):
     admin.call("admin/users", "POST", editor_input, expected=409)
     passed("role permissions and duplicate accounts")
     check_themes(admin, editor, guest, passed)
+    from editor import check_editor
+    check_editor(admin, passed)
 
     category = admin.call("admin/taxonomy", "POST", dict(kind="category", name="技术与生活", slug="thinking"))
     tag = admin.call("admin/taxonomy", "POST", dict(kind="tag", name="C#", slug="csharp"))

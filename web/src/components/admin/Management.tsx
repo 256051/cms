@@ -32,7 +32,7 @@ export function AssetManager() {
           <input
             type="file"
             disabled={busy}
-            accept=".png,.jpg,.jpeg,.gif,.webp,.pdf"
+            accept=".png,.jpg,.jpeg,.gif,.webp,.pdf,.mp4,.webm,.mp3,.wav"
             onChange={async (e) => {
               const file = e.target.files?.[0];
               if (!file) return;
@@ -56,7 +56,7 @@ export function AssetManager() {
       <Notice error={error} success={success} />
       <LoadState loading={loading} error={error} retry={reload} />
       <p className="muted">
-        支持 PNG、JPEG、GIF、WebP 和 PDF。默认单个文件不超过 10 MB。
+        支持 PNG、JPEG、GIF、WebP、PDF、MP4、WebM、MP3 和 WAV。默认单个文件不超过 10 MB。
       </p>
       <div className="asset-grid">
         {data?.items.map((a) => (
@@ -638,6 +638,8 @@ export function AuditManager() {
     "menu.delete": "删除导航",
     "taxonomy.save": "保存分类标签",
     "taxonomy.delete": "删除分类标签",
+    "token.create": "创建访问令牌",
+    "token.revoke": "撤销访问令牌",
   };
   return (
     <>
@@ -679,6 +681,7 @@ export function AuditManager() {
                               tag: "标签",
                               menu: "菜单",
                               theme: "主题",
+                              token: "访问令牌",
                             } as Record<string, string>
                           )[a.targetType] || a.targetType}{" "}
                           · {a.targetId}
@@ -694,6 +697,7 @@ export function AuditManager() {
                       : a.actor === "operator"
                         ? "部署管理员"
                         : a.actor}
+                    {a.tokenId && <small className="audit-target">API · {a.tokenName} · {a.tokenId}</small>}
                   </td>
                   <td>{new Date(a.createdAt).toLocaleString("zh-CN")}</td>
                 </tr>

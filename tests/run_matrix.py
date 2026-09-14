@@ -15,6 +15,7 @@ import urllib.request
 import uuid
 from integration import Client, suite
 from site_settings import check_settings
+from remote_api import check_remote, machine, send
 
 ROOT = Path(__file__).resolve().parents[1]
 RUN = uuid.uuid4().hex[:10]
@@ -22,8 +23,8 @@ ARTIFACTS = ROOT / "artifacts" / RUN
 ARTIFACTS.mkdir(parents=True)
 LOCAL = ROOT / ".local" / RUN
 LOCAL.mkdir(parents=True)
-API = ROOT / "src/Cms.Api/bin/Debug/net10.0/Cms.Api.dll"
-CHECKS = ROOT / "tests/Cms.Checks/bin/Debug/net10.0/Cms.Checks.dll"
+API = ROOT / "src/Cms.Api/bin" / os.environ.get("CMS_TEST_CONFIGURATION", "Debug") / "net10.0/Cms.Api.dll"
+CHECKS = ROOT / "tests/Cms.Checks/bin" / os.environ.get("CMS_TEST_CONFIGURATION", "Debug") / "net10.0/Cms.Checks.dll"
 CREATION = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
 
 
@@ -130,7 +131,7 @@ def restore_copy(kind, password, env):
 
 
 def empty_database(kind, password, env, suffix):
-    assert suffix in ("cmsv2", "cmsv3", "cmsv4", "cmsfresh")
+    assert suffix in ("cmsv2", "cmsv3", "cmsv4", "cmsv5", "cmsfresh")
     if kind == "Sqlite":
         connection = "Data Source=" + str(LOCAL / (suffix + ".db"))
     else:
@@ -203,7 +204,7 @@ def main():
                 process = start(env, log)
                 try:
                     checks = suite(env["Urls"], "cmsadmin", password, ROOT / "docs/openapi.json")
-                    checks.append("explicit repeatable v1 through v5 migration preserves historical audit and content; normal startup does not migrate")
+                    checks.append("explicit repeatable v1 through v6 migration preserves historical audit and content; normal startup does not migrate")
                     session = Client(env["Urls"])
                     session.login("cmsadmin", password)
                     stop(process)
@@ -211,6 +212,7 @@ def main():
                     session.call("admin/users", "POST", dict(username="settings-editor", displayName="设置验收编辑", role="Editor", enabled=True, password="Settings!StrongPassword123"))
                     settings_editor = Client(env["Urls"]); settings_editor.login("settings-editor", "Settings!StrongPassword123")
                     check_settings(session, settings_editor, Client(env["Urls"]), checks.append)
+                    persistent = check_remote(session, checks.append)
                     original_settings = session.call("admin/settings")
                     logo_id = session.call("public/settings")["logoId"]
                     original_asset = session.call("/media/" + logo_id)
@@ -233,6 +235,9 @@ def main():
                     assert client.call("admin/themes") == original_theme
                     assert client.call("admin/menu") == original_menu
                     assert client.call("admin/settings") == original_settings
+                    agent = machine(session, persistent["secret"])
+                    assert send(agent, "contents", "POST", persistent["input"], key=persistent["key"]) == persistent["draft"]
+                    checks.append("token and committed retry response persist across API restart")
                 finally:
                     stop(process)
                 checks.append("idempotent initialization, explicit migration and restart persistence")
@@ -245,6 +250,7 @@ def main():
                     assert session.call("admin/themes") == original_theme
                     assert session.call("admin/menu") == original_menu
                     assert session.call("admin/settings") == original_settings
+                    assert send(machine(session, persistent["secret"]), "contents", "POST", persistent["input"], key=persistent["key"]) == persistent["draft"]
                 finally:
                     stop(process)
                 checks.append("backup restored into a separate database with media and authentication keys")
@@ -270,7 +276,7 @@ def main():
                     assert len(first.call("admin/users")) == 1
                 finally:
                     stop(process)
-                checks.append("v2 through v5 preserves site metadata; fresh v5 initialization is repeatable with classic defaults")
+                checks.append("v2 through v6 preserves site metadata; fresh v6 initialization is repeatable with classic defaults")
                 v3 = empty_database(kind, password, env, "cmsv3")
                 command(["dotnet", str(CHECKS), "--create-v3"], v3)
                 process = subprocess.Popen(["dotnet", str(API)], env=v3, cwd=ROOT, stdout=log, stderr=log, creationflags=CREATION)
@@ -283,7 +289,7 @@ def main():
                 command(["dotnet", str(API), "--migrate"], v3)
                 command(["dotnet", str(API), "--migrate"], v3)
                 command(["dotnet", str(CHECKS), "--verify-v3-upgrade"], v3)
-                checks.append("v3 through v5 preserves old links and active theme; repeated upgrade and normal startup verified")
+                checks.append("v3 through v6 preserves old links and active theme; repeated upgrade and normal startup verified")
                 v4 = empty_database(kind, password, env, "cmsv4")
                 command(["dotnet", str(CHECKS), "--create-v4"], v4)
                 process = subprocess.Popen(["dotnet", str(API)], env=v4, cwd=ROOT, stdout=log, stderr=log, creationflags=CREATION)
@@ -296,7 +302,20 @@ def main():
                 command(["dotnet", str(API), "--migrate"], v4)
                 command(["dotnet", str(API), "--migrate"], v4)
                 command(["dotnet", str(CHECKS), "--verify-v4-upgrade"], v4)
-                checks.append("v4 to v5 preserves identity, menu and theme, initializes settings defaults and supports repeated explicit upgrade")
+                checks.append("v4 through v6 preserves identity, menu and theme, initializes settings defaults and supports repeated explicit upgrade")
+                v5 = empty_database(kind, password, env, "cmsv5")
+                command(["dotnet", str(CHECKS), "--create-v5"], v5)
+                process = subprocess.Popen(["dotnet", str(API)], env=v5, cwd=ROOT, stdout=log, stderr=log, creationflags=CREATION)
+                try:
+                    wait_http(v5["Urls"] + "/health/live", process)
+                    Client(v5["Urls"]).call("/health/ready", expected=503)
+                    command(["dotnet", str(CHECKS), "--verify-v5"], v5)
+                finally:
+                    stop(process)
+                command(["dotnet", str(API), "--migrate"], v5)
+                command(["dotnet", str(API), "--migrate"], v5)
+                command(["dotnet", str(CHECKS), "--verify-v5-upgrade"], v5)
+                checks.append("v5 to v6 preserves custom settings, account hashes, article versions and historical audit; ordinary startup and repeated migration verified")
                 if kind == "Sqlite":
                     check_consul(env, password, owned, log)
                     checks.append("Consul overrides local config, environment overrides Consul, unavailable Consul fails startup")

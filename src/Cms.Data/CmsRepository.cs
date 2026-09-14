@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Text.Json;
 
 namespace Cms.Data;
 
@@ -17,11 +18,20 @@ public sealed class CmsException(int status, string code, string message, int? r
 public record PageResult<T>(IReadOnlyList<T> Items, long Total, int Page, int PageSize);
 
 /// <summary>FreeSql persistence boundary with atomic audited writes.</summary>
-public sealed class CmsRepository(IFreeSql db)
+public sealed class CmsRepository(IFreeSql database)
 {
+    private readonly IFreeSql db = database;
     // ponytail: one writer per API process; single API instance only. Use database locks before scaling out.
     private static readonly SemaphoreSlim Writes = new(1, 1);
     private AuditEntry? auditTarget;
+    private List<Action>? rollbackActions;
+    private string tokenId = "", tokenName = "";
+
+    /// <summary>Identify the validated integration for writes inside this transaction.</summary>
+    public void SetIntegrationActor(string id, string name) { tokenId = id; tokenName = name; }
+
+    /// <summary>Compensate a file write if an enclosing integration transaction fails.</summary>
+    public void OnRollback(Action action) => rollbackActions?.Add(action);
 
     /// <summary>Attach a safe object identity to the current write transaction.</summary>
     public void SetAuditTarget(string type, string id, string name) => auditTarget = new AuditEntry { TargetType = type, TargetId = id, TargetName = name };
@@ -104,21 +114,53 @@ public sealed class CmsRepository(IFreeSql db)
     }
 
     /// <summary>Execute a serialized transaction; callback only receives the transaction repository.</summary>
-    public async Task<T> WriteAsync<T>(string actor, string action, Func<CmsRepository, Task<T>> work)
+    public Task<T> WriteAsync<T>(string actor, string action, Func<CmsRepository, Task<T>> work) => TransactionAsync(async scoped =>
     {
+        scoped.auditTarget = null;
+        var result = await work(scoped);
+        var account = await scoped.FindAsync<CmsUser>(actor);
+        var entry = scoped.auditTarget ?? throw new InvalidOperationException("Audited writes must identify their business object.");
+        entry.Actor = account == null ? actor : $"{account.DisplayName} ({actor})";
+        entry.Action = action;
+        entry.TokenId = scoped.tokenId; entry.TokenName = scoped.tokenName;
+        await scoped.InsertAsync(entry);
+        return result;
+    });
+
+    /// <summary>Commit the business write, its audit and replay response together; authorize every replay.</summary>
+    public Task<T> ExecuteOnceAsync<T>(string token, string keyHash, string requestHash, DateTime now, Func<CmsRepository, Task> authorize, Func<CmsRepository, Task<T>> work) => TransactionAsync(async scoped =>
+    {
+        await authorize(scoped);
+        await scoped.db.Delete<IntegrationRequest>().Where(x => x.ExpiresAt <= now).ExecuteAffrowsAsync();
+        var prior = await scoped.FirstAsync<IntegrationRequest>(x => x.TokenId == token && x.KeyHash == keyHash);
+        if (prior != null)
+        {
+            if (prior.RequestHash != requestHash) throw new CmsException(409, "IDEMPOTENCY_CONFLICT", "同一请求编号已用于不同操作或内容，请检查请求。");
+            return JsonSerializer.Deserialize<T>(prior.ResponseJson)!;
+        }
+        var result = await work(scoped);
+        await scoped.InsertAsync(new IntegrationRequest { TokenId = token, KeyHash = keyHash, RequestHash = requestHash, ResponseJson = JsonSerializer.Serialize(result), ExpiresAt = now.AddHours(24) });
+        return result;
+    });
+
+    /// <summary>Update non-secret usage metadata without flooding the audit trail.</summary>
+    public Task<int> TouchTokenAsync(string id, DateTime now) => TransactionAsync(scoped => scoped.db.Update<AccessToken>().Where(x => x.Id == id && (x.LastUsedAt == null || x.LastUsedAt < now.AddMinutes(-1))).Set(x => x.LastUsedAt, now).ExecuteAffrowsAsync());
+
+    private async Task<T> TransactionAsync<T>(Func<CmsRepository, Task<T>> work)
+    {
+        if (rollbackActions != null) return await work(this);
         await Writes.WaitAsync();
         try
         {
             using var unit = db.CreateUnitOfWork();
-            var scoped = new CmsRepository(unit.Orm);
-            var result = await work(scoped);
-            var account = await scoped.FindAsync<CmsUser>(actor);
-            var entry = scoped.auditTarget ?? throw new InvalidOperationException("Audited writes must identify their business object.");
-            entry.Actor = account == null ? actor : $"{account.DisplayName} ({actor})";
-            entry.Action = action;
-            await scoped.InsertAsync(entry);
-            unit.Commit();
-            return result;
+            var scoped = new CmsRepository(unit.Orm) { rollbackActions = [] };
+            try { var result = await work(scoped); unit.Commit(); return result; }
+            catch
+            {
+                unit.Rollback();
+                foreach (var undo in scoped.rollbackActions) undo();
+                throw;
+            }
         }
         finally { Writes.Release(); }
     }
@@ -133,8 +175,8 @@ public sealed class CmsRepository(IFreeSql db)
             version = current?.Version ?? throw new InvalidOperationException("数据库缺少版本记录，拒绝自动猜测结构。");
             if (version < 1) throw new InvalidOperationException("数据库版本无效，请检查备份与初始化记录。");
         }
-        if (version > 5 || version < 0) throw new InvalidOperationException("数据库版本与程序不兼容，拒绝降级。");
-        if (version == 5) return;
+        if (version > 6 || version < 0) throw new InvalidOperationException("数据库版本与程序不兼容，拒绝降级。");
+        if (version == 6) return;
         if (version == 0)
         {
             db.CodeFirst.SyncStructure(typeof(CmsUser), typeof(Content), typeof(Taxonomy), typeof(Asset), typeof(Comment), typeof(MenuItem), typeof(SiteSettings), typeof(AuditEntry), typeof(SchemaVersion));
@@ -165,6 +207,8 @@ public sealed class CmsRepository(IFreeSql db)
         }
         // v4 -> v5: preserve existing identity fields, initialize only the newly introduced options.
         // API must be stopped for explicit upgrades; interrupted DDL can safely repeat this step.
+        if (version < 5)
+        {
         db.CodeFirst.SyncStructure(typeof(SiteSettings));
         await db.Update<SiteSettings>().Where(x => x.Id == "site")
             .Set(x => x.Subtitle, "").Set(x => x.FaviconId, "").Set(x => x.Language, "zh-CN")
@@ -172,8 +216,12 @@ public sealed class CmsRepository(IFreeSql db)
             .Set(x => x.BlockSearchEngines, false).Set(x => x.CommentsEnabled, true).Set(x => x.RequireCommentApproval, true)
             .Set(x => x.CommentsRequireLogin, false).Set(x => x.FooterText, "").Set(x => x.Version, 0).ExecuteAffrowsAsync();
         await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 5).ExecuteAffrowsAsync();
+        }
+        // v5 -> v6: additive machine credentials, retry receipts and audit attribution.
+        db.CodeFirst.SyncStructure(typeof(AccessToken), typeof(IntegrationRequest), typeof(AuditEntry));
+        await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 6).ExecuteAffrowsAsync();
     }
 
     /// <summary>Check database connectivity and expected schema without modifying it.</summary>
-    public async Task<bool> ReadyAsync() => (await FindAsync<SchemaVersion>("schema"))?.Version == 5;
+    public async Task<bool> ReadyAsync() => (await FindAsync<SchemaVersion>("schema"))?.Version == 6;
 }

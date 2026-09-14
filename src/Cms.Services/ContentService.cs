@@ -1,24 +1,12 @@
 using System.Text.Json;
 using Cms.Data;
 using FluentValidation;
-using Ganss.Xss;
 
 namespace Cms.Services;
 
 /// <summary>Draft isolation, publication and public content queries.</summary>
 public sealed class ContentService(CmsRepository repository, ContentValidator validator)
 {
-    private static readonly HtmlSanitizer Sanitizer = CreateSanitizer();
-    private static HtmlSanitizer CreateSanitizer()
-    {
-        var s = new HtmlSanitizer();
-        s.AllowedTags.Clear(); s.AllowedAttributes.Clear(); s.AllowedSchemes.Clear(); s.AllowedCssProperties.Clear();
-        foreach (var tag in "p br h2 h3 h4 strong b em i u s ul ol li blockquote pre code a img table thead tbody tr th td hr".Split(' ')) s.AllowedTags.Add(tag);
-        foreach (var attr in "href src alt title colspan rowspan".Split(' ')) s.AllowedAttributes.Add(attr);
-        s.AllowedSchemes.Add("https"); s.AllowedSchemes.Add("http"); s.AllowedSchemes.Add("mailto");
-        return s;
-    }
-
     /// <summary>Read sanitized editorial content.</summary>
     public async Task<ContentView> GetAsync(string id) => Draft(await repository.FindAsync<Content>(id) ?? throw Missing());
 
@@ -52,7 +40,7 @@ public sealed class ContentService(CmsRepository repository, ContentValidator va
     public async Task<ContentView> SaveAsync(string actor, string? id, ContentInput input)
     {
         await validator.ValidateAndThrowAsync(input);
-        var clean = Sanitizer.Sanitize(input.Html);
+        var clean = ContentHtml.Sanitize(input.Html);
         return await repository.WriteAsync(actor, "content.save", async repo =>
         {
             var row = id == null ? new Content() : await repo.FindAsync<Content>(id) ?? throw Missing();
@@ -116,9 +104,15 @@ public sealed class ContentService(CmsRepository repository, ContentValidator va
     private static async Task ValidateAssetReferences(CmsRepository repo, string html, string cover)
     {
         var document = new AngleSharp.Html.Parser.HtmlParser().ParseDocument(html);
-        foreach (var image in document.QuerySelectorAll("img"))
-            if (!System.Text.RegularExpressions.Regex.IsMatch(image.GetAttribute("src") ?? "", "^/media/[a-f0-9]{32}$"))
-                throw new CmsException(400, "INVALID_IMAGE", "正文图片请先上传，使用附件库提供的图片地址。");
+        foreach (var media in document.QuerySelectorAll("img, video, audio"))
+        {
+            var source = media.GetAttribute("src") ?? "";
+            if (!System.Text.RegularExpressions.Regex.IsMatch(source, "^/media/[a-f0-9]{32}$"))
+                throw new CmsException(400, "INVALID_MEDIA", "正文图片、视频和音频请先上传，使用附件库提供的地址。");
+            var asset = await repo.FindAsync<Asset>(source[7..]);
+            var prefix = media.LocalName == "img" ? "image/" : media.LocalName + "/";
+            if (asset == null || !asset.ContentType.StartsWith(prefix, StringComparison.Ordinal)) throw new CmsException(400, "INVALID_ASSET", "媒体类型与附件不匹配，或引用的附件不存在。");
+        }
         foreach (var anchor in document.QuerySelectorAll("a[href]"))
         {
             var href = anchor.GetAttribute("href")!;

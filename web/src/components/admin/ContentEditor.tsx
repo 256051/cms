@@ -18,6 +18,7 @@ export default function ContentEditor({
   const [doc, setDoc] = useState<Content>();
   const { dirty, setDirty } = useUnsavedChanges();
   const [busy, setBusy] = useState(false);
+  const [wide, setWide] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(!!id);
@@ -55,7 +56,7 @@ export default function ContentEditor({
     setSuccess("");
   };
   async function save(publish = false) {
-    if (!doc) return;
+    if (!doc || busy) return;
     setBusy(true);
     setError("");
     let saved: Content | undefined;
@@ -89,6 +90,17 @@ export default function ContentEditor({
         );
     }
   }
+  useEffect(() => {
+    const shortcut = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        if (!busy && doc && !document.querySelector("dialog[open]"))
+          void save();
+      }
+    };
+    window.addEventListener("keydown", shortcut);
+    return () => window.removeEventListener("keydown", shortcut);
+  });
   return (
     <>
       <Heading
@@ -129,7 +141,10 @@ export default function ContentEditor({
         retry={() => window.location.reload()}
       />
       {doc && (
-        <fieldset className="editor-layout editor-fields" disabled={busy}>
+        <fieldset
+          className={`editor-layout editor-fields${wide ? " editor-wide" : ""}`}
+          disabled={busy}
+        >
           <section className="panel editor-main">
             <label>
               标题
@@ -141,26 +156,33 @@ export default function ContentEditor({
                 onChange={(e) => change({ title: e.target.value })}
               />
             </label>
-            <label>
-              摘要
-              <textarea
-                rows={3}
-                placeholder="用几句话介绍这篇内容…"
-                value={doc.summary}
-                maxLength={500}
-                onChange={(e) => change({ summary: e.target.value })}
-              />
-            </label>
             <label>正文</label>
             <RichEditor
               value={doc.html}
               disabled={busy}
-              onBusyChange={setBusy}
+              wide={wide}
+              onWideChange={() => setWide(!wide)}
+              onBusyChange={(v) => {
+                setBusy(v);
+                if (v) setDirty(true);
+              }}
               onChange={(html) => change({ html })}
               onError={setError}
             />
           </section>
           <aside className="editor-aside">
+            <section className="panel">
+              <label>
+                摘要
+                <textarea
+                  rows={3}
+                  placeholder="用几句话介绍这篇内容…"
+                  value={doc.summary}
+                  maxLength={500}
+                  onChange={(e) => change({ summary: e.target.value })}
+                />
+              </label>
+            </section>
             <section className="panel">
               <h2>发布设置</h2>
               <div className="status-row">

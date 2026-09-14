@@ -43,7 +43,7 @@ public sealed class AuthController(AuthService service, LoginProtection protecti
 }
 
 /// <summary>Editorial HTTP endpoints; all business rules live in services.</summary>
-[Route("api/v1/admin"), Authorize]
+[Route("api/v1/admin"), Authorize(AuthenticationSchemes = "cms")]
 public sealed class AdminController(ContentService content, SiteService site, AssetService assets, AuthService users, ThemeService themes) : ApiController
 {
     /// <summary>Read packaged themes and independent saved profiles.</summary>
@@ -147,6 +147,6 @@ public sealed class MediaController(AssetService service) : ControllerBase
     {
         var file = await service.ReadAsync(id, User.Identity?.IsAuthenticated == true);
         Response.Headers.CacheControl = "no-store";
-        return file.ContentType == "application/pdf" ? PhysicalFile(file.Path, file.ContentType, file.Name) : PhysicalFile(file.Path, file.ContentType);
+        return file.ContentType == "application/pdf" ? PhysicalFile(file.Path, file.ContentType, file.Name) : PhysicalFile(file.Path, file.ContentType, enableRangeProcessing: true);
     }
 }

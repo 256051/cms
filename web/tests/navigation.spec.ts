@@ -95,6 +95,9 @@ test("typed multilevel navigation, keyboard disclosure, previews and protected e
       await expect(nav.getByRole("link", { name: post.title, exact: true })).not.toBeVisible();
       await parent.focus(); await page.keyboard.press("Enter");
       await expect(nav.getByRole("link", { name: post.title, exact: true })).toBeVisible();
+      const firstChildBox = await nav.getByRole("link", { name: post.title, exact: true }).boundingBox();
+      expect(firstChildBox!.x).toBeGreaterThanOrEqual(0);
+      expect(firstChildBox!.x + firstChildBox!.width).toBeLessThanOrEqual(width);
       const nested = nav.getByLabel(post.title + "的子菜单", { exact: true });
       await nested.focus(); await page.keyboard.press("Space");
       await expect(nav.getByRole("link", { name: category.name, exact: true })).toBeVisible();
@@ -107,7 +110,8 @@ test("typed multilevel navigation, keyboard disclosure, previews and protected e
       await expect(nested).toBeFocused();
       await expect(nav.getByRole("link", { name: category.name, exact: true })).not.toBeVisible();
       await expect(nav.getByRole("link", { name: post.title, exact: true })).toBeVisible();
-      await page.getByRole("heading", { level: 1 }).click();
+      // A dropdown may cover the headline; the footer provides a visible outside target in every layout.
+      await page.locator(".site-footer").click({ position: { x: 4, y: 4 } });
       await expect(nav.getByRole("link", { name: post.title, exact: true })).not.toBeVisible();
     }
   }

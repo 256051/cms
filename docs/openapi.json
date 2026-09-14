@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "/"
+      "url": "http://127.0.0.1:65199/"
     }
   ],
   "paths": {
@@ -2139,10 +2139,741 @@
           }
         }
       }
+    },
+    "/api/v1/integration/contents": {
+      "get": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "List drafts; requires content:read.",
+        "parameters": [
+          {
+            "name": "kind",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "post"
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfContentView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfContentView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfContentView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing idempotency key"
+          },
+          "401": {
+            "description": "Invalid, expired or revoked token"
+          },
+          "403": {
+            "description": "Missing scope"
+          },
+          "409": {
+            "description": "Version or idempotency conflict"
+          },
+          "429": {
+            "description": "Rate limited; see Retry-After"
+          }
+        },
+        "security": [
+          {
+            "IntegrationToken": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Create a draft once; requires content:write and Idempotency-Key.",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing idempotency key"
+          },
+          "401": {
+            "description": "Invalid, expired or revoked token"
+          },
+          "403": {
+            "description": "Missing scope"
+          },
+          "409": {
+            "description": "Version or idempotency conflict"
+          },
+          "429": {
+            "description": "Rate limited; see Retry-After"
+          }
+        },
+        "security": [
+          {
+            "IntegrationToken": []
+          }
+        ]
+      }
+    },
+    "/api/v1/integration/contents/{id}": {
+      "get": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Get a draft and its version; requires content:read.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing idempotency key"
+          },
+          "401": {
+            "description": "Invalid, expired or revoked token"
+          },
+          "403": {
+            "description": "Missing scope"
+          },
+          "409": {
+            "description": "Version or idempotency conflict"
+          },
+          "429": {
+            "description": "Rate limited; see Retry-After"
+          }
+        },
+        "security": [
+          {
+            "IntegrationToken": []
+          }
+        ]
+      },
+      "put": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Update the expected draft version once; requires content:write and Idempotency-Key.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing idempotency key"
+          },
+          "401": {
+            "description": "Invalid, expired or revoked token"
+          },
+          "403": {
+            "description": "Missing scope"
+          },
+          "409": {
+            "description": "Version or idempotency conflict"
+          },
+          "429": {
+            "description": "Rate limited; see Retry-After"
+          }
+        },
+        "security": [
+          {
+            "IntegrationToken": []
+          }
+        ]
+      }
+    },
+    "/api/v1/integration/taxonomy": {
+      "get": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Read category and tag identifiers; requires content:read.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfTaxonomy"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfTaxonomy"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfTaxonomy"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing idempotency key"
+          },
+          "401": {
+            "description": "Invalid, expired or revoked token"
+          },
+          "403": {
+            "description": "Missing scope"
+          },
+          "409": {
+            "description": "Version or idempotency conflict"
+          },
+          "429": {
+            "description": "Rate limited; see Retry-After"
+          }
+        },
+        "security": [
+          {
+            "IntegrationToken": []
+          }
+        ]
+      }
+    },
+    "/api/v1/integration/contents/{id}/publish": {
+      "post": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Publish the expected version once; requires content:publish and Idempotency-Key.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIntegrationPublication"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIntegrationPublication"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIntegrationPublication"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing idempotency key"
+          },
+          "401": {
+            "description": "Invalid, expired or revoked token"
+          },
+          "403": {
+            "description": "Missing scope"
+          },
+          "409": {
+            "description": "Version or idempotency conflict"
+          },
+          "429": {
+            "description": "Rate limited; see Retry-After"
+          }
+        },
+        "security": [
+          {
+            "IntegrationToken": []
+          }
+        ]
+      }
+    },
+    "/api/v1/integration/assets": {
+      "post": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Upload one validated file once; requires asset:upload and Idempotency-Key.",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "$ref": "#/components/schemas/IFormFile"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAssetView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAssetView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAssetView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing idempotency key"
+          },
+          "401": {
+            "description": "Invalid, expired or revoked token"
+          },
+          "403": {
+            "description": "Missing scope"
+          },
+          "409": {
+            "description": "Version or idempotency conflict"
+          },
+          "429": {
+            "description": "Rate limited; see Retry-After"
+          }
+        },
+        "security": [
+          {
+            "IntegrationToken": []
+          }
+        ]
+      }
+    },
+    "/api/v1/admin/access-tokens": {
+      "get": {
+        "tags": [
+          "AccessTokens"
+        ],
+        "summary": "Read paged token metadata; never returns the credential secret or hash.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfAccessTokenView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfAccessTokenView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfAccessTokenView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "AccessTokens"
+        ],
+        "summary": "Issue a credential and return its plaintext once.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessTokenInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessTokenInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AccessTokenInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIssuedAccessToken"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIssuedAccessToken"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIssuedAccessToken"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/access-tokens/{id}/revoke": {
+      "post": {
+        "tags": [
+          "AccessTokens"
+        ],
+        "summary": "Irreversibly revoke a token.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
     "schemas": {
+      "AccessTokenInput": {
+        "required": [
+          "name",
+          "userId",
+          "scopes",
+          "expiresAt"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "description": "Administrator request to issue an expiring machine credential."
+      },
+      "AccessTokenView": {
+        "required": [
+          "id",
+          "name",
+          "userId",
+          "userDisplayName",
+          "scopes",
+          "createdAt",
+          "expiresAt",
+          "lastUsedAt",
+          "revokedAt",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "userId": {
+            "type": "string"
+          },
+          "userDisplayName": {
+            "type": "string"
+          },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lastUsedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "revokedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "description": "Safe credential metadata, with no secret or hash."
+      },
       "ApiResponseOfAssetView": {
         "required": [
           "code",
@@ -2291,6 +3022,37 @@
         },
         "description": "Consistent HTTP response envelope."
       },
+      "ApiResponseOfIntegrationPublication": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/IntegrationPublication"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
       "ApiResponseOfIReadOnlyListOfContentView": {
         "required": [
           "code",
@@ -2381,6 +3143,37 @@
         },
         "description": "Consistent HTTP response envelope."
       },
+      "ApiResponseOfIssuedAccessToken": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/IssuedAccessToken"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
       "ApiResponseOfListOfTaxonomy": {
         "required": [
           "code",
@@ -2433,6 +3226,37 @@
               },
               {
                 "$ref": "#/components/schemas/MenuView"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfPageResultOfAccessTokenView": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageResultOfAccessTokenView"
               }
             ]
           },
@@ -2820,6 +3644,14 @@
       "AuditEntry": {
         "type": "object",
         "properties": {
+          "tokenId": {
+            "type": "string",
+            "description": "Integration credential identifier, never its secret."
+          },
+          "tokenName": {
+            "type": "string",
+            "description": "Integration name retained after revocation."
+          },
           "actor": {
             "type": "string",
             "description": "Actor identity."
@@ -3040,6 +3872,38 @@
         "type": "string",
         "format": "binary"
       },
+      "IntegrationPublication": {
+        "required": [
+          "content",
+          "path"
+        ],
+        "type": "object",
+        "properties": {
+          "content": {
+            "$ref": "#/components/schemas/ContentView"
+          },
+          "path": {
+            "type": "string"
+          }
+        },
+        "description": "Published state and its site-relative reading address."
+      },
+      "IssuedAccessToken": {
+        "required": [
+          "token",
+          "secret"
+        ],
+        "type": "object",
+        "properties": {
+          "token": {
+            "$ref": "#/components/schemas/AccessTokenView"
+          },
+          "secret": {
+            "type": "string"
+          }
+        },
+        "description": "The secret is returned only in this issuance response."
+      },
       "LoginInput": {
         "required": [
           "username",
@@ -3187,6 +4051,36 @@
           }
         },
         "description": "Comment moderation input."
+      },
+      "PageResultOfAccessTokenView": {
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccessTokenView"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Server-side paginated result."
       },
       "PageResultOfAssetView": {
         "required": [
@@ -3792,6 +4686,13 @@
         },
         "description": "Version required for publish, unpublish and delete."
       }
+    },
+    "securitySchemes": {
+      "IntegrationToken": {
+        "type": "http",
+        "description": "Expiring CMS access token issued by an administrator. HTTPS required; no cookie or CSRF token is used on integration endpoints.",
+        "scheme": "bearer"
+      }
     }
   },
   "tags": [
@@ -3806,6 +4707,12 @@
     },
     {
       "name": "Public"
+    },
+    {
+      "name": "Integration"
+    },
+    {
+      "name": "AccessTokens"
     }
   ]
 }

@@ -15,6 +15,7 @@ export default function ContentList({
   query = "",
   preview,
   featured = false,
+  themeId = "classic",
 }: {
   data: Page<Content>;
   taxonomy: Taxonomy[];
@@ -22,13 +23,22 @@ export default function ContentList({
   query?: string;
   preview?: string;
   featured?: boolean;
+  themeId?: string;
 }) {
   return (
     <>
       <div className={`article-grid${featured ? " featured-grid" : ""}`}>
-        {data.items.map((post, i) => (
-          <article className="article-card" key={post.id}>
-            <Link
+        {data.items.map((post, i) => themeId === "cactus" || themeId === "retypeset" ? (
+          <article className="article-card text-entry" key={post.id}>
+            <time className="entry-date" dateTime={post.publishedAt || undefined}>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString("zh-CN", { timeZone: "UTC" }) : ""}</time>
+            <div className="entry-content">
+              <h2><Link href={siteHref(contentUrl(post), preview)}>{post.title}</Link></h2>
+              {themeId === "retypeset" && post.summary && <p>{post.summary}</p>}
+            </div>
+          </article>
+        ) : (
+          <article className={`article-card${post.coverId ? " has-cover" : " no-cover"}`} key={post.id}>
+            {(themeId !== "fuwari" || post.coverId) && <Link
               className="card-cover"
               href={siteHref(contentUrl(post), preview)}
               tabIndex={-1}
@@ -46,14 +56,14 @@ export default function ContentList({
                   <span>READ & REFLECT</span>
                 </div>
               )}
-            </Link>
+            </Link>}
             <div className="card-body">
               <div className="article-meta">
                 <span>
                   {taxonomy.find((t) => t.id === post.categoryId)?.name ||
                     "随笔"}
                 </span>
-                <time>
+                <time dateTime={post.publishedAt || undefined}>
                   {post.publishedAt
                     ? new Date(post.publishedAt).toLocaleDateString("zh-CN", {
                         timeZone: "UTC",

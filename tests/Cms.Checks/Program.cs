@@ -2,11 +2,46 @@ using Cms.Data;
 using FreeSql;
 
 if (args.Contains("--login-protection")) { LoginProtectionChecks.Run(); return; }
+if (args.Contains("--rich-text"))
+{
+    const string sample = "<p><span style=\"color: #c026d3\">color</span><mark data-color=\"#fef08a\" style=\"background-color: #fef08a; color: inherit\">highlight</mark></p>";
+    var safe = Cms.Services.ContentHtml.Sanitize(sample);
+    if (!safe.Contains("color: rgba(192, 38, 211, 1)") || !safe.Contains("background-color: rgba(254, 240, 138, 1)") || Cms.Services.ContentHtml.Sanitize(safe) != safe) throw new Exception("Colors did not survive the sanitizer round trip: " + safe);
+    var unsafeStyle = Cms.Services.ContentHtml.Sanitize("<span style=\"color: rgba(999, 0, 0, 0); background: url(https://example.com); position: fixed\">text</span>");
+    if (unsafeStyle.Contains("style=")) throw new Exception("Unsafe or transparent styles retained.");
+    if (!Cms.Services.ContentHtml.IsEmbedUrl("https://example.com/path") || Cms.Services.ContentHtml.IsEmbedUrl("https://host.local.") || Cms.Services.ContentHtml.IsEmbedUrl("https://local.") || Cms.Services.ContentHtml.IsEmbedUrl("https://127.0.0.1")) throw new Exception("Embed URL validation failed.");
+    Console.WriteLine("PASS: opaque colors and highlight survive repeated sanitization; unsafe CSS and local embed URLs rejected");
+    return;
+}
 
 var type = Enum.Parse<DataType>(Environment.GetEnvironmentVariable("Database__Type")!);
 if (type == DataType.Sqlite) SQLitePCL.Batteries_V2.Init();
 using var db = new FreeSqlBuilder().UseConnectionString(type, Environment.GetEnvironmentVariable("Database__ConnectionString")!).UseAutoSyncStructure(false).Build();
 var repo = new CmsRepository(db);
+if (args.Contains("--integration")) { await IntegrationChecks.RunAsync(repo); return; }
+if (args.Contains("--create-v5"))
+{
+    db.CodeFirst.SyncStructure(typeof(CmsUser), typeof(Content), typeof(Taxonomy), typeof(Asset), typeof(Comment), typeof(MenuItem), typeof(SiteSettings), typeof(LegacyV5Audit), typeof(SchemaVersion), typeof(ThemeState));
+    await repo.InsertAsync(new SchemaVersion { Id = "schema", Version = 5 });
+    await repo.InsertAsync(new SiteSettings { Id = "site", Title = "v5 站点", Subtitle = "不可重置", FooterText = "自定义版权", CommentsEnabled = false, HomePageSize = 7, Version = 19 });
+    await repo.InsertAsync(new CmsUser { Id = "v5-admin", Username = "original", DisplayName = "原管理员", PasswordHash = "preserve-this-hash", SecurityStamp = "original-stamp", Role = "Admin" });
+    await repo.InsertAsync(new Content { Id = "v5-content", Slug = "v5-original", Html = "<p>保留正文</p>", Version = 12 });
+    await repo.InsertAsync(new LegacyV5Audit { Id = "v5-audit", Actor = "原管理员", Action = "content.save", TargetType = "post", TargetId = "v5-content", TargetName = "原文章" });
+    return;
+}
+if (args.Contains("--verify-v5"))
+{
+    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 5 || db.DbFirst.ExistsTable("cms_access_tokens") || db.DbFirst.GetTableByName("cms_audit").Columns.Any(x => x.Name.Equals("TokenId", StringComparison.OrdinalIgnoreCase))) throw new Exception("Normal startup changed v5 schema.");
+    return;
+}
+if (args.Contains("--verify-v5-upgrade"))
+{
+    var settings = (await repo.FindAsync<SiteSettings>("site"))!;
+    var account = (await repo.FindAsync<CmsUser>("v5-admin"))!;
+    var audit = (await repo.FindAsync<AuditEntry>("v5-audit"))!;
+    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 6 || settings.Subtitle != "不可重置" || settings.FooterText != "自定义版权" || settings.CommentsEnabled || settings.HomePageSize != 7 || settings.Version != 19 || account.PasswordHash != "preserve-this-hash" || account.SecurityStamp != "original-stamp" || audit.TargetName != "原文章" || !string.IsNullOrEmpty(audit.TokenId) || !string.IsNullOrEmpty(audit.TokenName) || (await repo.FindAsync<Content>("v5-content"))?.Version != 12 || await repo.CountAsync<AccessToken>() != 0 || await repo.CountAsync<IntegrationRequest>() != 0) throw new Exception("v5 to v6 did not preserve data.");
+    return;
+}
 const string legacyAuditId = "11111111111111111111111111111111";
 const string legacyContentId = "22222222222222222222222222222222";
 if (args.Contains("--create-v1"))
@@ -28,9 +63,9 @@ if (args.Contains("--verify-upgrade"))
 {
     var old = await repo.FindAsync<AuditEntry>(legacyAuditId);
     var content = await repo.FindAsync<Content>(legacyContentId);
-    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 5 || (await repo.FindAsync<ThemeState>("site"))?.ActiveThemeId != "classic" || old?.Actor != "旧版管理员" || !string.IsNullOrEmpty(old.TargetId) || content?.Html != "<p>旧版中文与 🎉 正文</p>" || content.Version != 7) throw new Exception("Upgrade did not preserve version 1 data.");
+    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 6 || (await repo.FindAsync<ThemeState>("site"))?.ActiveThemeId != "classic" || old?.Actor != "旧版管理员" || !string.IsNullOrEmpty(old.TargetId) || content?.Html != "<p>旧版中文与 🎉 正文</p>" || content.Version != 7) throw new Exception("Upgrade did not preserve version 1 data.");
     await repo.DeleteAsync<Content>(legacyContentId); // Fixture cleanup in this isolated test database only.
-    Console.WriteLine("PASS: v1 through v5 upgrade preserves historical audit and content");
+    Console.WriteLine("PASS: v1 through v6 upgrade preserves historical audit and content");
     return;
 }
 if (args.Contains("--create-v2"))
@@ -47,7 +82,7 @@ if (args.Contains("--verify-v2"))
 }
 if (args.Contains("--verify-v2-upgrade"))
 {
-    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 5 || (await repo.FindAsync<SiteSettings>("site"))?.Title != "版本 2 站点" || (await repo.FindAsync<ThemeState>("site"))?.ActiveThemeId != "classic") throw new Exception("Version 2 upgrade failed.");
+    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 6 || (await repo.FindAsync<SiteSettings>("site"))?.Title != "版本 2 站点" || (await repo.FindAsync<ThemeState>("site"))?.ActiveThemeId != "classic") throw new Exception("Version 2 upgrade failed.");
     return;
 }
 if (args.Contains("--create-v3"))
@@ -67,7 +102,7 @@ if (args.Contains("--verify-v3-upgrade"))
 {
     var menu = (await repo.FindAsync<MenuItem>("old-menu"))!;
     var theme = (await repo.FindAsync<ThemeState>("site"))!;
-    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 5 || menu.Label != "旧导航中文" || menu.Url != "/pages/about" || menu.Sort != 7 || menu.Type != "custom" || menu.ParentId != "" || menu.TargetId != "" || menu.OpenInNewTab || menu.Version != 0 || theme.ActiveThemeId != "paper" || theme.Version != 7) throw new Exception("Menu upgrade did not preserve data and defaults.");
+    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 6 || menu.Label != "旧导航中文" || menu.Url != "/pages/about" || menu.Sort != 7 || menu.Type != "custom" || menu.ParentId != "" || menu.TargetId != "" || menu.OpenInNewTab || menu.Version != 0 || theme.ActiveThemeId != "paper" || theme.Version != 7) throw new Exception("Menu upgrade did not preserve data and defaults.");
     return;
 }
 if (args.Contains("--create-v4"))
@@ -87,7 +122,7 @@ if (args.Contains("--verify-v4"))
 if (args.Contains("--verify-v4-upgrade"))
 {
     var s = (await repo.FindAsync<SiteSettings>("site"))!;
-    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 5 || s.Title != "旧站设置 🎉" || s.Description != "保留旧介绍" || s.LogoId != "old-logo" || s.Keywords != "内容,旧站" || s.Version != 0 || s.Subtitle != "" || s.FaviconId != "" || s.FooterText != "" || s.Language != "zh-CN" || s.HomePageSize != 12 || s.CategoryPageSize != 12 || s.TagPageSize != 12 || s.SearchPageSize != 12 || !s.CommentsEnabled || !s.RequireCommentApproval || s.BlockSearchEngines || s.CommentsRequireLogin || (await repo.FindAsync<MenuItem>("old-menu"))?.Version != 8 || (await repo.FindAsync<ThemeState>("site"))?.Version != 7) throw new Exception("Settings upgrade failed to preserve original fields and defaults.");
+    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 6 || s.Title != "旧站设置 🎉" || s.Description != "保留旧介绍" || s.LogoId != "old-logo" || s.Keywords != "内容,旧站" || s.Version != 0 || s.Subtitle != "" || s.FaviconId != "" || s.FooterText != "" || s.Language != "zh-CN" || s.HomePageSize != 12 || s.CategoryPageSize != 12 || s.TagPageSize != 12 || s.SearchPageSize != 12 || !s.CommentsEnabled || !s.RequireCommentApproval || s.BlockSearchEngines || s.CommentsRequireLogin || (await repo.FindAsync<MenuItem>("old-menu"))?.Version != 8 || (await repo.FindAsync<ThemeState>("site"))?.Version != 7) throw new Exception("Settings upgrade failed to preserve original fields and defaults.");
     return;
 }
 var id = Guid.NewGuid().ToString("N");
@@ -149,6 +184,23 @@ try { await repo.InsertAsync(new Taxonomy { Slug = slug, Name = "重复" }); } c
 if (!rejected) throw new Exception("Database unique index not enforced.");
 await repo.DeleteAsync<Taxonomy>(id);
 Console.WriteLine("PASS: database rollback, audit rollback, unique index");
+await IntegrationChecks.RunAsync(repo);
+
+/// <summary>Audit shape before integration attribution was added.</summary>
+[FreeSql.DataAnnotations.Table(Name = "cms_audit")]
+public class LegacyV5Audit : Entity
+{
+    /// <summary>Original actor.</summary>
+    [FreeSql.DataAnnotations.Column(StringLength = 160)] public string Actor { get; set; } = "";
+    /// <summary>Original action.</summary>
+    [FreeSql.DataAnnotations.Column(StringLength = 120)] public string Action { get; set; } = "";
+    /// <summary>Original target kind.</summary>
+    [FreeSql.DataAnnotations.Column(StringLength = 24)] public string TargetType { get; set; } = "";
+    /// <summary>Original target id.</summary>
+    [FreeSql.DataAnnotations.Column(StringLength = 32)] public string TargetId { get; set; } = "";
+    /// <summary>Original target name.</summary>
+    [FreeSql.DataAnnotations.Column(StringLength = 300)] public string TargetName { get; set; } = "";
+}
 
 /// <summary>Exact audit table shape shipped in schema version 1.</summary>
 [FreeSql.DataAnnotations.Table(Name = "cms_audit")]

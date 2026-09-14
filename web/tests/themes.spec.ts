@@ -7,8 +7,8 @@ if (!process.env.CMS_TEST_BASE_URL || !process.env.CMS_TEST_CREDENTIALS_PATH)
   throw new Error("请通过 python tests/docker_smoke.py 在独立测试站点运行浏览器验收。");
 const credentials = JSON.parse(fs.readFileSync(process.env.CMS_TEST_CREDENTIALS_PATH, "utf8"));
 
-test("four themes, private previews, saved profiles, accessible colors and public HTML", async ({ page, request, context }) => {
-  test.setTimeout(180_000);
+test("seven themes, private previews, saved profiles, accessible colors and public HTML", async ({ page, request, context }) => {
+  test.setTimeout(300_000);
   const errors: string[] = [];
   page.on("pageerror", e => errors.push(e.message));
   await page.goto("/admin/login");

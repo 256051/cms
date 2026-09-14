@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions { Args = args.Where(x => x is not ("--initialize" or "--migrate")).ToArray(), ContentRootPath = AppContext.BaseDirectory });
 await Configuration.AddConsulAsync(builder.Configuration);
@@ -27,13 +28,18 @@ builder.Host.ConfigureContainer<ContainerBuilder>(container =>
     container.RegisterType<ThemeOptionsValidator>().SingleInstance();
     container.RegisterType<ThemeService>().InstancePerLifetimeScope();
     container.RegisterType<AssetService>().InstancePerLifetimeScope();
+    container.RegisterType<AccessTokenService>().InstancePerLifetimeScope();
+    container.RegisterType<IntegrationService>().InstancePerLifetimeScope();
 });
 builder.Services.AddSingleton<IMapper>(new Mapper(MappingConfiguration.Create()));
 var keys = Path.GetFullPath(builder.Configuration["Security:KeyPath"] ?? "data/keys");
 Directory.CreateDirectory(keys);
 builder.Services.AddDataProtection().SetApplicationName("Cms").PersistKeysToFileSystem(new DirectoryInfo(keys));
 builder.Services.AddAntiforgery(options => { options.HeaderName = "X-CSRF-TOKEN"; options.Cookie.Name = "cms.csrf"; options.Cookie.SameSite = SameSiteMode.Strict; options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always; });
-builder.Services.AddAuthentication("cms").AddCookie("cms", options =>
+builder.Services.AddAuthentication("request").AddPolicyScheme("request", null, options =>
+    options.ForwardDefaultSelector = context => context.Request.Path.StartsWithSegments("/api/v1/integration") ? IntegrationAuthenticationHandler.SchemeName : "cms")
+    .AddScheme<AuthenticationSchemeOptions, IntegrationAuthenticationHandler>(IntegrationAuthenticationHandler.SchemeName, null)
+    .AddCookie("cms", options =>
 {
     options.Cookie.Name = "cms.session"; options.Cookie.HttpOnly = true; options.Cookie.SameSite = SameSiteMode.Strict;
     options.Cookie.SecurePolicy = builder.Environment.IsDevelopment() ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
@@ -47,7 +53,11 @@ builder.Services.AddAuthentication("cms").AddCookie("cms", options =>
         if (user is not { Enabled: true } || user.SecurityStamp != ctx.Principal?.FindFirstValue("stamp")) { ctx.RejectPrincipal(); await ctx.HttpContext.SignOutAsync("cms"); }
     };
 });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    foreach (var scope in IntegrationScopes.All)
+        options.AddPolicy(scope, policy => policy.AddAuthenticationSchemes(IntegrationAuthenticationHandler.SchemeName).RequireAuthenticatedUser().RequireClaim("scope", scope));
+});
 builder.Services.AddSingleton(TimeProvider.System);
 builder.Services.AddSingleton<LoginProtection>();
 builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -59,13 +69,28 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 builder.Services.AddControllers(options => options.Filters.Add<CsrfFilter>())
     .AddJsonOptions(options => { options.JsonSerializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.Strict; options.JsonSerializerOptions.Converters.Add(new UtcDateTimeConverter()); })
     .ConfigureApiBehaviorOptions(options => options.InvalidModelStateResponseFactory = ctx => new BadRequestObjectResult(new ApiResponse<object>("VALIDATION_ERROR", "请求字段无效，请检查必填项与数据类型。", null, ctx.HttpContext.TraceIdentifier)));
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options => options.AddDocumentTransformer((document, context, cancellation) =>
+{
+    document.Components ??= new(); document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+    document.Components.SecuritySchemes["IntegrationToken"] = new OpenApiSecurityScheme { Type = SecuritySchemeType.Http, Scheme = "bearer", Description = "Expiring CMS access token issued by an administrator. HTTPS required; no cookie or CSRF token is used on integration endpoints." };
+    foreach (var path in document.Paths.Where(x => x.Key.StartsWith("/api/v1/integration/", StringComparison.Ordinal)))
+    foreach (var operation in path.Value.Operations?.Values.AsEnumerable() ?? [])
+    {
+        operation.Security = [new OpenApiSecurityRequirement { [new OpenApiSecuritySchemeReference("IntegrationToken", document)] = [] }];
+        foreach (var parameter in (operation.Parameters ?? []).OfType<OpenApiParameter>().Where(x => x.Name == "Idempotency-Key")) parameter.Required = true;
+        operation.Responses ??= new();
+        foreach (var (status, description) in new[] { ("400", "Invalid input or missing idempotency key"), ("401", "Invalid, expired or revoked token"), ("403", "Missing scope"), ("409", "Version or idempotency conflict"), ("429", "Rate limited; see Retry-After") })
+            operation.Responses.TryAdd(status, new OpenApiResponse { Description = description });
+    }
+    return Task.CompletedTask;
+}));
 builder.Services.ConfigureHttpJsonOptions(options => options.SerializerOptions.NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.Strict);
 builder.Services.AddRateLimiter(options =>
 {
     options.AddPolicy("login", ctx => RateLimitPartition.GetSlidingWindowLimiter(ctx.Connection.RemoteIpAddress?.MapToIPv6().ToString() ?? "unknown", _ => new SlidingWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1), SegmentsPerWindow = 6, QueueLimit = 0 }));
     options.AddPolicy("captcha", ctx => RateLimitPartition.GetSlidingWindowLimiter(ctx.Connection.RemoteIpAddress?.MapToIPv6().ToString() ?? "unknown", _ => new SlidingWindowRateLimiterOptions { PermitLimit = 30, Window = TimeSpan.FromMinutes(1), SegmentsPerWindow = 6, QueueLimit = 0 }));
     options.AddPolicy("comments", ctx => RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown", _ => new FixedWindowRateLimiterOptions { PermitLimit = 5, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+    options.AddPolicy("integration", ctx => RateLimitPartition.GetFixedWindowLimiter(ctx.User.FindFirstValue("token_id") is { } id ? "token:" + id : "ip:" + (ctx.Connection.RemoteIpAddress?.MapToIPv6().ToString() ?? "unknown"), _ => new FixedWindowRateLimiterOptions { PermitLimit = 60, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
     options.OnRejected = async (ctx, ct) => { ctx.HttpContext.Response.StatusCode = 429; ctx.HttpContext.Response.Headers.RetryAfter = ctx.Lease.TryGetMetadata(MetadataName.RetryAfter, out var delay) ? Math.Ceiling(delay.TotalSeconds).ToString(System.Globalization.CultureInfo.InvariantCulture) : "60"; await ctx.HttpContext.Response.WriteAsJsonAsync(new ApiResponse<object>("RATE_LIMITED", "操作过于频繁，请稍后重试。", null, ctx.HttpContext.TraceIdentifier), ct); };
 });
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(x => x.MultipartBodyLengthLimit = 55_000_000);
@@ -79,6 +104,12 @@ if (args.Contains("--initialize") || args.Contains("--migrate"))
     app.Logger.LogInformation("Explicit database operation completed.");
     return;
 }
+app.Use(async (ctx, next) =>
+{
+    await next();
+    if (ctx.Request.Path.StartsWithSegments("/api/v1/integration"))
+        app.Logger.LogInformation("Integration request. TokenId: {TokenId}, Method: {Method}, Status: {Status}, Trace: {Trace}", ctx.User.FindFirstValue("token_id") ?? "anonymous", ctx.Request.Method, ctx.Response.StatusCode, ctx.TraceIdentifier);
+});
 app.UseMiddleware<ExceptionMiddleware>();
 app.UseForwardedHeaders();
 app.UseStatusCodePages(async status =>
@@ -88,7 +119,7 @@ app.UseStatusCodePages(async status =>
 });
 app.Use(async (ctx, next) => { ctx.Response.Headers.XContentTypeOptions = "nosniff"; ctx.Response.Headers.CacheControl = "no-store"; await next(); });
 app.UseRouting();
-app.UseAuthentication(); app.UseAuthorization(); app.UseRateLimiter();
+app.UseAuthentication(); app.UseRateLimiter(); app.UseAuthorization();
 app.MapControllers();
 app.MapOpenApi().RequireAuthorization(policy => policy.RequireRole("Admin"));
 app.MapGet("/health/live", () => Results.Json(new { status = "live" }));

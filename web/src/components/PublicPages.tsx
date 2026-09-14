@@ -6,7 +6,8 @@ import ContentList from "./ContentList";
 import CommentSection from "./CommentSection";
 import { publicApi, PublicApiError, siteUrl } from "@/lib/server";
 import { contentUrl, type Content, type Page, type Settings, type Taxonomy, type ThemeView } from "@/lib/types";
-import { siteHref, type ThemeContext } from "@/lib/theme";
+import { siteHref, themeSource, type ThemeContext } from "@/lib/theme";
+import ArticleToc from "./ArticleToc";
 
 export async function homeMetadata() {
   const s = await publicApi<Settings>("settings");
@@ -35,7 +36,7 @@ export async function HomePage({
       <section className="hero">
         <div>
           <span className="eyebrow">
-            <span className="dot" /> 思考 · 记录 · 分享
+            <span className="dot" /> {theme.themeId === "cactus" ? "NOTES / CODE / LIFE" : theme.themeId === "retypeset" ? "文字有温度，阅读有回响" : "思考 · 记录 · 分享"}
           </span>
           <h1>{theme.options.heroTitle.split("\n").map((line, i) => i === 0 ? line : <span key={i}><br />{line}</span>)}</h1>
           <p>{theme.options.heroDescription}</p>
@@ -76,7 +77,7 @@ export async function HomePage({
               </Link>
             ))}
         </div>
-        <ContentList data={posts} taxonomy={taxonomy} preview={context?.preview} featured={theme.themeId === "magazine" && posts.page === 1} />
+        <ContentList data={posts} taxonomy={taxonomy} themeId={theme.themeId} preview={context?.preview} featured={theme.themeId === "magazine" && posts.page === 1} />
       </section>
     </SiteShell>
   );
@@ -147,13 +148,15 @@ export async function DetailPage({
 }) {
   const p = await params;
   const data = await resolveContent(p);
+  const theme = context?.theme ?? await publicApi<ThemeView>("theme");
+  const resolvedContext = { theme, preview: context?.preview };
   if (data.term) {
     const page = Number((await searchParams).page) || 1;
     const posts = await publicApi<Page<Content>>(
       `contents?${data.term.kind === "category" ? "categoryId" : "tagId"}=${data.term.id}&page=${page}`,
     );
     return (
-      <SiteShell context={context}>
+      <SiteShell context={resolvedContext}>
         <section className="site-section">
           <span className="eyebrow">
             {data.term.kind === "category" ? "分类归档" : "标签归档"}
@@ -163,6 +166,7 @@ export async function DetailPage({
             preview={context?.preview}
             data={posts}
             taxonomy={data.taxonomy}
+            themeId={theme.themeId}
             base={`/${p.archive}/${p.slug}`}
           />
         </section>
@@ -172,7 +176,7 @@ export async function DetailPage({
   const post = data.post!;
   const settings = await publicApi<Settings>("settings");
   return (
-    <SiteShell context={context}>
+    <SiteShell context={resolvedContext}>
       <article className="reading">
         <Link href={siteHref("/", context?.preview)} className="back-link">
           ← 返回文章列表
@@ -183,7 +187,7 @@ export async function DetailPage({
               {data.taxonomy.find((t) => t.id === post.categoryId)?.name ||
                 (post.kind === "page" ? "独立页面" : "随笔")}
             </span>
-            <time>
+            <time dateTime={post.publishedAt || undefined}>
               {post.publishedAt &&
                 new Date(post.publishedAt).toLocaleDateString("zh-CN", {
                   timeZone: "UTC",
@@ -200,10 +204,14 @@ export async function DetailPage({
             alt="文章封面"
           />
         )}
+        <div className="reading-layout">
+        {themeSource(theme.themeId) && <ArticleToc key={`${post.id}:${post.version}`} contentId={post.id} />}
         <div
+          id="article-body"
           className="prose"
           dangerouslySetInnerHTML={{ __html: post.html }}
         />
+        </div>
         <div className="tag-list">
           {post.tagIds
             .map((id) => data.taxonomy.find((t) => t.id === id))
@@ -228,14 +236,15 @@ export async function SearchPage({
   context?: ThemeContext;
 }) {
   const { q = "", page = "1" } = await searchParams;
-  const [posts, taxonomy] = await Promise.all([
+  const [posts, taxonomy, theme] = await Promise.all([
     publicApi<Page<Content>>(
       `contents?search=true&q=${encodeURIComponent(q.slice(0, 200))}&page=${Number(page) || 1}`,
     ),
     publicApi<Taxonomy[]>("taxonomy"),
+    context?.theme ?? publicApi<ThemeView>("theme"),
   ]);
   return (
-    <SiteShell context={context}>
+    <SiteShell context={{ theme, preview: context?.preview }}>
       <section className="site-section">
         <span className="eyebrow">DISCOVER</span>
         <h1>寻找感兴趣的内容</h1>
@@ -260,6 +269,7 @@ export async function SearchPage({
           preview={context?.preview}
           data={posts}
           taxonomy={taxonomy}
+          themeId={theme.themeId}
           base="/search"
           query={`q=${encodeURIComponent(q)}`}
         />

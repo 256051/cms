@@ -29,6 +29,7 @@ import ContentEditor from "./ContentEditor";
 import ThemeManager from "./ThemeManager";
 import MenuManager from "./MenuManager";
 import SettingsManager from "./SettingsManager";
+import TokenManager from "./TokenManager";
 import {
   AssetManager,
   TaxonomyManager,
@@ -51,6 +52,7 @@ const adminLinks = [
   ["settings", "站点设置", Settings],
   ["themes", "主题外观", Palette],
   ["users", "成员与权限", Users],
+  ["access-tokens", "API 访问令牌", LockKeyhole],
   ["audit", "操作记录", ShieldCheck],
 ] as const;
 export default function AdminApp({ route }: { route: string[] }) {
@@ -291,6 +293,8 @@ export default function AdminApp({ route }: { route: string[] }) {
               <MenuManager />
             ) : section === "users" ? (
               <UserManager />
+            ) : section === "access-tokens" ? (
+              <TokenManager user={user} />
             ) : section === "audit" ? (
               <AuditManager />
             ) : (

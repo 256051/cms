@@ -1,0 +1,123 @@
+{
+  "date": "2026-09-14",
+  "databaseRun": "cd8598f0f5",
+  "databases": {
+    "Sqlite": {
+      "status": "passed",
+      "checks": [
+        "authentication, CSRF and last administrator",
+        "role permissions and duplicate accounts",
+        "file signatures, size limit and private assets",
+        "long Unicode content, HTML sanitization, draft isolation and publication",
+        "published snapshot isolation, archive predicates and stale-version conflict",
+        "simultaneous edits preserve one successful version",
+        "comment moderation and rate limits",
+        "unpublish removes content, media and sitemap; republish updates references",
+        "independent pages, safe sorted menu and site settings",
+        "stable pagination, counts and audit",
+        "disabled accounts revoke existing sessions",
+        "authenticated OpenAPI contract",
+        "database transaction rollback, audit rollback and unique index",
+        "idempotent initialization, explicit migration and restart persistence",
+        "backup restored into a separate database with media and authentication keys",
+        "Consul overrides local config, environment overrides Consul, unavailable Consul fails startup"
+      ]
+    },
+    "PostgreSQL": {
+      "status": "passed",
+      "checks": [
+        "authentication, CSRF and last administrator",
+        "role permissions and duplicate accounts",
+        "file signatures, size limit and private assets",
+        "long Unicode content, HTML sanitization, draft isolation and publication",
+        "published snapshot isolation, archive predicates and stale-version conflict",
+        "simultaneous edits preserve one successful version",
+        "comment moderation and rate limits",
+        "unpublish removes content, media and sitemap; republish updates references",
+        "independent pages, safe sorted menu and site settings",
+        "stable pagination, counts and audit",
+        "disabled accounts revoke existing sessions",
+        "authenticated OpenAPI contract",
+        "database transaction rollback, audit rollback and unique index",
+        "idempotent initialization, explicit migration and restart persistence",
+        "backup restored into a separate database with media and authentication keys"
+      ]
+    },
+    "MySql": {
+      "status": "passed",
+      "checks": [
+        "authentication, CSRF and last administrator",
+        "role permissions and duplicate accounts",
+        "file signatures, size limit and private assets",
+        "long Unicode content, HTML sanitization, draft isolation and publication",
+        "published snapshot isolation, archive predicates and stale-version conflict",
+        "simultaneous edits preserve one successful version",
+        "comment moderation and rate limits",
+        "unpublish removes content, media and sitemap; republish updates references",
+        "independent pages, safe sorted menu and site settings",
+        "stable pagination, counts and audit",
+        "disabled accounts revoke existing sessions",
+        "authenticated OpenAPI contract",
+        "database transaction rollback, audit rollback and unique index",
+        "idempotent initialization, explicit migration and restart persistence",
+        "backup restored into a separate database with media and authentication keys"
+      ]
+    },
+    "SqlServer": {
+      "status": "passed",
+      "checks": [
+        "authentication, CSRF and last administrator",
+        "role permissions and duplicate accounts",
+        "file signatures, size limit and private assets",
+        "long Unicode content, HTML sanitization, draft isolation and publication",
+        "published snapshot isolation, archive predicates and stale-version conflict",
+        "simultaneous edits preserve one successful version",
+        "comment moderation and rate limits",
+        "unpublish removes content, media and sitemap; republish updates references",
+        "independent pages, safe sorted menu and site settings",
+        "stable pagination, counts and audit",
+        "disabled accounts revoke existing sessions",
+        "authenticated OpenAPI contract",
+        "database transaction rollback, audit rollback and unique index",
+        "idempotent initialization, explicit migration and restart persistence",
+        "backup restored into a separate database with media and authentication keys"
+      ]
+    }
+  },
+  "dockerRun": "docker-0c6daea10d",
+  "docker": {
+    "status": "passed",
+    "timestamp": "2026-09-14T12:52:03.274494+08:00",
+    "checks": [
+      "non-root API and Next.js Docker images",
+      "Compose initialization and Nginx HTTPS same-origin routing",
+      "Production secure session and CSRF cookies",
+      "login, upload, publish and server-rendered article",
+      "runtime SITE_URL in sitemap and robots",
+      "restart preserves database, media and authenticated session"
+    ]
+  },
+  "browser": {
+    "status": "passed",
+    "engine": "Microsoft Edge (Chromium)",
+    "framework": "Playwright 1.63.0",
+    "tests": 1,
+    "testDurationSeconds": 4.9,
+    "overallDurationSeconds": 5.9,
+    "widths": [
+      375,
+      768,
+      1024,
+      1440
+    ]
+  },
+  "build": {
+    "dotnet": "passed",
+    "warnings": 0,
+    "errors": 0,
+    "typescript": "passed",
+    "nextProduction": "passed",
+    "apiDocker": "passed",
+    "webDocker": "passed"
+  }
+}

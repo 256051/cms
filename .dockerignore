@@ -1,0 +1,12 @@
+.git
+.local
+artifacts
+**/bin
+**/obj
+**/node_modules
+**/.next
+**/tsconfig.tsbuildinfo
+.env
+data
+web/test-results
+web/playwright-report

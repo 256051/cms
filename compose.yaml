@@ -1,0 +1,88 @@
+name: cms
+services:
+  api:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.api
+    environment:
+      Database__Type: ${DB_TYPE:-PostgreSQL}
+      Database__ConnectionString: ${DB_CONNECTION_STRING:?Set DB_CONNECTION_STRING in .env}
+      ASPNETCORE_ENVIRONMENT: ${CMS_ENVIRONMENT:-Production}
+      Consul__Enabled: ${CONSUL_ENABLED:-false}
+      Consul__Address: ${CONSUL_ADDRESS:-http://consul:8500}
+      Consul__Key: ${CONSUL_KEY:-cms/config}
+      Consul__Token: ${CONSUL_TOKEN:-}
+      AutoMapper__LicenseKey: ${AUTOMAPPER_LICENSE_KEY:-}
+      ForwardedHeaders__KnownNetworks__0: ${CMS_NETWORK_SUBNET:-172.30.46.0/24}
+      Setup__Username: ${SETUP_USERNAME:-}
+      Setup__Password: ${SETUP_PASSWORD:-}
+    volumes:
+      - cms-data:/data
+    restart: unless-stopped
+    networks: [cms]
+  web:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile.web
+    environment:
+      API_INTERNAL_URL: http://api:8080
+      SITE_URL: ${SITE_URL:-http://localhost:8088}
+    depends_on: [api]
+    restart: unless-stopped
+    networks: [cms]
+  gateway:
+    image: nginx:1.28-alpine
+    ports:
+      - ${CMS_BIND_ADDRESS:-127.0.0.1}:${CMS_PORT:-8088}:80
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on: [web, api]
+    restart: unless-stopped
+    networks: [cms]
+  postgres:
+    image: postgres:17-alpine
+    profiles: [postgres]
+    environment:
+      POSTGRES_DB: cms
+      POSTGRES_USER: cms
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-}
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U cms -d cms"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    networks: [cms]
+  mysql:
+    image: mysql:8.4
+    profiles: [mysql]
+    environment:
+      MYSQL_DATABASE: cms
+      MYSQL_USER: cms
+      MYSQL_PASSWORD: ${DB_PASSWORD:-}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-}
+    command: [--character-set-server=utf8mb4, --collation-server=utf8mb4_bin]
+    volumes: [mysql-data:/var/lib/mysql]
+    restart: unless-stopped
+    networks: [cms]
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    profiles: [sqlserver]
+    environment:
+      ACCEPT_EULA: Y
+      MSSQL_SA_PASSWORD: ${DB_PASSWORD:-}
+      MSSQL_PID: ${MSSQL_PID:-Express}
+    volumes: [sqlserver-data:/var/opt/mssql]
+    restart: unless-stopped
+    networks: [cms]
+volumes:
+  cms-data:
+  postgres-data:
+  mysql-data:
+  sqlserver-data:
+networks:
+  cms:
+    ipam:
+      config:
+        - subnet: ${CMS_NETWORK_SUBNET:-172.30.46.0/24}

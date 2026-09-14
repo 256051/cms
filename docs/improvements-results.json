@@ -1,0 +1,153 @@
+{
+  "date": "2026-09-14",
+  "scope": [
+    "unsaved changes",
+    "site-wide SEO",
+    "loading and keyboard interaction",
+    "audit objects"
+  ],
+  "databaseRun": "24c867fa45",
+  "databases": {
+    "Sqlite": {
+      "status": "passed",
+      "checks": [
+        "authentication, CSRF and last administrator",
+        "role permissions and duplicate accounts",
+        "file signatures, size limit and private assets",
+        "long Unicode content, HTML sanitization, draft isolation and publication",
+        "published snapshot isolation, archive predicates and stale-version conflict",
+        "simultaneous edits preserve one successful version",
+        "comment moderation and rate limits",
+        "unpublish removes content, media and sitemap; republish updates references",
+        "independent pages, safe sorted menu and site settings",
+        "stable pagination, counts and audit",
+        "disabled accounts revoke existing sessions",
+        "audit object identity survives deletion and excludes credentials and content",
+        "authenticated OpenAPI contract",
+        "explicit repeatable v1 to v2 migration preserves historical audit and content; normal startup does not migrate",
+        "database transaction rollback, audit rollback and unique index",
+        "idempotent initialization, explicit migration and restart persistence",
+        "backup restored into a separate database with media and authentication keys",
+        "Consul overrides local config, environment overrides Consul, unavailable Consul fails startup"
+      ]
+    },
+    "PostgreSQL": {
+      "status": "passed",
+      "checks": [
+        "authentication, CSRF and last administrator",
+        "role permissions and duplicate accounts",
+        "file signatures, size limit and private assets",
+        "long Unicode content, HTML sanitization, draft isolation and publication",
+        "published snapshot isolation, archive predicates and stale-version conflict",
+        "simultaneous edits preserve one successful version",
+        "comment moderation and rate limits",
+        "unpublish removes content, media and sitemap; republish updates references",
+        "independent pages, safe sorted menu and site settings",
+        "stable pagination, counts and audit",
+        "disabled accounts revoke existing sessions",
+        "audit object identity survives deletion and excludes credentials and content",
+        "authenticated OpenAPI contract",
+        "explicit repeatable v1 to v2 migration preserves historical audit and content; normal startup does not migrate",
+        "database transaction rollback, audit rollback and unique index",
+        "idempotent initialization, explicit migration and restart persistence",
+        "backup restored into a separate database with media and authentication keys"
+      ]
+    },
+    "MySql": {
+      "status": "passed",
+      "checks": [
+        "authentication, CSRF and last administrator",
+        "role permissions and duplicate accounts",
+        "file signatures, size limit and private assets",
+        "long Unicode content, HTML sanitization, draft isolation and publication",
+        "published snapshot isolation, archive predicates and stale-version conflict",
+        "simultaneous edits preserve one successful version",
+        "comment moderation and rate limits",
+        "unpublish removes content, media and sitemap; republish updates references",
+        "independent pages, safe sorted menu and site settings",
+        "stable pagination, counts and audit",
+        "disabled accounts revoke existing sessions",
+        "audit object identity survives deletion and excludes credentials and content",
+        "authenticated OpenAPI contract",
+        "explicit repeatable v1 to v2 migration preserves historical audit and content; normal startup does not migrate",
+        "database transaction rollback, audit rollback and unique index",
+        "idempotent initialization, explicit migration and restart persistence",
+        "backup restored into a separate database with media and authentication keys"
+      ]
+    },
+    "SqlServer": {
+      "status": "passed",
+      "checks": [
+        "authentication, CSRF and last administrator",
+        "role permissions and duplicate accounts",
+        "file signatures, size limit and private assets",
+        "long Unicode content, HTML sanitization, draft isolation and publication",
+        "published snapshot isolation, archive predicates and stale-version conflict",
+        "simultaneous edits preserve one successful version",
+        "comment moderation and rate limits",
+        "unpublish removes content, media and sitemap; republish updates references",
+        "independent pages, safe sorted menu and site settings",
+        "stable pagination, counts and audit",
+        "disabled accounts revoke existing sessions",
+        "audit object identity survives deletion and excludes credentials and content",
+        "authenticated OpenAPI contract",
+        "explicit repeatable v1 to v2 migration preserves historical audit and content; normal startup does not migrate",
+        "database transaction rollback, audit rollback and unique index",
+        "idempotent initialization, explicit migration and restart persistence",
+        "backup restored into a separate database with media and authentication keys"
+      ]
+    }
+  },
+  "dockerRun": "docker-fc40c06e59",
+  "docker": {
+    "status": "passed",
+    "timestamp": "2026-09-14T05:53:28.249740+00:00",
+    "checks": [
+      "non-root API and Next.js Docker images",
+      "Compose initialization and Nginx HTTPS same-origin routing",
+      "Production secure session and CSRF cookies",
+      "login, upload, publish and server-rendered article",
+      "runtime SITE_URL in sitemap and robots",
+      "restart preserves database, media and authenticated session",
+      "Playwright publication, unsaved forms, SEO, loading recovery, keyboard and audit acceptance"
+    ]
+  },
+  "browser": {
+    "status": "passed",
+    "tests": 2,
+    "durationSeconds": 23.2,
+    "engine": "Microsoft Edge headless",
+    "environment": "isolated HTTPS Docker project"
+  },
+  "build": {
+    "dotnet": "passed, zero warnings and errors",
+    "frontendTypecheck": "passed",
+    "frontendProduction": "passed",
+    "dockerImages": "passed",
+    "openApiTypes": "regenerated"
+  },
+  "preview": {
+    "status": "passed",
+    "backup": ".local/backups/pre-v2-20260914-134853",
+    "schema": 2,
+    "originalColumnsUnchanged": true,
+    "attachmentsAndKeysUnchanged": true,
+    "countsBeforeRestart": {
+      "cms_users": 1,
+      "cms_content": 5,
+      "cms_taxonomy": 0,
+      "cms_assets": 5,
+      "cms_comments": 0,
+      "cms_menu": 0,
+      "cms_settings": 1,
+      "cms_audit": 34,
+      "cms_schema": 1
+    },
+    "restartChecks": [
+      "API readiness 200",
+      "same-origin existing account login unchanged",
+      "server HTML title matches stored site settings",
+      "new audit target is visible"
+    ]
+  }
+}

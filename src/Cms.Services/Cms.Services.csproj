@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk"><ItemGroup><ProjectReference Include="../Cms.Data/Cms.Data.csproj" />
+<FrameworkReference Include="Microsoft.AspNetCore.App" />
+<PackageReference Include="AutoMapper" Version="16.2.0" />
+<PackageReference Include="FluentValidation" Version="12.1.1" />
+<PackageReference Include="HtmlSanitizer" Version="9.2.1039" />
+</ItemGroup></Project>

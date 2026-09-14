@@ -1,0 +1,35 @@
+{
+  "date": "2026-09-14",
+  "build": "dotnet build: 0 warnings, 0 errors; TypeScript, Next.js production and both Docker images passed",
+  "serviceChecks": "challenge expiry, cooldown recovery, success reset, browser binding and concurrent account/replay limits passed",
+  "http": {
+    "status": "passed",
+    "checks": [
+      "no plaintext answer, no-store, HttpOnly browser binding and CSRF required",
+      "cross-browser copy rejected, wrong answers consume challenges, refresh replaces old image",
+      "uniform credential errors for missing, disabled and existing accounts",
+      "5 failures lock normalized account across client IPs, correct password cannot bypass cooldown",
+      "independent IP login and challenge limits return HTTP 429 and Retry-After",
+      "simultaneous replay reaches password verification only once"
+    ]
+  },
+  "docker": {
+    "status": "passed",
+    "timestamp": "2026-09-14T09:39:24.225188+00:00",
+    "checks": [
+      "non-root API and Next.js Docker images",
+      "Compose initialization and Nginx HTTPS same-origin routing",
+      "Production secure session and CSRF cookies",
+      "login, upload, publish and server-rendered article",
+      "runtime SITE_URL in sitemap and robots",
+      "restart preserves database, media and authenticated session",
+      "Playwright publication, unsaved forms, SEO, loading recovery, keyboard and audit acceptance",
+      "four theme layouts, private preview navigation, independent profiles, accessible colors, SSR SEO and restart persistence",
+      "five menu target types, nested keyboard navigation in four themes at three widths, protected editing, preview links and restart persistence",
+      "site settings, favicon and language, live pagination and search indexing policy, comment controls, conflict protection and restart persistence",
+      "login image challenge over HTTPS, secure browser binding, refresh, retained inputs, retry countdown and mobile keyboard login"
+    ]
+  },
+  "browserSuitesPassed": 6,
+  "scope": "isolated SQLite and single API instance; other database matrices not rerun for this change"
+}

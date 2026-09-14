@@ -1,0 +1,169 @@
+{
+  "date": "2026-09-14",
+  "schema": 3,
+  "databaseRun": "6f0398c4ae",
+  "dockerRun": "docker-195dd087cc",
+  "build": {
+    "dotnet": "passed, 0 warnings, 0 errors",
+    "typecheck": "passed",
+    "nextProductionBuild": "passed",
+    "dockerImages": "passed"
+  },
+  "databaseGroups": 89,
+  "databases": {
+    "Sqlite": {
+      "status": "passed",
+      "checks": [
+        "authentication, CSRF and last administrator",
+        "role permissions and duplicate accounts",
+        "theme administrator permissions, CSRF and bounded plain-text/color validation",
+        "theme preview validates without persistence, activation or audit side effects",
+        "four independent theme profiles, effective-only public output and stale-version rejection",
+        "concurrent theme activation accepts one revision and records theme identity",
+        "file signatures, size limit and private assets",
+        "long Unicode content, HTML sanitization, draft isolation and publication",
+        "published snapshot isolation, archive predicates and stale-version conflict",
+        "simultaneous edits preserve one successful version",
+        "comment moderation and rate limits",
+        "unpublish removes content, media and sitemap; republish updates references",
+        "independent pages, safe sorted menu and site settings",
+        "stable pagination, counts and audit",
+        "disabled accounts revoke existing sessions",
+        "audit object identity survives deletion and excludes credentials and content",
+        "authenticated OpenAPI contract",
+        "explicit repeatable v1 through v3 migration preserves historical audit and content; normal startup does not migrate",
+        "database transaction rollback, audit rollback and unique index",
+        "idempotent initialization, explicit migration and restart persistence",
+        "backup restored into a separate database with media and authentication keys",
+        "v2 to v3 preserves site metadata; fresh v3 initialization is repeatable with classic defaults",
+        "Consul overrides local config, environment overrides Consul, unavailable Consul fails startup"
+      ]
+    },
+    "PostgreSQL": {
+      "status": "passed",
+      "checks": [
+        "authentication, CSRF and last administrator",
+        "role permissions and duplicate accounts",
+        "theme administrator permissions, CSRF and bounded plain-text/color validation",
+        "theme preview validates without persistence, activation or audit side effects",
+        "four independent theme profiles, effective-only public output and stale-version rejection",
+        "concurrent theme activation accepts one revision and records theme identity",
+        "file signatures, size limit and private assets",
+        "long Unicode content, HTML sanitization, draft isolation and publication",
+        "published snapshot isolation, archive predicates and stale-version conflict",
+        "simultaneous edits preserve one successful version",
+        "comment moderation and rate limits",
+        "unpublish removes content, media and sitemap; republish updates references",
+        "independent pages, safe sorted menu and site settings",
+        "stable pagination, counts and audit",
+        "disabled accounts revoke existing sessions",
+        "audit object identity survives deletion and excludes credentials and content",
+        "authenticated OpenAPI contract",
+        "explicit repeatable v1 through v3 migration preserves historical audit and content; normal startup does not migrate",
+        "database transaction rollback, audit rollback and unique index",
+        "idempotent initialization, explicit migration and restart persistence",
+        "backup restored into a separate database with media and authentication keys",
+        "v2 to v3 preserves site metadata; fresh v3 initialization is repeatable with classic defaults"
+      ]
+    },
+    "MySql": {
+      "status": "passed",
+      "checks": [
+        "authentication, CSRF and last administrator",
+        "role permissions and duplicate accounts",
+        "theme administrator permissions, CSRF and bounded plain-text/color validation",
+        "theme preview validates without persistence, activation or audit side effects",
+        "four independent theme profiles, effective-only public output and stale-version rejection",
+        "concurrent theme activation accepts one revision and records theme identity",
+        "file signatures, size limit and private assets",
+        "long Unicode content, HTML sanitization, draft isolation and publication",
+        "published snapshot isolation, archive predicates and stale-version conflict",
+        "simultaneous edits preserve one successful version",
+        "comment moderation and rate limits",
+        "unpublish removes content, media and sitemap; republish updates references",
+        "independent pages, safe sorted menu and site settings",
+        "stable pagination, counts and audit",
+        "disabled accounts revoke existing sessions",
+        "audit object identity survives deletion and excludes credentials and content",
+        "authenticated OpenAPI contract",
+        "explicit repeatable v1 through v3 migration preserves historical audit and content; normal startup does not migrate",
+        "database transaction rollback, audit rollback and unique index",
+        "idempotent initialization, explicit migration and restart persistence",
+        "backup restored into a separate database with media and authentication keys",
+        "v2 to v3 preserves site metadata; fresh v3 initialization is repeatable with classic defaults"
+      ]
+    },
+    "SqlServer": {
+      "status": "passed",
+      "checks": [
+        "authentication, CSRF and last administrator",
+        "role permissions and duplicate accounts",
+        "theme administrator permissions, CSRF and bounded plain-text/color validation",
+        "theme preview validates without persistence, activation or audit side effects",
+        "four independent theme profiles, effective-only public output and stale-version rejection",
+        "concurrent theme activation accepts one revision and records theme identity",
+        "file signatures, size limit and private assets",
+        "long Unicode content, HTML sanitization, draft isolation and publication",
+        "published snapshot isolation, archive predicates and stale-version conflict",
+        "simultaneous edits preserve one successful version",
+        "comment moderation and rate limits",
+        "unpublish removes content, media and sitemap; republish updates references",
+        "independent pages, safe sorted menu and site settings",
+        "stable pagination, counts and audit",
+        "disabled accounts revoke existing sessions",
+        "audit object identity survives deletion and excludes credentials and content",
+        "authenticated OpenAPI contract",
+        "explicit repeatable v1 through v3 migration preserves historical audit and content; normal startup does not migrate",
+        "database transaction rollback, audit rollback and unique index",
+        "idempotent initialization, explicit migration and restart persistence",
+        "backup restored into a separate database with media and authentication keys",
+        "v2 to v3 preserves site metadata; fresh v3 initialization is repeatable with classic defaults"
+      ]
+    }
+  },
+  "docker": {
+    "status": "passed",
+    "timestamp": "2026-09-14T07:49:19.545309+00:00",
+    "checks": [
+      "non-root API and Next.js Docker images",
+      "Compose initialization and Nginx HTTPS same-origin routing",
+      "Production secure session and CSRF cookies",
+      "login, upload, publish and server-rendered article",
+      "runtime SITE_URL in sitemap and robots",
+      "restart preserves database, media and authenticated session",
+      "Playwright publication, unsaved forms, SEO, loading recovery, keyboard and audit acceptance",
+      "four theme layouts, private preview navigation, independent profiles, accessible colors, SSR SEO and restart persistence"
+    ]
+  },
+  "browser": {
+    "status": "passed",
+    "engine": "Microsoft Edge",
+    "tests": 3,
+    "seconds": 42.0,
+    "themeTestSeconds": 16.1,
+    "publicViewportWidths": [
+      375,
+      768,
+      1440
+    ],
+    "adminViewportWidths": [
+      375,
+      768,
+      1440
+    ]
+  },
+  "thumbnails": {
+    "classic.png": "bc00c9b268675fb324ecf975282d07253b75267c08e3e348f67ee1f45c40d141",
+    "magazine.png": "28e57ba7ad0cbe1967a3207001d93ae18526132e1fdf76a19189f92038be5db4",
+    "midnight.png": "f48ff60824c46e3d32f1607af46a23cfd0e19917fa11af981abc4ab138dc4b66",
+    "paper.png": "e689572bb341a269b5bca9aa5efd7e16a0dca9fbb854538c4cc3f072c682fbd2"
+  },
+  "localPreview": {
+    "backup": ".local/backups/pre-v3-20260914-154846/",
+    "schema": 3,
+    "originalDataPreserved": true,
+    "originalCredentialsValid": true,
+    "attachmentsAndKeysUnchanged": true,
+    "activeThemeId": "classic"
+  }
+}

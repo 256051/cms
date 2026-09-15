@@ -7,26 +7,35 @@ namespace Cms.Services;
 /// <summary>Local file storage with verified formats and reference protection.</summary>
 public sealed class AssetService(CmsRepository repository, IConfiguration config)
 {
+    private readonly long maxBytes =
+        Math.Clamp(config.GetValue<long?>("Storage:MaxBytes") ?? 10_485_760, 1, 52_428_800);
+
     private readonly string root = Path.GetFullPath(config["Storage:Path"] ?? "data/uploads");
-    private readonly long maxBytes = Math.Clamp(config.GetValue<long?>("Storage:MaxBytes") ?? 10_485_760, 1, 52_428_800);
+
     /// <summary>List uploaded files without disclosing disk paths.</summary>
     public async Task<PageResult<AssetView>> ListAsync(int page)
     {
         var result = await repository.PageAsync<Asset>(x => true, page, 40);
-        return new(result.Items.Select(View).ToList(), result.Total, result.Page, result.PageSize);
+        return new PageResult<AssetView>(result.Items.Select(View).ToList(), result.Total, result.Page,
+            result.PageSize);
     }
+
     /// <summary>Verify a bounded upload, persist metadata, and clean up on transaction failure.</summary>
-    public async Task<AssetView> UploadAsync(string actor, string filename, Stream input, CancellationToken cancellation)
+    public async Task<AssetView> UploadAsync(string actor, string filename, Stream input,
+        CancellationToken cancellation)
     {
         filename = Path.GetFileName(filename);
         if (filename.Length is 0 or > 200) throw Bad("文件名无效。");
         using var buffer = new MemoryStream();
-        var block = new byte[81920]; int read;
+        var block = new byte[81920];
+        int read;
         while ((read = await input.ReadAsync(block, cancellation)) > 0)
         {
-            if (buffer.Length + read > maxBytes) throw new CmsException(413, "FILE_TOO_LARGE", $"文件不能超过 {maxBytes / 1024 / 1024} MB。");
+            if (buffer.Length + read > maxBytes)
+                throw new CmsException(413, "FILE_TOO_LARGE", $"文件不能超过 {maxBytes / 1024 / 1024} MB。");
             await buffer.WriteAsync(block.AsMemory(0, read), cancellation);
         }
+
         var bytes = buffer.ToArray();
         var extension = Path.GetExtension(filename).ToLowerInvariant();
         var mime = Detect(bytes, extension) ?? throw Bad("文件格式无效。支持 PNG、JPEG、GIF、WebP、PDF、MP4、WebM、MP3 和 WAV。");
@@ -38,9 +47,18 @@ public sealed class AssetService(CmsRepository repository, IConfiguration config
         try
         {
             await File.WriteAllBytesAsync(path, bytes, cancellation);
-            return await repository.WriteAsync(actor, "asset.upload", async repo => { repo.SetAuditTarget("asset", row.Id, row.Name); await repo.InsertAsync(row); return View(row); });
+            return await repository.WriteAsync(actor, "asset.upload", async repo =>
+            {
+                repo.SetAuditTarget("asset", row.Id, row.Name);
+                await repo.InsertAsync(row);
+                return View(row);
+            });
         }
-        catch { File.Delete(path); throw; }
+        catch
+        {
+            File.Delete(path);
+            throw;
+        }
     }
 
     /// <summary>Authorize files using live published references or a valid editor session.</summary>
@@ -50,7 +68,7 @@ public sealed class AssetService(CmsRepository repository, IConfiguration config
         if (!authenticated && !await Referenced(repository, id, true)) throw Missing();
         var path = Path.Combine(root, row.StorageName);
         if (!File.Exists(path)) throw Missing();
-        return new(path, row.ContentType, row.Name);
+        return new FileView(path, row.ContentType, row.Name);
     }
 
     /// <summary>Delete unused metadata atomically, then remove the physical file.</summary>
@@ -61,9 +79,11 @@ public sealed class AssetService(CmsRepository repository, IConfiguration config
             var asset = await repo.FindAsync<Asset>(id) ?? throw Missing();
             if (await Referenced(repo, id, false)) throw new CmsException(409, "ASSET_IN_USE", "附件已被草稿、发布版本或站点图片引用。");
             repo.SetAuditTarget("asset", asset.Id, asset.Name);
-            await repo.DeleteAsync<Asset>(id); return asset;
+            await repo.DeleteAsync<Asset>(id);
+            return asset;
         });
-        File.Delete(Path.Combine(root, row.StorageName)); return true;
+        File.Delete(Path.Combine(root, row.StorageName));
+        return true;
     }
 
     private static async Task<bool> Referenced(CmsRepository repo, string id, bool onlyPublic)
@@ -74,34 +94,46 @@ public sealed class AssetService(CmsRepository repository, IConfiguration config
         // ponytail: reference scan is linear in site content; introduce a reference table for large media libraries.
         return rows.Any(x => (!onlyPublic && (x.CoverId == id || x.Html.Contains(id))) || x.PublishedJson.Contains(id));
     }
+
     private static string? Detect(byte[] b, string ext)
     {
         if (ext == ".png" && b.AsSpan().StartsWith(new byte[] { 137, 80, 78, 71, 13, 10, 26, 10 })) return "image/png";
         if (ext is ".jpg" or ".jpeg" && b.Length > 3 && b[0] == 255 && b[1] == 216 && b[2] == 255) return "image/jpeg";
-        if (ext == ".gif" && (b.AsSpan().StartsWith("GIF89a"u8) || b.AsSpan().StartsWith("GIF87a"u8))) return "image/gif";
-        if (ext == ".webp" && b.Length > 12 && b.AsSpan(0, 4).SequenceEqual("RIFF"u8) && b.AsSpan(8, 4).SequenceEqual("WEBP"u8)) return "image/webp";
+        if (ext == ".gif" && (b.AsSpan().StartsWith("GIF89a"u8) || b.AsSpan().StartsWith("GIF87a"u8)))
+            return "image/gif";
+        if (ext == ".webp" && b.Length > 12 && b.AsSpan(0, 4).SequenceEqual("RIFF"u8) &&
+            b.AsSpan(8, 4).SequenceEqual("WEBP"u8)) return "image/webp";
         if (ext == ".pdf" && b.AsSpan().StartsWith("%PDF-"u8)) return "application/pdf";
         if (ext == ".mp4" && Mp4(b)) return "video/mp4";
-        if (ext == ".webm" && b.Length > 32 && b.AsSpan().StartsWith(new byte[] { 0x1a, 0x45, 0xdf, 0xa3 }) && b.AsSpan(0, Math.Min(b.Length, 4096)).IndexOf(new byte[] { 0x42, 0x82, 0x84, 0x77, 0x65, 0x62, 0x6d }) >= 0 && b.AsSpan().IndexOf(new byte[] { 0x18, 0x53, 0x80, 0x67 }) >= 0) return "video/webm";
+        if (ext == ".webm" && b.Length > 32 && b.AsSpan().StartsWith(new byte[] { 0x1a, 0x45, 0xdf, 0xa3 }) &&
+            b.AsSpan(0, Math.Min(b.Length, 4096)).IndexOf(new byte[] { 0x42, 0x82, 0x84, 0x77, 0x65, 0x62, 0x6d }) >=
+            0 && b.AsSpan().IndexOf(new byte[] { 0x18, 0x53, 0x80, 0x67 }) >= 0) return "video/webm";
         if (ext == ".wav" && Wave(b)) return "audio/wav";
         if (ext == ".mp3" && Mp3(b)) return "audio/mpeg";
         return null;
     }
+
     // Container validation, not codec transcoding. Playback still depends on the browser's supported codec.
     private static bool Mp4(byte[] b)
     {
-        var offset = 0; var ftyp = false; var movie = false; var data = false;
+        var offset = 0;
+        var ftyp = false;
+        var movie = false;
+        var data = false;
         while (offset <= b.Length - 8)
         {
-            long size = BinaryPrimitives.ReadUInt32BigEndian(b.AsSpan(offset)); var header = 8;
+            long size = BinaryPrimitives.ReadUInt32BigEndian(b.AsSpan(offset));
+            var header = 8;
             var type = b.AsSpan(offset + 4, 4);
             if (size == 1)
             {
                 if (offset > b.Length - 16) return false;
                 var large = BinaryPrimitives.ReadUInt64BigEndian(b.AsSpan(offset + 8));
                 if (large > int.MaxValue) return false;
-                size = (long)large; header = 16;
+                size = (long)large;
+                header = 16;
             }
+
             if (size == 0) size = b.Length - offset;
             if (size < header || size > b.Length - offset) return false;
             if (type.SequenceEqual("ftyp"u8)) ftyp = size >= header + 8;
@@ -109,22 +141,32 @@ public sealed class AssetService(CmsRepository repository, IConfiguration config
             if (type.SequenceEqual("mdat"u8)) data = size > header;
             offset += (int)size;
         }
+
         return offset == b.Length && ftyp && movie && data;
     }
+
     private static bool Wave(byte[] b)
     {
-        if (b.Length < 44 || !b.AsSpan(0, 4).SequenceEqual("RIFF"u8) || !b.AsSpan(8, 4).SequenceEqual("WAVE"u8) || BinaryPrimitives.ReadUInt32LittleEndian(b.AsSpan(4)) != b.Length - 8) return false;
-        var offset = 12; var format = false; var data = false;
+        if (b.Length < 44 || !b.AsSpan(0, 4).SequenceEqual("RIFF"u8) || !b.AsSpan(8, 4).SequenceEqual("WAVE"u8) ||
+            BinaryPrimitives.ReadUInt32LittleEndian(b.AsSpan(4)) != b.Length - 8) return false;
+        var offset = 12;
+        var format = false;
+        var data = false;
         while (offset <= b.Length - 8)
         {
             var size = BinaryPrimitives.ReadUInt32LittleEndian(b.AsSpan(offset + 4));
             if (size > b.Length - offset - 8) return false;
-            if (b.AsSpan(offset, 4).SequenceEqual("fmt "u8)) format = size >= 16 && BinaryPrimitives.ReadUInt16LittleEndian(b.AsSpan(offset + 10)) is >= 1 and <= 8 && BinaryPrimitives.ReadUInt32LittleEndian(b.AsSpan(offset + 12)) > 0;
+            if (b.AsSpan(offset, 4).SequenceEqual("fmt "u8))
+                format = size >= 16 &&
+                         BinaryPrimitives.ReadUInt16LittleEndian(b.AsSpan(offset + 10)) is >= 1 and <= 8 &&
+                         BinaryPrimitives.ReadUInt32LittleEndian(b.AsSpan(offset + 12)) > 0;
             if (b.AsSpan(offset, 4).SequenceEqual("data"u8)) data = size > 0;
             offset += 8 + (int)size + (int)(size % 2);
         }
+
         return format && data;
     }
+
     private static bool Mp3(byte[] b)
     {
         var offset = 0;
@@ -133,15 +175,33 @@ public sealed class AssetService(CmsRepository repository, IConfiguration config
             if (b.Length < 10 || b.AsSpan(6, 4).ToArray().Any(x => x > 127)) return false;
             offset = 10 + (b[6] << 21) + (b[7] << 14) + (b[8] << 7) + b[9] + ((b[5] & 16) != 0 ? 10 : 0);
         }
+
         if (offset > b.Length - 4 || b[offset] != 255 || (b[offset + 1] & 0xe0) != 0xe0) return false;
-        var version = (b[offset + 1] >> 3) & 3; var layer = (b[offset + 1] >> 1) & 3;
-        var rate = b[offset + 2] >> 4; var sample = (b[offset + 2] >> 2) & 3;
+        var version = (b[offset + 1] >> 3) & 3;
+        var layer = (b[offset + 1] >> 1) & 3;
+        var rate = b[offset + 2] >> 4;
+        var sample = (b[offset + 2] >> 2) & 3;
         if (version == 1 || layer != 1 || rate is 0 or 15 || sample == 3) return false;
-        var bitrate = (version == 3 ? new[] { 0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320 } : new[] { 0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160 })[rate];
+        var bitrate =
+            (version == 3
+                ? new[] { 0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320 }
+                : new[] { 0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160 })[rate];
         var frequency = new[] { 44100, 48000, 32000 }[sample] / (version == 3 ? 1 : version == 2 ? 2 : 4);
         return b.Length - offset >= (version == 3 ? 144000 : 72000) * bitrate / frequency + ((b[offset + 2] >> 1) & 1);
     }
-    private static AssetView View(Asset a) => new(a.Id, a.Name, a.ContentType, a.Size, a.CreatedAt, "/media/" + a.Id);
-    private static CmsException Bad(string message) => new(400, "INVALID_FILE", message);
-    private static CmsException Missing() => new(404, "NOT_FOUND", "附件不存在或尚未公开。");
+
+    private static AssetView View(Asset a)
+    {
+        return new AssetView(a.Id, a.Name, a.ContentType, a.Size, a.CreatedAt, "/media/" + a.Id);
+    }
+
+    private static CmsException Bad(string message)
+    {
+        return new CmsException(400, "INVALID_FILE", message);
+    }
+
+    private static CmsException Missing()
+    {
+        return new CmsException(404, "NOT_FOUND", "附件不存在或尚未公开。");
+    }
 }

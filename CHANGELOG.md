@@ -1,5 +1,12 @@
 # 修改记录
 
+## 2026-09-15 — Docker 离线部署包
+
+- 增加 `scripts/package-docker.py`，构建并导出版本化 API、web 和 Nginx 镜像，默认 Linux amd64 + SQLite；发布包携带 Compose、说明、许可、来源版本及 SHA-256 校验。
+- 部署时直接导入镜像，无需在服务器编译；管理员凭据和证书由部署方提供，SQLite、附件和认证密钥统一保存在持久卷，不打包本地数据。
+- 增加 [离线部署说明](docs/docker-package.md)，同步修正文档中的 schema 版本与主题数量。
+- 补充 [宿主机 Nginx 转发方案](docs/host-nginx.md)：仅在回环地址暴露 API/前端端口，由现有 Nginx 终止 HTTPS 并传递真实客户端 IP，无需重新构建镜像。
+
 ## 2026-09-15 — 第一批社区主题适配
 
 - 新增 Fuwari、Retypeset、Cactus 三套内置主题：分别提供圆角卡片与侧栏、书籍式阅读与左侧导航、深色等宽日期列表；原有四套主题继续可用。

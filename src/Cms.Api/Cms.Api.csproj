@@ -1,4 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk.Web"><ItemGroup><ProjectReference Include="../Cms.Services/Cms.Services.csproj" />
-<PackageReference Include="Autofac.Extensions.DependencyInjection" Version="11.0.2" />
-<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
-</ItemGroup></Project>
+<Project Sdk="Microsoft.NET.Sdk.Web">
+    <ItemGroup>
+        <ProjectReference Include="../Cms.Services/Cms.Services.csproj"/>
+        <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="11.0.2"/>
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12"/>
+    </ItemGroup>
+</Project>

@@ -1,4 +1,5 @@
 using FreeSql;
+using SQLitePCL;
 
 namespace Cms.Api;
 
@@ -12,7 +13,8 @@ public static class Configuration
         var address = config["Consul:Address"] ?? throw new InvalidOperationException("Consul:Address is required.");
         var key = config["Consul:Key"] ?? "cms/config";
         using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
-        using var request = new HttpRequestMessage(HttpMethod.Get, address.TrimEnd('/') + "/v1/kv/" + string.Join('/', key.Split('/').Select(Uri.EscapeDataString)) + "?raw");
+        using var request = new HttpRequestMessage(HttpMethod.Get,
+            address.TrimEnd('/') + "/v1/kv/" + string.Join('/', key.Split('/').Select(Uri.EscapeDataString)) + "?raw");
         if (config["Consul:Token"] is { Length: > 0 } token) request.Headers.Add("X-Consul-Token", token);
         using var response = await client.SendAsync(request);
         response.EnsureSuccessStatusCode();
@@ -34,8 +36,9 @@ public static class Configuration
             _ => throw new InvalidOperationException("Database:Type must be PostgreSQL, SqlServer, MySql or Sqlite.")
         };
         var connection = config["Database:ConnectionString"];
-        if (string.IsNullOrWhiteSpace(connection)) throw new InvalidOperationException("Database:ConnectionString is required.");
-        if (type == DataType.Sqlite) SQLitePCL.Batteries_V2.Init();
+        if (string.IsNullOrWhiteSpace(connection))
+            throw new InvalidOperationException("Database:ConnectionString is required.");
+        if (type == DataType.Sqlite) Batteries_V2.Init();
         return new FreeSqlBuilder().UseConnectionString(type, connection).UseAutoSyncStructure(false).Build();
     }
 }

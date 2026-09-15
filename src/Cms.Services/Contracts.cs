@@ -1,43 +1,109 @@
-using Mapster;
-using FluentValidation;
 using Cms.Data;
+using FluentValidation;
+using Mapster;
 
 namespace Cms.Services;
 
 /// <summary>Account information safe for the browser.</summary>
 public record UserView(string Id, string Username, string DisplayName, string Role, bool Enabled);
+
 /// <summary>Login credentials.</summary>
 public record LoginInput(string Username, string Password, string CaptchaId, string CaptchaCode);
+
 /// <summary>Single-use login challenge, image and validity period; never includes its answer.</summary>
 public record CaptchaView(string Id, string Image, int ExpiresInSeconds);
+
 /// <summary>Editorial input with optimistic version.</summary>
-public record ContentInput(string Kind, string Slug, string Title, string Summary, string Html, string CoverId, string CategoryId, string[] TagIds, int Version);
+public record ContentInput(
+    string Kind,
+    string Slug,
+    string Title,
+    string Summary,
+    string Html,
+    string CoverId,
+    string CategoryId,
+    string[] TagIds,
+    int Version);
+
 /// <summary>Immutable sanitized content snapshot.</summary>
-public record ContentView(string Id, string Kind, string Slug, string Title, string Summary, string Html, string CoverId, string CategoryId, string[] TagIds, int Version, bool Published, DateTime? PublishedAt);
+public record ContentView(
+    string Id,
+    string Kind,
+    string Slug,
+    string Title,
+    string Summary,
+    string Html,
+    string CoverId,
+    string CategoryId,
+    string[] TagIds,
+    int Version,
+    bool Published,
+    DateTime? PublishedAt);
+
 /// <summary>Version required for publish, unpublish and delete.</summary>
 public record VersionInput(int Version);
+
 /// <summary>Category/tag input.</summary>
 public record TaxonomyInput(string Kind, string Name, string Slug);
+
 /// <summary>Menu input.</summary>
-public record MenuInput(string Label, string Url, int Sort, string ParentId = "", string Type = "custom", string TargetId = "", bool OpenInNewTab = false, int Version = 0);
+public record MenuInput(
+    string Label,
+    string Url,
+    int Sort,
+    string ParentId = "",
+    string Type = "custom",
+    string TargetId = "",
+    bool OpenInNewTab = false,
+    int Version = 0);
+
 /// <summary>Resolved navigation destination; unavailable items are administrative only.</summary>
-public record MenuView(string Id, string Label, string Url, int Sort, string ParentId, string Type, string TargetId, bool OpenInNewTab, int Version, bool Available);
+public record MenuView(
+    string Id,
+    string Label,
+    string Url,
+    int Sort,
+    string ParentId,
+    string Type,
+    string TargetId,
+    bool OpenInNewTab,
+    int Version,
+    bool Available);
+
 /// <summary>One selectable published content or archive destination.</summary>
 public record MenuTarget(string Id, string Label, string Url);
+
 /// <summary>Public comment input.</summary>
 public record CommentInput(string ContentId, string Author, string Body);
+
 /// <summary>Comment moderation input.</summary>
 public record ModerateInput(bool Approved);
+
 /// <summary>Account administration input; password optional on edit.</summary>
 public record UserInput(string Username, string DisplayName, string Role, bool Enabled, string? Password);
+
 /// <summary>Password rotation request.</summary>
 public record PasswordInput(string CurrentPassword, string NewPassword);
+
 /// <summary>Public site settings input.</summary>
-public record SettingsInput(string Title, string Description, string LogoId, string Keywords,
-    string Subtitle = "", string FaviconId = "", string Language = "zh-CN",
-    int HomePageSize = 12, int CategoryPageSize = 12, int TagPageSize = 12, int SearchPageSize = 12,
-    bool BlockSearchEngines = false, bool CommentsEnabled = true, bool RequireCommentApproval = true,
-    bool CommentsRequireLogin = false, string FooterText = "", int Version = 0);
+public record SettingsInput(
+    string Title,
+    string Description,
+    string LogoId,
+    string Keywords,
+    string Subtitle = "",
+    string FaviconId = "",
+    string Language = "zh-CN",
+    int HomePageSize = 12,
+    int CategoryPageSize = 12,
+    int TagPageSize = 12,
+    int SearchPageSize = 12,
+    bool BlockSearchEngines = false,
+    bool CommentsEnabled = true,
+    bool RequireCommentApproval = true,
+    bool CommentsRequireLogin = false,
+    string FooterText = "",
+    int Version = 0);
 
 /// <summary>Validate bounded, non-executable site settings.</summary>
 public sealed class SettingsValidator : AbstractValidator<SettingsInput>
@@ -59,12 +125,20 @@ public sealed class SettingsValidator : AbstractValidator<SettingsInput>
         RuleFor(x => x.SearchPageSize).InclusiveBetween(1, 50);
         RuleFor(x => x.Version).InclusiveBetween(0, int.MaxValue - 1);
     }
-    private static bool Plain(string? value) => value != null && !value.Any(c => c is '<' or '>' || char.IsControl(c) && c is not ('\r' or '\n' or '\t'));
+
+    private static bool Plain(string? value)
+    {
+        return value != null &&
+               !value.Any(c => c is '<' or '>' || (char.IsControl(c) && c is not ('\r' or '\n' or '\t')));
+    }
 }
+
 /// <summary>File response with verified metadata.</summary>
 public record FileView(string Path, string ContentType, string Name);
+
 /// <summary>Browser-visible file metadata.</summary>
 public record AssetView(string Id, string Name, string ContentType, long Size, DateTime CreatedAt, string Url);
+
 /// <summary>Live overview counts.</summary>
 public record StatsView(long Posts, long Published, long Pages, long PendingComments, long Assets);
 

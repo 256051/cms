@@ -1,0 +1,8 @@
+# Same-host Nginx terminates HTTPS. Start only api and web with this override.
+services:
+  api:
+    ports:
+      - "127.0.0.1:5080:8080"
+  web:
+    ports:
+      - "127.0.0.1:3000:3000"

@@ -38,6 +38,7 @@ npm --prefix web ci
 通过后端 `Database:Type` 和 `Database:ConnectionString` 在启动时选用 `PostgreSQL`、`MySql`、`SqlServer` 或 `Sqlite`。默认部署为 PostgreSQL。四库均经过实际初始化、业务、事务、并发和恢复验证；版本与验证边界见 [验收记录](docs/verification.md)。
 
 - [部署与配置](docs/deployment.md)：四库连接示例、Docker Compose、HTTPS、Consul、初始化与升级。
+- [Docker 离线包](docs/docker-package.md)：Linux SQLite 镜像导入、初始账号、域名与 HTTPS 部署。
 - [使用说明](docs/usage.md)：编辑发布、附件、审核、账号和设置。
 - [丰富编辑器](docs/editor.md)：排版、图片集、音视频、表格、网页嵌入和分栏；[实际验收](docs/editor-verification.md)。
 - [备份恢复与排查](docs/operations.md)：数据库、附件、密钥的配套恢复流程。

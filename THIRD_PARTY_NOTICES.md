@@ -2,7 +2,7 @@
 
 CMS 的 Fuwari、Retypeset、Cactus 内置主题采用以下原作的布局和视觉规则，重新编写 React 组件与普通 CSS，并接入本项目的内容、导航、搜索、评论与主题管理。没有复制原作的 JavaScript 运行时。它们不是原作官方发行版本，也不提供 Halo 主题安装包或插件的兼容运行时。
 
-转换模板语言或调整样式不改变原作的许可。以下完整 MIT 许可及版权声明随源码保留；再分发涉及的源码或构建产物时，也应随附这些声明。机器可读的固定提交、核对过的源文件与本地实现映射见 [docs/theme-upstreams.json](docs/theme-upstreams.json)。
+转换模板语言或调整样式不改变原作的许可。以下完整 MIT / BSD-3-Clause 许可及版权声明随源码保留；再分发涉及的源码或构建产物时，也应随附这些声明。机器可读的固定提交、核对过的源文件与本地实现映射见 [docs/theme-upstreams.json](docs/theme-upstreams.json)。
 
 ## Fuwari
 
@@ -39,3 +39,63 @@ CMS 的 Fuwari、Retypeset、Cactus 内置主题采用以下原作的布局和�
 这些主题使用系统字体、站点自身附件及本项目自有素材。上游的字体文件、演示图片、头像、文章、统计与评论服务 SDK 均不包含在本次移植中；不能仅凭主题根目录的 MIT 许可推断这些外部资源也适用相同许可。
 
 本次适配提供 CMS 已有页面和内容能力，不承诺完整复制原作的数学公式、图库、瞬间、音乐、国际化、外部评论服务及所有动画。所使用的 npm / .NET 依赖仍各自遵守其许可；本文记录的是主题原作来源，不替代依赖项的许可声明。
+
+## 第二批博客布局（2026-09-15）
+
+以下八套采用各自原作的布局与视觉规则，功能限定为本 CMS 已有的博客页面；没有复制 Halo 移植版本的新增实现、上游演示数据或额外运行时。
+
+### Chirpy
+
+- 原作：[cotes2020/jekyll-theme-chirpy](https://github.com/cotes2020/jekyll-theme-chirpy)；固定提交 [ae1057257b39](https://github.com/cotes2020/jekyll-theme-chirpy/commit/ae1057257b3927d6474deb549bdfafa71244e080)。
+- 版权：Copyright (c) 2019 Cotes Chung。
+- 完整许可：[MIT](licenses/themes/chirpy.txt)。
+- 采用 Jekyll 原作的侧栏、右侧封面和文章摘要卡片，目录、搜索及评论接入 CMS。
+
+### Oranges
+
+- 原作：[zchengsite/hexo-theme-oranges](https://github.com/zchengsite/hexo-theme-oranges)；固定提交 [ae47484c9ff9](https://github.com/zchengsite/hexo-theme-oranges/commit/ae47484c9ff9ed6cdea5b37ca981e067186c622d)。
+- 版权：Copyright (c) 2020 Hexo-Theme-Oranges https://github.com/zchengsite/hexo-theme-oranges。
+- 完整许可：[MIT](licenses/themes/oranges.txt)。
+- 采用 Hexo 原作的日期与标题目录、居中页头和极简阅读，不采用 Halo 移植代码。
+
+### Aircloud
+
+- 原作：[aircloud/hexo-theme-aircloud](https://github.com/aircloud/hexo-theme-aircloud)；固定提交 [7bd5ae19a858](https://github.com/aircloud/hexo-theme-aircloud/commit/7bd5ae19a85895bbf07a55cefdecd93ad57a1c93)。
+- 版权：Copyright (c) 2018 XiaotaoNie。
+- 完整许可：[MIT](licenses/themes/aircloud.txt)。
+- 采用 Hexo 原作的轻盈侧栏、时间标题行与标签，链接改用 CMS 分类标签归档。
+
+### Stellar
+
+- 原作：[xaoxuu/hexo-theme-stellar](https://github.com/xaoxuu/hexo-theme-stellar)；固定提交 [8cee1cf2e2ed](https://github.com/xaoxuu/hexo-theme-stellar/commit/8cee1cf2e2ed9c1f16051a591ec08e1fbcee0fbb)。
+- 版权：Copyright (c) 2021 xaoxuu。
+- 完整许可：[MIT](licenses/themes/stellar.txt)。
+- 采用 Hexo 原作的侧栏、圆角文章卡片及阅读布局，仅提供博客功能，不包含完整知识库。
+
+### Halorum
+
+- 原作：[mulingyuer/Typecho_Theme_JJ](https://github.com/mulingyuer/Typecho_Theme_JJ)；固定提交 [c953b3c06c32](https://github.com/mulingyuer/Typecho_Theme_JJ/commit/c953b3c06c32f89d32bd618f9416f6506230caa5)。
+- 版权：Copyright (c) 2021, 木灵鱼儿。
+- 完整许可：[BSD-3-Clause](licenses/themes/halorum.txt)。
+- 直接采用 BSD 原作 Typecho Theme JJ 的紧凑信息流与文章卡片；Halorum 为候选风格名称，不复制 Halo 移植代码。无论坛账号、通知、投稿或虚构的回复统计。
+
+### Aurora
+
+- 原作：[auroral-ui/hexo-theme-aurora](https://github.com/auroral-ui/hexo-theme-aurora)；固定提交 [4b82d1c567aa](https://github.com/auroral-ui/hexo-theme-aurora/commit/4b82d1c567aa74d060eddebf87de3ab3edf9ff59)。
+- 版权：Copyright (c) 2021 Auroral-UI (Benny Guo)。
+- 完整许可：[MIT](licenses/themes/aurora.txt)。
+- 采用 Hexo 原作的头条、图文列表及侧栏，渐变采用 CMS 色值；不复制默认封面、字体和第三方服务。
+
+### iEmo
+
+- 原作：[kannafay/iEmo](https://github.com/kannafay/iEmo)；固定提交 [b2bba8f22413](https://github.com/kannafay/iEmo/commit/b2bba8f2241388548b5bdfb5c9a53eb521faf183)。
+- 版权：Copyright (c) 2023 神秘布偶猫。
+- 完整许可：[MIT](licenses/themes/iemo.txt)。
+- 采用 WordPress 原作的左图右文与个人侧栏，不复制默认图片、插件或文章。通过 Git 取得完整 MIT 许可，网页读取失败不再作为阻塞。
+
+### Clarity
+
+- 原作：[L33Z22L11/blog-v3](https://github.com/L33Z22L11/blog-v3)；固定提交 [f6ea97d74551](https://github.com/L33Z22L11/blog-v3/commit/f6ea97d745517feb52f0c100e89acb36f0adc12f)。
+- 版权：Copyright (c) 2024 Zhilu。
+- 完整许可：[MIT](licenses/themes/clarity.txt)。
+- 直接采用 blog-v3 的三栏博客布局及文章摘要结构，不复制 Halo Clarity GPL 版实现，也不复制 CC BY-NC-SA 博客文章、天气或自定义内容块。

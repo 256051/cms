@@ -59,6 +59,12 @@ def main():
         image = json.loads(command(["docker", "image", "inspect", item["tag"]]))[0]
         assert image["Id"] == item["id"]
         assert image["Os"] + "/" + image["Architecture"] == manifest["platform"]
+    web_image = next(item["tag"] for item in manifest["images"] if item["service"] == "web")
+    rewrites = json.loads(command(["docker", "run", "--rm", "--network", "none", "--entrypoint", "node", web_image, "-e",
+                                   'console.log(JSON.stringify(require("./.next/routes-manifest.json").rewrites.afterFiles))']))
+    for prefix in ["api", "media"]:
+        route = next(item for item in rewrites if item["source"] == f"/{prefix}/:path*")
+        assert route["destination"] == f"http://api:8080/{prefix}/:path*", route
     def port():
         with socket.socket() as sock:
             sock.bind(("127.0.0.1", 0))
@@ -106,8 +112,17 @@ def main():
         asset = admin.upload("package.png", png)
         draft = admin.call("admin/contents", "POST", dict(kind="post", title="离线部署包验收", slug="package-proof", summary="包内镜像发布测试", html=f'<p>SQLite 离线发布正文</p><img src="/media/{asset["id"]}">', coverId=asset["id"], categoryId="", tagIds=[], version=0))
         admin.call(f'admin/contents/{draft["id"]}/publish', "POST", dict(version=draft["version"]))
+        # Reach Next.js directly so the gateway cannot bypass broken web rewrites.
+        for path, status, expected in [("/api/v1/auth/me", 401, None), ("/media/" + asset["id"], 200, png)]:
+            probe = json.loads(command(compose + ["exec", "-T", "web", "node", "-e",
+                'fetch(' + json.dumps("http://127.0.0.1:3000" + path) + ', {signal: AbortSignal.timeout(10000)})'
+                '.then(async r => console.log(JSON.stringify({status:r.status,body:Buffer.from(await r.arrayBuffer()).toString("base64")})))'
+                '.catch(e => {console.error(e);process.exit(1)})']))
+            assert probe["status"] == status, (path, probe)
+            if expected is not None:
+                assert base64.b64decode(probe["body"]) == expected
         themes = admin.call("admin/themes")
-        assert len(themes["themes"]) == 7
+        assert len(themes["themes"]) == 15
         cactus = next(item for item in themes["themes"] if item["id"] == "cactus")
         admin.call("admin/themes/active", "PUT", dict(themeId="cactus", options=cactus["defaults"], version=themes["version"]))
         for theme in themes["themes"]:
@@ -121,7 +136,7 @@ def main():
         assert admin.call("public/theme")["themeId"] == "cactus"
         assert admin.call("/media/" + asset["id"]) == png
         assert "SQLite 离线发布正文" in admin.call("/posts/package-proof").decode()
-        checks = ["Archive and all bundled file checksums", "Three loaded Linux images match manifest IDs", "SQLite initialization and repeat initialization", "Blanked setup credentials and three-service startup", "HTTPS captcha login, Secure cookies and CSRF", "Image upload and publication with server-rendered body", "Seven theme thumbnails and Cactus activation", "Configured domain in sitemap", "Restart preserves SQLite content, attachments, theme and authenticated session"]
+        checks = ["Archive and all bundled file checksums", "Three loaded Linux images match manifest IDs", "Compiled API and media rewrites target the Compose API service", "Direct Next.js API and media proxy requests", "SQLite initialization and repeat initialization", "Blanked setup credentials and three-service startup", "HTTPS captcha login, Secure cookies and CSRF", "Image upload and publication with server-rendered body", "Fifteen theme thumbnails and Cactus activation", "Configured domain in sitemap", "Restart preserves SQLite content, attachments, theme and authenticated session"]
         (output / "results.json").write_text(json.dumps({"status": "passed", "archive": archive.name, "testedArchiveSha256": digest, "platform": manifest["platform"], "sourceRevision": manifest["sourceRevision"], "checks": checks}, ensure_ascii=False, indent=2), encoding="utf-8")
         print("PASS: offline package, SQLite HTTPS and restart; results:", output / "results.json")
     finally:

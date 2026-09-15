@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "recordedOn": "2026-09-14",
+  "recordedOn": "2026-09-15",
   "scope": "采用原作布局和视觉规则，重新编写 CMS 的 React 组件与普通 CSS。复用 CMS 已有内容、菜单、搜索、评论及主题管理，不复制原作 JavaScript 运行时，不提供 Halo 主题包或插件兼容运行时。",
   "assets": "使用系统字体、站点自身附件和本项目自有素材；不包含上游字体、演示图片、头像、第三方服务 SDK 或文章内容。",
-  "licenseHandling": "保留所用原作的作者和完整 MIT 许可。转换到 React 不改变原作许可证。",
+  "licenseHandling": "所用原作的作者及完整 MIT / BSD-3-Clause 许可随源码和发布包保留，界面不展示原作标识；转换到 React 不改变许可证。",
   "excludedSources": [
     "Halo Higan 的新增代码",
     "其他 Halo 移植版本的新增代码"
@@ -131,6 +131,252 @@
         "web/src/components/PublicPages.tsx"
       ],
       "adaptationNotes": "从 Hexo Cactus 原作适配文章索引和阅读布局，没有使用 Halo Higan 新增代码。"
+    },
+    {
+      "themeId": "chirpy",
+      "name": "Chirpy",
+      "repository": "https://github.com/cotes2020/jekyll-theme-chirpy",
+      "commit": "ae1057257b3927d6474deb549bdfafa71244e080",
+      "commitUrl": "https://github.com/cotes2020/jekyll-theme-chirpy/commit/ae1057257b3927d6474deb549bdfafa71244e080",
+      "authors": [
+        "Copyright (c) 2019 Cotes Chung"
+      ],
+      "license": "MIT",
+      "licenseFile": "licenses/themes/chirpy.txt",
+      "upstreamLicenseUrl": "https://github.com/cotes2020/jekyll-theme-chirpy/blob/ae1057257b3927d6474deb549bdfafa71244e080/LICENSE",
+      "licenseSha256": "348395dc79bade6ede7cdb4c3b6ed089fc144e5a0148fee5857bc0394a180321",
+      "reviewedSourceFiles": [
+        "LICENSE",
+        "README.md",
+        "_layouts/home.html",
+        "_includes/sidebar.html",
+        "_sass/layout/_sidebar.scss",
+        "_sass/pages/_home.scss"
+      ],
+      "adaptedFiles": [
+        "web/src/app/collection-themes.css",
+        "web/src/lib/theme.ts",
+        "web/src/components/SiteShell.tsx",
+        "web/src/components/ContentList.tsx",
+        "web/src/components/ThemeSidebar.tsx",
+        "web/src/components/PublicPages.tsx"
+      ],
+      "adaptationNotes": "采用 Jekyll 原作的侧栏、右侧封面和文章摘要卡片，目录、搜索及评论接入 CMS。"
+    },
+    {
+      "themeId": "oranges",
+      "name": "Oranges",
+      "repository": "https://github.com/zchengsite/hexo-theme-oranges",
+      "commit": "ae47484c9ff9ed6cdea5b37ca981e067186c622d",
+      "commitUrl": "https://github.com/zchengsite/hexo-theme-oranges/commit/ae47484c9ff9ed6cdea5b37ca981e067186c622d",
+      "authors": [
+        "Copyright (c) 2020 Hexo-Theme-Oranges https://github.com/zchengsite/hexo-theme-oranges"
+      ],
+      "license": "MIT",
+      "licenseFile": "licenses/themes/oranges.txt",
+      "upstreamLicenseUrl": "https://github.com/zchengsite/hexo-theme-oranges/blob/ae47484c9ff9ed6cdea5b37ca981e067186c622d/LICENSE",
+      "licenseSha256": "851646a27a67a3f2c9647fa6768d34ecefa55d40ffabb162ced2884d852346c4",
+      "reviewedSourceFiles": [
+        "LICENSE",
+        "README.md",
+        "layout/index.ejs",
+        "layout/_partial/header.ejs",
+        "source/css/base.css"
+      ],
+      "adaptedFiles": [
+        "web/src/app/collection-themes.css",
+        "web/src/lib/theme.ts",
+        "web/src/components/SiteShell.tsx",
+        "web/src/components/ContentList.tsx",
+        "web/src/components/ThemeSidebar.tsx",
+        "web/src/components/PublicPages.tsx"
+      ],
+      "adaptationNotes": "采用 Hexo 原作的日期与标题目录、居中页头和极简阅读，不采用 Halo 移植代码。"
+    },
+    {
+      "themeId": "aircloud",
+      "name": "Aircloud",
+      "repository": "https://github.com/aircloud/hexo-theme-aircloud",
+      "commit": "7bd5ae19a85895bbf07a55cefdecd93ad57a1c93",
+      "commitUrl": "https://github.com/aircloud/hexo-theme-aircloud/commit/7bd5ae19a85895bbf07a55cefdecd93ad57a1c93",
+      "authors": [
+        "Copyright (c) 2018 XiaotaoNie"
+      ],
+      "license": "MIT",
+      "licenseFile": "licenses/themes/aircloud.txt",
+      "upstreamLicenseUrl": "https://github.com/aircloud/hexo-theme-aircloud/blob/7bd5ae19a85895bbf07a55cefdecd93ad57a1c93/LICENSE",
+      "licenseSha256": "577ed9243bb6b4c8c22ab9b37989da6bba96dbc1e2abe5da108ede6e6ed54307",
+      "reviewedSourceFiles": [
+        "LICENSE",
+        "README.md",
+        "layout/index.ejs",
+        "layout/_partial/nav.ejs",
+        "source/css/aircloud.css"
+      ],
+      "adaptedFiles": [
+        "web/src/app/collection-themes.css",
+        "web/src/lib/theme.ts",
+        "web/src/components/SiteShell.tsx",
+        "web/src/components/ContentList.tsx",
+        "web/src/components/ThemeSidebar.tsx",
+        "web/src/components/PublicPages.tsx"
+      ],
+      "adaptationNotes": "采用 Hexo 原作的轻盈侧栏、时间标题行与标签，链接改用 CMS 分类标签归档。"
+    },
+    {
+      "themeId": "stellar",
+      "name": "Stellar",
+      "repository": "https://github.com/xaoxuu/hexo-theme-stellar",
+      "commit": "8cee1cf2e2ed9c1f16051a591ec08e1fbcee0fbb",
+      "commitUrl": "https://github.com/xaoxuu/hexo-theme-stellar/commit/8cee1cf2e2ed9c1f16051a591ec08e1fbcee0fbb",
+      "authors": [
+        "Copyright (c) 2021 xaoxuu"
+      ],
+      "license": "MIT",
+      "licenseFile": "licenses/themes/stellar.txt",
+      "upstreamLicenseUrl": "https://github.com/xaoxuu/hexo-theme-stellar/blob/8cee1cf2e2ed9c1f16051a591ec08e1fbcee0fbb/LICENSE",
+      "licenseSha256": "299ef5351be7c783d93d01f37d5201779126976815808742ca0bff9130c3cce6",
+      "reviewedSourceFiles": [
+        "LICENSE",
+        "README.md",
+        "layout/_partial/main/post_list/post_card.ejs",
+        "source/css/_components/layout.styl",
+        "source/css/_components/sidebar/sidebar.styl",
+        "source/css/_components/partial/post-panel.styl"
+      ],
+      "adaptedFiles": [
+        "web/src/app/collection-themes.css",
+        "web/src/lib/theme.ts",
+        "web/src/components/SiteShell.tsx",
+        "web/src/components/ContentList.tsx",
+        "web/src/components/ThemeSidebar.tsx",
+        "web/src/components/PublicPages.tsx"
+      ],
+      "adaptationNotes": "采用 Hexo 原作的侧栏、圆角文章卡片及阅读布局，仅提供博客功能，不包含完整知识库。"
+    },
+    {
+      "themeId": "halorum",
+      "name": "Halorum",
+      "repository": "https://github.com/mulingyuer/Typecho_Theme_JJ",
+      "commit": "c953b3c06c32f89d32bd618f9416f6506230caa5",
+      "commitUrl": "https://github.com/mulingyuer/Typecho_Theme_JJ/commit/c953b3c06c32f89d32bd618f9416f6506230caa5",
+      "authors": [
+        "Copyright (c) 2021, 木灵鱼儿"
+      ],
+      "license": "BSD-3-Clause",
+      "licenseFile": "licenses/themes/halorum.txt",
+      "upstreamLicenseUrl": "https://github.com/mulingyuer/Typecho_Theme_JJ/blob/c953b3c06c32f89d32bd618f9416f6506230caa5/LICENSE",
+      "licenseSha256": "ad7b3b45ff2452b3fdb26dfae07838ec1cac0f366bd9891a4666169c9ba5b429",
+      "reviewedSourceFiles": [
+        "LICENSE",
+        "README.md",
+        "src/styles/layout.scss",
+        "src/modules/article_card/style.scss",
+        "src/modules/home/article_nav/style.scss"
+      ],
+      "adaptedFiles": [
+        "web/src/app/collection-themes.css",
+        "web/src/lib/theme.ts",
+        "web/src/components/SiteShell.tsx",
+        "web/src/components/ContentList.tsx",
+        "web/src/components/ThemeSidebar.tsx",
+        "web/src/components/PublicPages.tsx"
+      ],
+      "adaptationNotes": "直接采用 BSD 原作 Typecho Theme JJ 的紧凑信息流与文章卡片；Halorum 为候选风格名称，不复制 Halo 移植代码。无论坛账号、通知、投稿或虚构的回复统计。"
+    },
+    {
+      "themeId": "aurora",
+      "name": "Aurora",
+      "repository": "https://github.com/auroral-ui/hexo-theme-aurora",
+      "commit": "4b82d1c567aa74d060eddebf87de3ab3edf9ff59",
+      "commitUrl": "https://github.com/auroral-ui/hexo-theme-aurora/commit/4b82d1c567aa74d060eddebf87de3ab3edf9ff59",
+      "authors": [
+        "Copyright (c) 2021 Auroral-UI (Benny Guo)"
+      ],
+      "license": "MIT",
+      "licenseFile": "licenses/themes/aurora.txt",
+      "upstreamLicenseUrl": "https://github.com/auroral-ui/hexo-theme-aurora/blob/4b82d1c567aa74d060eddebf87de3ab3edf9ff59/LICENSE",
+      "licenseSha256": "60c88a3b3440f82e6d756c2a1e98816e5fd863f9d10bd7fb1282464a68a63798",
+      "reviewedSourceFiles": [
+        "LICENSE",
+        "README.md",
+        "src/pages/index.vue",
+        "src/components/Feature/src/Feature.vue",
+        "src/components/ArticleCard/src/HorizontalArticle.vue",
+        "src/styles/components/article.scss"
+      ],
+      "adaptedFiles": [
+        "web/src/app/collection-themes.css",
+        "web/src/lib/theme.ts",
+        "web/src/components/SiteShell.tsx",
+        "web/src/components/ContentList.tsx",
+        "web/src/components/ThemeSidebar.tsx",
+        "web/src/components/PublicPages.tsx"
+      ],
+      "adaptationNotes": "采用 Hexo 原作的头条、图文列表及侧栏，渐变采用 CMS 色值；不复制默认封面、字体和第三方服务。"
+    },
+    {
+      "themeId": "iemo",
+      "name": "iEmo",
+      "repository": "https://github.com/kannafay/iEmo",
+      "commit": "b2bba8f2241388548b5bdfb5c9a53eb521faf183",
+      "commitUrl": "https://github.com/kannafay/iEmo/commit/b2bba8f2241388548b5bdfb5c9a53eb521faf183",
+      "authors": [
+        "Copyright (c) 2023 神秘布偶猫"
+      ],
+      "license": "MIT",
+      "licenseFile": "licenses/themes/iemo.txt",
+      "upstreamLicenseUrl": "https://github.com/kannafay/iEmo/blob/b2bba8f2241388548b5bdfb5c9a53eb521faf183/LICENSE",
+      "licenseSha256": "5f235ef32f121cc155ff0d3ec82170a88de791b2e83c3ea11bfb489549b4fd3f",
+      "reviewedSourceFiles": [
+        "LICENSE",
+        "README.md",
+        "index.php",
+        "inc/home-new.php",
+        "inc/aside.php",
+        "assets/css/style.css"
+      ],
+      "adaptedFiles": [
+        "web/src/app/collection-themes.css",
+        "web/src/lib/theme.ts",
+        "web/src/components/SiteShell.tsx",
+        "web/src/components/ContentList.tsx",
+        "web/src/components/ThemeSidebar.tsx",
+        "web/src/components/PublicPages.tsx"
+      ],
+      "adaptationNotes": "采用 WordPress 原作的左图右文与个人侧栏，不复制默认图片、插件或文章。通过 Git 取得完整 MIT 许可，网页读取失败不再作为阻塞。"
+    },
+    {
+      "themeId": "clarity",
+      "name": "Clarity",
+      "repository": "https://github.com/L33Z22L11/blog-v3",
+      "commit": "f6ea97d745517feb52f0c100e89acb36f0adc12f",
+      "commitUrl": "https://github.com/L33Z22L11/blog-v3/commit/f6ea97d745517feb52f0c100e89acb36f0adc12f",
+      "authors": [
+        "Copyright (c) 2024 Zhilu"
+      ],
+      "license": "MIT",
+      "licenseFile": "licenses/themes/clarity.txt",
+      "upstreamLicenseUrl": "https://github.com/L33Z22L11/blog-v3/blob/f6ea97d745517feb52f0c100e89acb36f0adc12f/LICENSE",
+      "licenseSha256": "27fc181018802dd4f5c4bfd1f56a0c70c5cc7be6db5ce21b6f74eaeebf101f35",
+      "reviewedSourceFiles": [
+        "LICENSE",
+        "README.md",
+        "app/layouts/default.vue",
+        "app/components/blog/BlogSidebar.vue",
+        "app/components/blog/BlogAside.vue",
+        "app/components/post/Excerpt.vue",
+        "app/assets/css/_variable.scss"
+      ],
+      "adaptedFiles": [
+        "web/src/app/collection-themes.css",
+        "web/src/lib/theme.ts",
+        "web/src/components/SiteShell.tsx",
+        "web/src/components/ContentList.tsx",
+        "web/src/components/ThemeSidebar.tsx",
+        "web/src/components/PublicPages.tsx"
+      ],
+      "adaptationNotes": "直接采用 blog-v3 的三栏博客布局及文章摘要结构，不复制 Halo Clarity GPL 版实现，也不复制 CC BY-NC-SA 博客文章、天气或自定义内容块。"
     }
   ],
   "originalCmsComponents": [

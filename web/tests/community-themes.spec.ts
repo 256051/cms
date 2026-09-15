@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import fs from "node:fs";
 import { fillCaptcha } from "./login";
-import { contrast } from "../src/lib/theme";
+import { contrast, communityThemes } from "../src/lib/theme";
 import type { Content, Settings, ThemesView, ThemeView } from "../src/lib/types";
 
 if (!process.env.CMS_TEST_BASE_URL || !process.env.CMS_TEST_CREDENTIALS_PATH)
@@ -9,7 +9,7 @@ if (!process.env.CMS_TEST_BASE_URL || !process.env.CMS_TEST_CREDENTIALS_PATH)
 const credentials = JSON.parse(fs.readFileSync(process.env.CMS_TEST_CREDENTIALS_PATH, "utf8").replace(/^\uFEFF/, ""));
 
 test("community themes: unsaved previews, article directories and reading without JavaScript", async ({ page, context, browser }) => {
-  test.setTimeout(180_000);
+  test.setTimeout(360_000);
   const errors: string[] = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.goto("/admin/login");
@@ -27,13 +27,9 @@ test("community themes: unsaved previews, article directories and reading withou
   }
   const original = await api<ThemesView>("admin/themes");
   const originalSite = await api<Settings>("admin/settings");
-  const definitions = [
-    ["fuwari", "Fuwari · 清新卡片"],
-    ["retypeset", "Retypeset · 重新编排"],
-    ["cactus", "Cactus · 极简技术"],
-  ].map(([id, name]) => {
+  const definitions = communityThemes.map(({ id, name }) => {
     const definition = original.themes.find(theme => theme.id === id);
-    expect(definition?.name).toBe(name);
+    expect(definition?.name).toMatch(new RegExp(`^${name} · `));
     return definition!;
   });
   async function activate(id: string, options: typeof definitions[number]["options"]) {
@@ -120,7 +116,7 @@ test("community themes: unsaved previews, article directories and reading withou
         const colors = await skip.evaluate(element => [getComputedStyle(element).color, getComputedStyle(element).backgroundColor]);
         const hex = (color: string) => "#" + color.match(/\d+/g)!.slice(0, 3).map(value => Number(value).toString(16).padStart(2, "0")).join("");
         expect(contrast(hex(colors[0]), hex(colors[1]))).toBeGreaterThanOrEqual(4.5);
-        if (definition.id === "fuwari" && width === 375) {
+        if (width === 375 && await reading.locator(".theme-sidebar").count() > 0) {
           expect(await reading.evaluate(() => {
             const main = document.getElementById("main")!;
             const sidebar = document.querySelector(".theme-sidebar")!;

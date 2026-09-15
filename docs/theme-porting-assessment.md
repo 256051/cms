@@ -4,6 +4,8 @@
 
 后续进展（2026-09-15）：第一批 Fuwari、Retypeset、Cactus 已完成适配，采用三套原作来源；最终交付范围及实际验证见 [社区主题验收记录](community-themes-verification.md)。以下保留当时的筛选结论。
 
+第二批进展（2026-09-15）：Chirpy、Oranges、Aircloud、Stellar、Halorum、Aurora、iEmo、Clarity 已按博客布局适配。iEmo 已通过 Git 获取原作完整 MIT 许可；实际范围和验收见 [第二批主题记录](theme-batch2-verification.md)。以下第二批条目保留初筛时的分析，不代表完整原作功能承诺。
+
 ## 结论与范围
 
 建议第一批做 **Fuwari、Retypeset，以及从 Cactus 原作适配的 Higan 类极简技术风格**。三种布局分别覆盖图文卡片、书籍排版、紧凑文字列表，适合现有内容模型。这里的“可改”是源码筛选结论，不是已完成移植或已经通过运行验收。

@@ -4,7 +4,7 @@
 
 项目仓库：[256051/cms](https://github.com/256051/cms)。项目原创代码采用 [MIT 许可证](LICENSE)，版权归 IT猫（itmao.club）所有；第三方依赖遵循各自许可证，详见下方依赖说明。
 
-已实现文章与独立页面、草稿与发布版本隔离、富文本与图片、分类标签、附件引用保护、审核评论、菜单、站点设置、管理员/编辑权限、操作日志，以及服务端渲染的前台和 SEO 页面。后台“主题外观”提供经典博客、极简阅读、杂志资讯、暗色科技以及 Fuwari、Retypeset、Cactus 三套社区适配主题，共七套，支持独立配置、私密预览和版本冲突保护。社区主题来源及完整许可见 [第三方主题声明](THIRD_PARTY_NOTICES.md)。
+已实现文章与独立页面、草稿与发布版本隔离、富文本与图片、分类标签、附件引用保护、审核评论、菜单、站点设置、管理员/编辑权限、操作日志，以及服务端渲染的前台和 SEO 页面。后台“主题外观”提供经典博客、极简阅读、杂志资讯、暗色科技，以及 Fuwari、Retypeset、Cactus、Chirpy、Oranges、Aircloud、Stellar、Halorum、Aurora、iEmo、Clarity，共十五套，支持独立配置、私密预览和版本冲突保护。社区主题为博客布局适配，来源及完整许可见 [第三方主题声明](THIRD_PARTY_NOTICES.md)。
 
 ## 本地启动
 
@@ -44,7 +44,7 @@ npm --prefix web ci
 - [备份恢复与排查](docs/operations.md)：数据库、附件、密钥的配套恢复流程。
 - [验收记录](docs/verification.md)：实际执行的检查、结果与复现命令。
 - [体验与审计补充验收](docs/improvements-verification.md)：未保存保护、全站 SEO、加载与键盘交互、操作对象日志及 schema 2 升级。
-- [主题使用说明](docs/themes.md)：七套主题、自定义、预览、启用、正文目录和恢复默认。
+- [主题使用说明](docs/themes.md)：十五套主题、自定义、预览、启用、正文目录和恢复默认。
 - [社区主题验收](docs/community-themes-verification.md)：Fuwari、Retypeset、Cactus 的四库与浏览器实际检查。
 - [主题验收记录](docs/themes-verification.md)：schema 3、四库主题检查、浏览器与 Docker 验收。
 - [多级菜单说明](docs/menus.md)：五种类型、父子菜单、打开方式、排序和资源引用规则。

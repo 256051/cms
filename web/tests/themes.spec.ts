@@ -7,8 +7,8 @@ if (!process.env.CMS_TEST_BASE_URL || !process.env.CMS_TEST_CREDENTIALS_PATH)
   throw new Error("请通过 python tests/docker_smoke.py 在独立测试站点运行浏览器验收。");
 const credentials = JSON.parse(fs.readFileSync(process.env.CMS_TEST_CREDENTIALS_PATH, "utf8"));
 
-test("seven themes, private previews, saved profiles, accessible colors and public HTML", async ({ page, request, context }) => {
-  test.setTimeout(300_000);
+test("fifteen themes, private previews, saved profiles, accessible colors and public HTML", async ({ page, request, context }) => {
+  test.setTimeout(600_000);
   const errors: string[] = [];
   page.on("pageerror", e => errors.push(e.message));
   await page.goto("/admin/login");
@@ -46,9 +46,23 @@ test("seven themes, private previews, saved profiles, accessible colors and publ
   const draft = await api("admin/contents", { ...input, slug: "theme-private-" + stamp, title: "未发布的秘密草稿" });
   await api("admin/menu", { label: "关于", url: "/pages/" + independent.slug, sort: 1 });
 
+  await page.setViewportSize({ width: 1440, height: 960 });
   await page.goto("/admin/themes");
   await expect(page.getByRole("heading", { name: "主题外观", exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "配置 极简阅读", exact: true }).click();
+  const initialThemes = await api("admin/themes");
+  const activeTheme = initialThemes.themes.find((theme: any) => theme.id === initialThemes.activeThemeId);
+  await expect(page.getByRole("button", { name: `配置 ${activeTheme.name}`, exact: true })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator(".theme-large-preview img")).toHaveAttribute("src", activeTheme.thumbnail);
+  expect((await page.locator(".theme-large-preview").boundingBox())!.width).toBeGreaterThan(600);
+  expect((await page.locator(".theme-library").boundingBox())!.x).toBeLessThan((await page.locator(".theme-detail").boundingBox())!.x);
+  await page.getByRole("searchbox", { name: "搜索主题", exact: true }).fill("CHIRPY");
+  await expect(page.locator(".theme-list-item")).toHaveCount(1);
+  await page.getByRole("searchbox", { name: "搜索主题", exact: true }).fill("不存在的主题");
+  await expect(page.getByRole("status").filter({ hasText: "没有匹配的主题" })).toBeVisible();
+  await page.getByRole("searchbox", { name: "搜索主题", exact: true }).fill("");
+  await expect(page.locator(".theme-list-item")).toHaveCount(themeIds.length);
+  await page.getByRole("button", { name: "配置 极简阅读", exact: true }).focus();
+  await page.keyboard.press("Enter");
   await expect(page.getByRole("heading", { name: "极简阅读 · 外观设置" })).toBeFocused();
   await page.getByLabel("首页标题", { exact: true }).fill("只在预览显示的标题");
   const original = await api("public/theme");
@@ -102,12 +116,17 @@ test("seven themes, private previews, saved profiles, accessible colors and publ
   let state = await api("admin/themes");
   expect(state.themes.map((x: any) => x.id)).toEqual([...themeIds]);
   for (const definition of state.themes) {
+    await page.emulateMedia({ colorScheme: ["midnight", "cactus"].includes(definition.id) ? "dark" : "light" });
     state = await api("admin/themes/active", { themeId: definition.id, options: definition.defaults, version: state.version }, "PUT");
     for (const width of [375, 768, 1440]) {
       await page.setViewportSize({ width, height: 960 });
       for (const url of ["/", `/posts/${post.slug}`, `/pages/${independent.slug}`, `/category/${category.slug}`, `/tag/${tag.slug}`, "/search?q=日常", "/?page=2"]) {
         await page.goto(url);
         await expect(page.locator(".public-site")).toHaveAttribute("data-theme", definition.id);
+        const header = await page.locator(".site-header").boundingBox();
+        expect(header!.y, `${definition.id} navigation stays at the top of ${url}`).toBeGreaterThanOrEqual(0);
+        expect(header!.y, `${definition.id} navigation stays in the first screen`).toBeLessThan(160);
+        await expect(page.getByRole("navigation", { name: "网站导航", exact: true })).toBeInViewport();
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
         if (definition.id === "midnight" && url.startsWith("/posts/")) expect(await page.locator(".prose th").first().evaluate(el => getComputedStyle(el).backgroundColor)).toBe("rgb(23, 43, 63)");
         if (url === "/" || url.startsWith("/posts/")) await page.screenshot({ path: `../artifacts/theme-${definition.id}-${url === "/" ? "home" : "article"}-${width}.png`, fullPage: true, animations: "disabled" });
@@ -118,7 +137,7 @@ test("seven themes, private previews, saved profiles, accessible colors and publ
             await page.screenshot({ path: `public/themes/${definition.id}.png`, animations: "disabled" });
           }
         }
-        if (definition.id === "magazine" && url === "/") await expect(page.locator(".featured-grid")).toHaveCount(1);
+        if (["magazine", "aurora"].includes(definition.id) && url === "/") await expect(page.locator(".featured-grid")).toHaveCount(1);
         if (url === "/?page=2") await expect(page.locator(".featured-grid")).toHaveCount(0);
       }
     }
@@ -153,7 +172,7 @@ test("seven themes, private previews, saved profiles, accessible colors and publ
   expect((await api("public/theme")).options.heroTitle).toBe("记录日常，认真阅读。");
   expect(await page.locator(".admin-layout").evaluate(el => getComputedStyle(el).backgroundColor)).toBe("rgb(246, 247, 250)");
   if (process.env.CMS_CAPTURE_THEME_THUMBNAILS !== "1") {
-    for (const img of await page.locator(".theme-card > img").all()) expect(await img.evaluate((el: HTMLImageElement) => el.naturalWidth)).toBeGreaterThan(0);
+    for (const img of await page.locator(".theme-list-item img, .theme-large-preview img").all()) expect(await img.evaluate((el: HTMLImageElement) => el.naturalWidth)).toBeGreaterThan(0);
     await page.evaluate(() => { (document.activeElement as HTMLElement)?.blur(); window.scrollTo(0, 0); });
     await page.screenshot({ path: "../artifacts/themes-admin.png", fullPage: true, animations: "disabled" });
   }
@@ -162,7 +181,7 @@ test("seven themes, private previews, saved profiles, accessible colors and publ
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1)).toBe(true);
     await page.screenshot({ path: `../artifacts/themes-admin-${width}.png`, fullPage: true, animations: "disabled" });
   }
-  await page.getByRole("heading", { name: "极简阅读 · 外观设置" }).focus();
+  await page.getByRole("heading", { name: "基础设置", exact: true }).focus();
   await page.keyboard.press("Tab");
   await expect(page.getByLabel("主色色值", { exact: true })).toBeFocused();
   await page.getByLabel("首页标题", { exact: true }).fill("并发冲突后保留的输入");

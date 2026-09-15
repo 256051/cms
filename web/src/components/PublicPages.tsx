@@ -77,7 +77,7 @@ export async function HomePage({
               </Link>
             ))}
         </div>
-        <ContentList data={posts} taxonomy={taxonomy} themeId={theme.themeId} preview={context?.preview} featured={theme.themeId === "magazine" && posts.page === 1} />
+        <ContentList data={posts} taxonomy={taxonomy} themeId={theme.themeId} preview={context?.preview} featured={["magazine", "aurora"].includes(theme.themeId) && posts.page === 1} />
       </section>
     </SiteShell>
   );

@@ -4,7 +4,8 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY web/package.json web/package-lock.json ./
 RUN npm ci
 COPY web/ .
-RUN npm run build
+# Next.js writes rewrites into the build; use the Compose API address here too.
+RUN API_INTERNAL_URL=http://api:8080 npm run build
 FROM node:24-alpine
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 HOSTNAME=0.0.0.0 PORT=3000

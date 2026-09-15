@@ -3,7 +3,7 @@ import { BookOpen, FolderOpen, Tags } from "lucide-react";
 import { siteHref } from "@/lib/theme";
 import type { Settings, Taxonomy } from "@/lib/types";
 
-/** Fuwari's profile and taxonomy columns use only this site's public data. */
+/** Theme profile and taxonomy columns use only this site's public data. */
 export default function ThemeSidebar({ site, taxonomy, preview }: { site: Settings; taxonomy: Taxonomy[]; preview?: string }) {
   const categories = taxonomy.filter(term => term.kind === "category");
   const tags = taxonomy.filter(term => term.kind === "tag");

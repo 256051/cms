@@ -9,7 +9,7 @@ const credentials = JSON.parse(
 );
 const png = fs.readFileSync(path.resolve("../tests/fixtures/editor.png"));
 
-test("rich editor: formatting, insertion, media, safe round trip and seven theme layouts", async ({
+test("rich editor: formatting, insertion, media, safe round trip and fifteen theme layouts", async ({
   page,
   request,
 }) => {

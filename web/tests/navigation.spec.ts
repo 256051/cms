@@ -110,8 +110,9 @@ test("typed multilevel navigation, keyboard disclosure, previews and protected e
       await expect(nested).toBeFocused();
       await expect(nav.getByRole("link", { name: category.name, exact: true })).not.toBeVisible();
       await expect(nav.getByRole("link", { name: post.title, exact: true })).toBeVisible();
-      // A dropdown may cover the headline; the footer provides a visible outside target in every layout.
-      await page.locator(".site-footer").click({ position: { x: 4, y: 4 } });
+      // Side-navigation dropdowns can overlap the footer's edge; use its central blank area.
+      const footer = page.locator(".site-footer");
+      await footer.click({ position: { x: (await footer.boundingBox())!.width / 2, y: 4 } });
       await expect(nav.getByRole("link", { name: post.title, exact: true })).not.toBeVisible();
     }
   }

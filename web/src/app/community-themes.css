@@ -11,8 +11,6 @@
 .community-theme .section-heading .eyebrow { display: none; }
 .community-theme .article-meta { flex-wrap: wrap; }
 .community-theme .site-footer > span { flex-wrap: wrap; gap: 12px; }
-.community-theme .theme-credit { margin: 18px 0 0; font-size: 12px; }
-.community-theme .theme-credit a { text-decoration: underline; text-underline-offset: 3px; }
 .community-theme .prose h2, .community-theme .prose h3 { scroll-margin-top: 24px; }
 .community-theme .article-toc { min-width: 0; margin: 0 0 30px; padding: 14px 18px; background: var(--blue-soft); border-radius: 8px; font-size: 13px; }
 .community-theme .article-toc summary { cursor: pointer; font-weight: 600; min-height: 44px; align-content: center; }
@@ -21,7 +19,6 @@
 .community-theme .article-toc .toc-level-3 { padding-left: 16px; }
 .community-theme .article-toc a:hover { text-decoration: underline; text-underline-offset: 4px; }
 .community-theme .entry-date { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 13px; white-space: nowrap; }
-.theme-source-link { display: inline-block; margin: 0 0 14px; font-size: 13px; color: var(--blue); text-decoration: underline; text-underline-offset: 3px; }
 
 /* Fuwari: the upstream's 17.5rem sidebar, rounded panels, title accent and
    right-hand 28% cover become responsive server-rendered CMS components. */
@@ -120,7 +117,7 @@
 .theme-retypeset .prose pre { background: var(--blue-soft); color: var(--ink); border-radius: 3px; }
 .theme-retypeset .article-toc { background: transparent; padding: 10px 0 20px; border-radius: 0; border-block: 1px solid var(--line); }
 .theme-retypeset .site-footer { grid-column: 2; width: 100%; padding: 24px 0 40px; }
-.theme-retypeset .site-footer > div, .theme-retypeset .site-footer > p:not(.theme-credit) { display: none; }
+.theme-retypeset .site-footer > div, .theme-retypeset .site-footer > p { display: none; }
 
 /* Cactus: compact monospaced identity, date/title rows and restrained green.
    The original's optional projects/social blocks are not fabricated here. */
@@ -159,7 +156,7 @@
 .theme-cactus .prose pre { background: var(--blue-soft); color: var(--ink); border-radius: 3px; font-size: 13px; }
 .theme-cactus .article-toc { background: transparent; border: 1px dashed var(--line); border-radius: 0; }
 .theme-cactus .site-footer { max-width: 780px; padding: 24px 0 36px; }
-.theme-cactus .site-footer > div, .theme-cactus .site-footer > p:not(.theme-credit) { display: none; }
+.theme-cactus .site-footer > div, .theme-cactus .site-footer > p { display: none; }
 .theme-cactus .comments [role="status"] { color: #86EFAC; }
 
 @media (min-width: 701px) {

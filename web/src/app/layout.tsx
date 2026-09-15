@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import "./globals.css";
 import "./themes.css";
 import "./menus.css";
 import "./community-themes.css";
+import "./collection-themes.css";
+import "./color-modes.css";
+import { colorModeCookie, parseColorMode } from "@/lib/theme";
 import { publicApi, siteUrl } from "@/lib/server";
 import type { Settings } from "@/lib/types";
 
@@ -26,7 +30,7 @@ export default async function RootLayout({
 }) {
   const site = await publicApi<Settings>("settings").catch(() => null);
   return (
-    <html lang={site?.language || "zh-CN"}>
+    <html lang={site?.language || "zh-CN"} data-color-mode={parseColorMode((await cookies()).get(colorModeCookie)?.value)}>
       <body>{children}</body>
     </html>
   );

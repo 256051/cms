@@ -7,11 +7,19 @@ import urllib.parse
 def check_themes(admin, editor, guest, passed):
     before = admin.call("admin/themes")
     assert before["activeThemeId"] == "classic"
-    assert {t["id"] for t in before["themes"]} == {"classic", "paper", "magazine", "midnight", "fuwari", "retypeset", "cactus"}
+    assert {t["id"] for t in before["themes"]} == {"classic", "paper", "magazine", "midnight", "fuwari", "retypeset", "cactus", "chirpy", "oranges", "aircloud", "stellar", "halorum", "aurora", "iemo", "clarity"}
     new_defaults = {
         "fuwari": ("#7C5CC4", "记录生活，也记录灵感。"),
         "retypeset": ("#9A5B36", "把日子写成值得重读的篇章。"),
         "cactus": ("#2BBC8A", "保持好奇，持续构建。"),
+        "chirpy": ("#2563AB", "把探索写成笔记。"),
+        "oranges": ("#B45309", "一些日常，一点新鲜。"),
+        "aircloud": ("#397A85", "文字落下，思绪如云。"),
+        "stellar": ("#087C72", "连接知识，点亮灵感。"),
+        "halorum": ("#2563EB", "分享见解，发现同好。"),
+        "aurora": ("#7350B5", "追逐灵感，记录精彩。"),
+        "iemo": ("#A65C3B", "平凡日子，也值得珍藏。"),
+        "clarity": ("#366A9F", "让思考清晰，让表达自由。"),
     }
     for theme in before["themes"]:
         if theme["id"] in new_defaults:
@@ -36,7 +44,7 @@ def check_themes(admin, editor, guest, passed):
                 admin.call("admin/themes/preview?" + query, expected=400)
     admin.call("admin/themes/preview?themeId=unknown", expected=400)
     assert admin.call("admin/themes") == before
-    passed("seven-theme administrator permissions, CSRF and bounded apply/preview validation")
+    passed("fifteen-theme administrator permissions, CSRF and bounded apply/preview validation")
 
     count = admin.call("admin/audit")["total"]
     initial_public = guest.call("public/theme")
@@ -50,7 +58,7 @@ def check_themes(admin, editor, guest, passed):
         assert guest.call("public/theme") == initial_public
     assert admin.call("admin/themes") == before and admin.call("admin/audit")["total"] == count
     assert guest.call("public/theme")["themeId"] == "classic"
-    passed("seven-theme previews and default fallbacks without persistence, activation or audit side effects")
+    passed("fifteen-theme previews and default fallbacks without persistence, activation or audit side effects")
 
     state = before
     saved = {}
@@ -69,7 +77,7 @@ def check_themes(admin, editor, guest, passed):
         assert profile == saved[theme["id"]]
         state = admin.call("admin/themes/active", "PUT", dict(themeId=theme["id"], options=profile, version=state["version"]))
         assert guest.call("public/theme") == dict(themeId=theme["id"], options=saved[theme["id"]])
-    passed("seven independent theme profiles survive switching, effective-only public output and stale-version rejection")
+    passed("fifteen independent theme profiles survive switching, effective-only public output and stale-version rejection")
 
     for theme in before["themes"]:
         if theme["id"] not in new_defaults:
@@ -89,7 +97,7 @@ def check_themes(admin, editor, guest, passed):
             assert "got 409" in str(e)
             return "conflict"
     with concurrent.futures.ThreadPoolExecutor(2) as pool:
-        assert sorted(pool.map(apply, ["fuwari", "cactus"])) == ["conflict", "saved"]
+        assert sorted(pool.map(apply, ["chirpy", "clarity"])) == ["conflict", "saved"]
     current = admin.call("admin/themes")
     admin.call("admin/themes/active", "PUT", dict(themeId="classic", options=saved["classic"], version=current["version"]))
     logs = admin.call("admin/audit")["items"]

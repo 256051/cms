@@ -57,7 +57,15 @@ public sealed class ThemeService(CmsRepository repository, ThemeOptionsValidator
         Define("midnight", "暗色科技", "深色背景、青色强调，专注技术与灵感。", "#38BDF8", "探索，记录，持续创造。"),
         Define("fuwari", "Fuwari · 清新卡片", "柔和色彩、圆角卡片与个人侧栏，让日常记录轻盈展开。", "#7C5CC4", "记录生活，也记录灵感。"),
         Define("retypeset", "Retypeset · 重新编排", "舒展留白、细致排版与时间目录，让文字成为阅读主角。", "#9A5B36", "把日子写成值得重读的篇章。"),
-        Define("cactus", "Cactus · 极简技术", "紧凑目录、清晰代码与绿色点缀，专注技术分享。", "#2BBC8A", "保持好奇，持续构建。")
+        Define("cactus", "Cactus · 极简技术", "紧凑目录、清晰代码与绿色点缀，专注技术分享。", "#2BBC8A", "保持好奇，持续构建。"),
+        Define("chirpy", "Chirpy · 技术手记", "侧边导航、横向文章卡片与阅读目录，让技术笔记井然有序。", "#2563AB", "把探索写成笔记。"),
+        Define("oranges", "Oranges · 橘子日记", "温暖的橙色点缀与日期目录，为日常留下简洁的记录。", "#B45309", "一些日常，一点新鲜。"),
+        Define("aircloud", "Aircloud · 云间文字", "轻盈侧栏、时间与标签列表，留白之间安静阅读。", "#397A85", "文字落下，思绪如云。"),
+        Define("stellar", "Stellar · 星光笔记", "柔和侧栏、圆角内容卡片与清晰的阅读空间。", "#087C72", "连接知识，点亮灵感。"),
+        Define("halorum", "Halorum · 话题列表", "紧凑的话题式文章列表与分类侧栏，快速发现感兴趣的内容。", "#2563EB", "分享见解，发现同好。"),
+        Define("aurora", "Aurora · 极光图文", "渐变首页、醒目头条与图文卡片，让故事拥有更多层次。", "#7350B5", "追逐灵感，记录精彩。"),
+        Define("iemo", "iEmo · 温柔日常", "温暖留白、左图右文与个人侧栏，收藏生活里的小确幸。", "#A65C3B", "平凡日子，也值得珍藏。"),
+        Define("clarity", "Clarity · 清晰视界", "三栏阅读、简洁导航与分类信息，让内容清晰展开。", "#366A9F", "让思考清晰，让表达自由。")
     ];
 
     private static ThemeDefinition Define(string id, string name, string description, string color, string title)

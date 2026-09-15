@@ -28,17 +28,18 @@ export default function ContentList({
   return (
     <>
       <div className={`article-grid${featured ? " featured-grid" : ""}`}>
-        {data.items.map((post, i) => themeId === "cactus" || themeId === "retypeset" ? (
+        {data.items.map((post, i) => ["cactus", "retypeset", "oranges", "aircloud"].includes(themeId) ? (
           <article className="article-card text-entry" key={post.id}>
             <time className="entry-date" dateTime={post.publishedAt || undefined}>{post.publishedAt ? new Date(post.publishedAt).toLocaleDateString("zh-CN", { timeZone: "UTC" }) : ""}</time>
             <div className="entry-content">
               <h2><Link href={siteHref(contentUrl(post), preview)}>{post.title}</Link></h2>
               {themeId === "retypeset" && post.summary && <p>{post.summary}</p>}
+              {themeId === "aircloud" && post.tagIds.length > 0 && <div className="entry-tags">{taxonomy.filter(term => term.kind === "tag" && post.tagIds.includes(term.id)).map(term => <Link key={term.id} href={siteHref(`/tag/${term.slug}`, preview)}># {term.name}</Link>)}</div>}
             </div>
           </article>
         ) : (
           <article className={`article-card${post.coverId ? " has-cover" : " no-cover"}`} key={post.id}>
-            {(themeId !== "fuwari" || post.coverId) && <Link
+            {(!["fuwari", "chirpy", "stellar", "halorum", "iemo", "clarity"].includes(themeId) || post.coverId) && <Link
               className="card-cover"
               href={siteHref(contentUrl(post), preview)}
               tabIndex={-1}

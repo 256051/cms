@@ -55,8 +55,10 @@ cert = (x509.CertificateBuilder().subject_name(subject).issuer_name(subject).pub
 http_port, https_port = port(), port()
 base = f"https://localhost:{https_port}"
 password = "Cms!" + secrets.token_hex(20)
+api_image = os.environ.get("CMS_TEST_API_IMAGE", "cms-api:local")
+web_image = os.environ.get("CMS_TEST_WEB_IMAGE", "cms-web:local")
 (local / ".env").write_text(f"CMS_ENVIRONMENT=Production\nDB_TYPE=Sqlite\nDB_CONNECTION_STRING=Data Source=/data/cms.db\nSETUP_USERNAME=cmsadmin\nSETUP_PASSWORD={password}\nSITE_URL={base}\nTLS_DIRECTORY={local.as_posix()}\nCMS_NETWORK_SUBNET=172.30.47.0/24\n", encoding="utf-8")
-(local / "override.yaml").write_text(f"services:\n  api:\n    image: cms-api:local\n  web:\n    image: cms-web:local\n  gateway:\n    ports: !override\n      - '127.0.0.1:{http_port}:80'\n      - '127.0.0.1:{https_port}:443'\n", encoding="utf-8")
+(local / "override.yaml").write_text(f"services:\n  api:\n    image: {api_image}\n  web:\n    image: {web_image}\n  gateway:\n    ports: !override\n      - '127.0.0.1:{http_port}:80'\n      - '127.0.0.1:{https_port}:443'\n", encoding="utf-8")
 compose = ["docker", "compose", "--project-name", project, "--env-file", str(local / ".env"), "-f", "compose.yaml", "-f", "compose.https.yaml", "-f", str(local / "override.yaml")]
 context = ssl.create_default_context(cafile=str(local / "fullchain.pem"))
 admin = Client(base)
@@ -125,6 +127,7 @@ try:
     result["checks"].append("rich editor insertion, paste/upload, table editing, media playback, formatting round trip and responsive public rendering in fifteen themes")
     result["checks"].append("Eleven community themes preview isolation, keyboard-operated article TOC, unique heading anchors and body HTML without JavaScript")
     result["checks"].append("integration tokens and replay receipts survive restart; token UI, one-time secrets, remote publishing, responsive layouts and keyboard revocation")
+    result["checks"].append("visible browser page counts, PV/UV, reading and download clicks, private lead submission and follow-up, preview/staff exclusions, Do Not Track and responsive traffic reports")
     (output / "results.json").write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
     print("PASS: Docker Compose HTTPS, publication and restart; results:", output / "results.json")
 finally:

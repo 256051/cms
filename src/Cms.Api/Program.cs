@@ -37,6 +37,8 @@ builder.Host.ConfigureContainer<ContainerBuilder>(container =>
     container.RegisterType<AssetService>().InstancePerLifetimeScope();
     container.RegisterType<AccessTokenService>().InstancePerLifetimeScope();
     container.RegisterType<IntegrationService>().InstancePerLifetimeScope();
+    container.RegisterType<TrafficService>().InstancePerLifetimeScope();
+    container.RegisterType<VisitorIdentity>().InstancePerLifetimeScope();
 });
 builder.Services.AddSingleton<IMapper>(new Mapper(MappingConfiguration.Create()));
 var keys = Path.GetFullPath(builder.Configuration["Security:KeyPath"] ?? "data/keys");
@@ -156,6 +158,14 @@ builder.Services.AddRateLimiter(options =>
         ctx => RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             _ => new FixedWindowRateLimiterOptions
                 { PermitLimit = 5, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+    options.AddPolicy("traffic",
+        ctx => RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+                { PermitLimit = 120, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+    options.AddPolicy("leads",
+        ctx => RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions
+                { PermitLimit = 5, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
     options.AddPolicy("integration",
         ctx => RateLimitPartition.GetFixedWindowLimiter(
             ctx.User.FindFirstValue("token_id") is { } id
@@ -175,17 +185,18 @@ builder.Services.AddRateLimiter(options =>
 });
 builder.Services.Configure<FormOptions>(x => x.MultipartBodyLengthLimit = 55_000_000);
 var app = builder.Build();
-if (args.Contains("--initialize") || args.Contains("--migrate"))
+var explicitDatabaseOperation = args.Contains("--initialize") || args.Contains("--migrate");
+using (var scope = app.Services.CreateScope())
 {
-    using var scope = app.Services.CreateScope();
     var repo = scope.ServiceProvider.GetRequiredService<CmsRepository>();
-    await repo.InitializeSchemaAsync();
+    app.Logger.LogInformation("Checking and upgrading database schema before accepting requests.");
+    await repo.InitializeSchemaAsync(allowCreate: explicitDatabaseOperation);
     if (args.Contains("--initialize"))
         await scope.ServiceProvider.GetRequiredService<AuthService>().InitializeAsync(
             builder.Configuration["Setup:Username"] ?? "", builder.Configuration["Setup:Password"] ?? "");
-    app.Logger.LogInformation("Explicit database operation completed.");
-    return;
+    app.Logger.LogInformation("Database schema is ready.");
 }
+if (explicitDatabaseOperation) return;
 
 app.Use(async (ctx, next) =>
 {

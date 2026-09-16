@@ -12,35 +12,45 @@ public sealed class ContentService(CmsRepository repository, ContentValidator va
     /// <summary>Read sanitized editorial content.</summary>
     public async Task<ContentView> GetAsync(string id)
     {
-        return Draft(await repository.FindAsync<Content>(id) ?? throw Missing());
+        return (await WithMetricsAsync([Draft(await repository.FindAsync<Content>(id) ?? throw Missing())]))[0];
     }
 
     /// <summary>Read the published snapshot only.</summary>
     public async Task<ContentView> PublicAsync(string slug)
     {
         var row = await repository.FirstAsync<Content>(x => x.Slug == slug && x.Published) ?? throw Missing();
-        return Published(row);
+        return Published(row) with { Views = (await repository.FindAsync<ContentTraffic>(row.Id))?.Views ?? 0 };
     }
 
     /// <summary>Page editorial or published content; public predicates use public fields.</summary>
     public async Task<PageResult<ContentView>> ListAsync(bool published, string kind, string? query, string? categoryId,
-        string? tagId, int page, int size)
+        string? tagId, int page, int size, string sort = "recent")
     {
         var q = (query ?? "").Trim();
         var category = categoryId ?? "";
         var tag = string.IsNullOrEmpty(tagId) ? "" : "|" + tagId + "|";
-        if (q.Length > 200 || kind is not ("post" or "page")) throw new CmsException(400, "INVALID_QUERY", "查询条件无效。");
+        if (q.Length > 200 || kind is not ("post" or "page") || sort is not ("recent" or "views")) throw new CmsException(400, "INVALID_QUERY", "查询条件无效。");
         var result = published
             ? await repository.PageAsync<Content>(
                 x => x.Published && x.Kind == kind &&
                      (q == "" || x.PublishedTitle.Contains(q) || x.PublishedSummary.Contains(q)) &&
                      (category == "" || x.PublishedCategoryId == category) &&
                      (tag == "" || x.PublishedTagIds.Contains(tag)), page, size, x => x.PublishedAt!)
+            : sort == "views" ? await repository.ContentByViewsAsync(kind, q, page, size)
             : await repository.PageAsync<Content>(
                 x => x.Kind == kind && (q == "" || x.Title.Contains(q) || x.Summary.Contains(q)), page, size);
-        return new PageResult<ContentView>(
-            result.Items.Select(x => (published ? Published(x) : Draft(x)) with { Html = "" }).ToList(), result.Total,
-            result.Page, result.PageSize);
+        var items = result.Items.Select(x => (published ? Published(x) : Draft(x)) with { Html = "" }).ToList();
+        if (!published) items = await WithMetricsAsync(items);
+        return new PageResult<ContentView>(items, result.Total, result.Page, result.PageSize);
+    }
+
+    private async Task<List<ContentView>> WithMetricsAsync(List<ContentView> items)
+    {
+        if (items.Count == 0) return items;
+        var metrics = (await repository.ContentMetricsAsync(items.Select(x => x.Id).ToArray(), TrafficService.TodayUtc()))
+            .ToDictionary(x => x.ContentId);
+        return items.Select(x => metrics.TryGetValue(x.Id, out var counts)
+            ? x with { Views = counts.Views, TodayViews = counts.TodayViews, Visitors = counts.Visitors } : x).ToList();
     }
 
     /// <summary>Apply stored page sizes for public list requests.</summary>

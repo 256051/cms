@@ -85,7 +85,7 @@ python scripts/publish-article.py --title "第一篇文章" --slug hello-agent -
 
 ## 升级、审计与边界
 
-本功能使用 schema **6**。停止写入，备份数据库、附件和认证密钥，更新 API 和 web 后显式执行 `--migrate`，再启动。升级从 schema 5 增加 `cms_access_tokens`、`cms_integration_requests` 和操作日志的令牌归属字段，不重置现有站点设置。正常启动不会自动修改表结构。
+本功能引入于 schema **6**。停止旧服务并备份数据库、附件和认证密钥，更新 API 和 web 后启动；当前 API 会在接收请求前自动完成编号升级，也可先单独执行 `--migrate`。schema 5 → 6 增加 `cms_access_tokens`、`cms_integration_requests` 和操作日志的令牌归属字段，不重置现有站点设置。最新版本与部署步骤见 [部署说明](deployment.md)。
 
 后台操作记录可查看令牌创建、撤销，以及 Agent 保存、上传和发布的关联账号、令牌名称及内容对象。失败调用在后端日志中记录状态码、令牌标识与追踪编号，不记录密钥、请求头或正文。
 

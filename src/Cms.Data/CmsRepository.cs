@@ -21,7 +21,7 @@ public sealed class CmsException(int status, string code, string message, int? r
 public record PageResult<T>(IReadOnlyList<T> Items, long Total, int Page, int PageSize);
 
 /// <summary>FreeSql persistence boundary with atomic audited writes.</summary>
-public sealed class CmsRepository(IFreeSql database)
+public sealed partial class CmsRepository(IFreeSql database)
 {
     // ponytail: one writer per API process; single API instance only. Use database locks before scaling out.
     private static readonly SemaphoreSlim Writes = new(1, 1);
@@ -239,8 +239,9 @@ public sealed class CmsRepository(IFreeSql database)
         }
     }
 
-    /// <summary>Apply ordered schema steps only when explicitly invoked by the operator.</summary>
-    public async Task InitializeSchemaAsync()
+    /// <summary>Apply ordered schema upgrades; creating an uninitialized database requires explicit permission.</summary>
+    /// <param name="allowCreate">Allow initial schema creation for the initialize and migrate commands.</param>
+    public async Task InitializeSchemaAsync(bool allowCreate = true)
     {
         var version = 0;
         if (db.DbFirst.ExistsTable("cms_schema"))
@@ -250,10 +251,11 @@ public sealed class CmsRepository(IFreeSql database)
             if (version < 1) throw new InvalidOperationException("数据库版本无效，请检查备份与初始化记录。");
         }
 
-        if (version > 6 || version < 0) throw new InvalidOperationException("数据库版本与程序不兼容，拒绝降级。");
-        if (version == 6) return;
+        if (version > 7 || version < 0) throw new InvalidOperationException("数据库版本与程序不兼容，拒绝降级。");
+        if (version == 7) return;
         if (version == 0)
         {
+            if (!allowCreate) throw new InvalidOperationException("数据库尚未初始化，请先执行 --initialize 创建站点。");
             db.CodeFirst.SyncStructure(typeof(CmsUser), typeof(Content), typeof(Taxonomy), typeof(Asset),
                 typeof(Comment), typeof(MenuItem), typeof(SiteSettings), typeof(AuditEntry), typeof(SchemaVersion));
             await InsertAsync(new SchemaVersion { Id = "schema", Version = 1 });
@@ -287,7 +289,7 @@ public sealed class CmsRepository(IFreeSql database)
         }
 
         // v4 -> v5: preserve existing identity fields, initialize only the newly introduced options.
-        // API must be stopped for explicit upgrades; interrupted DDL can safely repeat this step.
+        // No API instance may serve requests during upgrades; interrupted DDL can safely repeat this step.
         if (version < 5)
         {
             db.CodeFirst.SyncStructure(typeof(SiteSettings));
@@ -303,13 +305,21 @@ public sealed class CmsRepository(IFreeSql database)
         }
 
         // v5 -> v6: additive machine credentials, retry receipts and audit attribution.
-        db.CodeFirst.SyncStructure(typeof(AccessToken), typeof(IntegrationRequest), typeof(AuditEntry));
-        await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 6).ExecuteAffrowsAsync();
+        if (version < 6)
+        {
+            db.CodeFirst.SyncStructure(typeof(AccessToken), typeof(IntegrationRequest), typeof(AuditEntry));
+            await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 6).ExecuteAffrowsAsync();
+        }
+
+        // v6 -> v7: independent traffic and private inquiry tables; editorial tables remain untouched.
+        db.CodeFirst.SyncStructure(typeof(VisitorProfile), typeof(PageVisit), typeof(ContentTraffic),
+            typeof(VisitEvent), typeof(CustomerLead));
+        await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 7).ExecuteAffrowsAsync();
     }
 
     /// <summary>Check database connectivity and expected schema without modifying it.</summary>
     public async Task<bool> ReadyAsync()
     {
-        return (await FindAsync<SchemaVersion>("schema"))?.Version == 6;
+        return (await FindAsync<SchemaVersion>("schema"))?.Version == 7;
     }
 }

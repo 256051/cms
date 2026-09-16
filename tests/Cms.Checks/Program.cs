@@ -36,6 +36,23 @@ using var db = new FreeSqlBuilder()
     .UseConnectionString(type, Environment.GetEnvironmentVariable("Database__ConnectionString")!)
     .UseAutoSyncStructure(false).Build();
 var repo = new CmsRepository(db);
+if (args.Contains("--create-v6"))
+{
+    db.CodeFirst.SyncStructure(typeof(CmsUser), typeof(Content), typeof(Taxonomy), typeof(Asset), typeof(Comment),
+        typeof(MenuItem), typeof(SiteSettings), typeof(AuditEntry), typeof(SchemaVersion), typeof(ThemeState),
+        typeof(AccessToken), typeof(IntegrationRequest));
+    await repo.InsertAsync(new SchemaVersion { Id = "schema", Version = 6 });
+    await repo.InsertAsync(new Content { Id = "v6-original", Slug = "v6-original", Html = "<p>原文章保留</p>", Version = 17 });
+    return;
+}
+if (args.Contains("--verify-v6-upgrade"))
+{
+    if (!await repo.ReadyAsync() || (await repo.FindAsync<Content>("v6-original"))?.Version != 17 ||
+        (await repo.FindAsync<Content>("v6-original"))?.Html != "<p>原文章保留</p>" || await repo.CountAsync<PageVisit>() != 0 ||
+        await repo.CountAsync<CustomerLead>() != 0) throw new Exception("v6 upgrade failed to preserve content.");
+    Console.WriteLine("PASS: repeatable additive v6 to v7 upgrade");
+    return;
+}
 if (args.Contains("--integration"))
 {
     await IntegrationChecks.RunAsync(repo);
@@ -80,13 +97,13 @@ if (args.Contains("--verify-v5-upgrade"))
     var settings = (await repo.FindAsync<SiteSettings>("site"))!;
     var account = (await repo.FindAsync<CmsUser>("v5-admin"))!;
     var audit = (await repo.FindAsync<AuditEntry>("v5-audit"))!;
-    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 6 || settings.Subtitle != "不可重置" ||
+    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 7 || settings.Subtitle != "不可重置" ||
         settings.FooterText != "自定义版权" || settings.CommentsEnabled || settings.HomePageSize != 7 ||
         settings.Version != 19 || account.PasswordHash != "preserve-this-hash" ||
         account.SecurityStamp != "original-stamp" || audit.TargetName != "原文章" ||
         !string.IsNullOrEmpty(audit.TokenId) || !string.IsNullOrEmpty(audit.TokenName) ||
         (await repo.FindAsync<Content>("v5-content"))?.Version != 12 || await repo.CountAsync<AccessToken>() != 0 ||
-        await repo.CountAsync<IntegrationRequest>() != 0) throw new Exception("v5 to v6 did not preserve data.");
+        await repo.CountAsync<IntegrationRequest>() != 0) throw new Exception("v5 to v7 did not preserve data.");
     return;
 }
 
@@ -119,12 +136,12 @@ if (args.Contains("--verify-upgrade"))
 {
     var old = await repo.FindAsync<AuditEntry>(legacyAuditId);
     var content = await repo.FindAsync<Content>(legacyContentId);
-    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 6 ||
+    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 7 ||
         (await repo.FindAsync<ThemeState>("site"))?.ActiveThemeId != "classic" || old?.Actor != "旧版管理员" ||
         !string.IsNullOrEmpty(old.TargetId) || content?.Html != "<p>旧版中文与 🎉 正文</p>" ||
         content.Version != 7) throw new Exception("Upgrade did not preserve version 1 data.");
     await repo.DeleteAsync<Content>(legacyContentId); // Fixture cleanup in this isolated test database only.
-    Console.WriteLine("PASS: v1 through v6 upgrade preserves historical audit and content");
+    Console.WriteLine("PASS: v1 through v7 upgrade preserves historical audit and content");
     return;
 }
 
@@ -146,7 +163,7 @@ if (args.Contains("--verify-v2"))
 
 if (args.Contains("--verify-v2-upgrade"))
 {
-    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 6 ||
+    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 7 ||
         (await repo.FindAsync<SiteSettings>("site"))?.Title != "版本 2 站点" ||
         (await repo.FindAsync<ThemeState>("site"))?.ActiveThemeId != "classic")
         throw new Exception("Version 2 upgrade failed.");
@@ -175,7 +192,7 @@ if (args.Contains("--verify-v3-upgrade"))
 {
     var menu = (await repo.FindAsync<MenuItem>("old-menu"))!;
     var theme = (await repo.FindAsync<ThemeState>("site"))!;
-    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 6 || menu.Label != "旧导航中文" ||
+    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 7 || menu.Label != "旧导航中文" ||
         menu.Url != "/pages/about" || menu.Sort != 7 || menu.Type != "custom" || menu.ParentId != "" ||
         menu.TargetId != "" || menu.OpenInNewTab || menu.Version != 0 || theme.ActiveThemeId != "paper" ||
         theme.Version != 7) throw new Exception("Menu upgrade did not preserve data and defaults.");
@@ -205,7 +222,7 @@ if (args.Contains("--verify-v4"))
 if (args.Contains("--verify-v4-upgrade"))
 {
     var s = (await repo.FindAsync<SiteSettings>("site"))!;
-    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 6 || s.Title != "旧站设置 🎉" ||
+    if ((await repo.FindAsync<SchemaVersion>("schema"))?.Version != 7 || s.Title != "旧站设置 🎉" ||
         s.Description != "保留旧介绍" || s.LogoId != "old-logo" || s.Keywords != "内容,旧站" || s.Version != 0 ||
         s.Subtitle != "" || s.FaviconId != "" || s.FooterText != "" || s.Language != "zh-CN" || s.HomePageSize != 12 ||
         s.CategoryPageSize != 12 || s.TagPageSize != 12 || s.SearchPageSize != 12 || !s.CommentsEnabled ||

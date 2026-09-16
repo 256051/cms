@@ -31,7 +31,7 @@ CMS_NETWORK_SUBNET=172.30.46.0/24
 docker compose -f compose.yaml -f compose.host-nginx.yaml run --rm --no-deps api --initialize
 ```
 
-成功后清空这两个初始化字段。已有站点跳过初始化；需要升级 schema 时使用 `--migrate` 并按原备份流程操作。
+成功后清空这两个初始化字段。已有站点跳过初始化；更新版本前停止旧 API、前端并按原流程备份，更换镜像后启动，API 会在接收请求前自动升级旧数据库。`--migrate` 仍可用于单独执行升级。
 
 如果之前已经启动过包内网关，先停止它，然后仅启动两个业务容器：
 

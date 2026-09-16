@@ -30,6 +30,7 @@ import ThemeManager from "./ThemeManager";
 import MenuManager from "./MenuManager";
 import SettingsManager from "./SettingsManager";
 import TokenManager from "./TokenManager";
+import { TrafficOverview, VisitorManager, LeadManager } from "./TrafficManagement";
 import {
   AssetManager,
   TaxonomyManager,
@@ -48,6 +49,9 @@ const links = [
   ["comments", "评论", MessageSquare],
 ] as const;
 const adminLinks = [
+  ["traffic", "访问统计", LayoutDashboard],
+  ["visitors", "访客记录", Users],
+  ["leads", "客户咨询", MessageSquare],
   ["menu", "导航菜单", List],
   ["settings", "站点设置", Settings],
   ["themes", "主题外观", Palette],
@@ -285,7 +289,7 @@ export default function AdminApp({ route }: { route: string[] }) {
           ) : section === "password" ? (
             <PasswordManager />
           ) : user.role === "Admin" ? (
-            section === "themes" ? (
+            section === "traffic" ? <TrafficOverview /> : section === "visitors" ? <VisitorManager initialId={route[1]} /> : section === "leads" ? <LeadManager /> : section === "themes" ? (
               <ThemeManager />
             ) : section === "settings" ? (
               <SettingsManager />
@@ -486,6 +490,7 @@ function Dashboard({ user }: { user: User }) {
           );
         })}
       </div>
+      {user.role === "Admin" && <TrafficOverview compact />}
       <div className="dashboard-panels">
         <section className="panel">
           <h2>创作流程</h2>

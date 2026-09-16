@@ -12,6 +12,7 @@ export class ApiError extends Error {
   }
 }
 let csrf: string | null = null;
+let csrfRequest: Promise<string> | null = null;
 export function resetCsrf() {
   csrf = null;
 }
@@ -19,10 +20,12 @@ export async function api<T>(
   path: string,
   method = "GET",
   body?: unknown,
+  keepalive = false,
 ): Promise<T> {
   const headers: Record<string, string> = {};
   if (method !== "GET") {
     if (!csrf) {
+      csrfRequest ??= (async () => {
       const response = await fetch("/api/v1/auth/csrf", {
         cache: "no-store",
         credentials: "same-origin",
@@ -33,8 +36,9 @@ export async function api<T>(
           response.status,
           "CSRF_INVALID",
         );
-      csrf = ((await response.json()) as Envelope<{ token: string }>).data
-        .token;
+      return ((await response.json()) as Envelope<{ token: string }>).data.token;
+      })();
+      try { csrf = await csrfRequest; } finally { csrfRequest = null; }
     }
     headers["X-CSRF-TOKEN"] = csrf;
   }
@@ -46,6 +50,7 @@ export async function api<T>(
     body: body === undefined ? undefined : form ? body : JSON.stringify(body),
     cache: "no-store",
     credentials: "same-origin",
+    keepalive,
   });
   const result = await response.json().catch(() => ({
     message: "服务暂时不可用，请稍后重试。",

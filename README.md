@@ -33,13 +33,113 @@ npm --prefix web ci
 
 访问前台 <http://localhost:3000>，管理后台 <http://localhost:3000/admin>。开发 API 监听 `127.0.0.1:5080`，浏览器经 Next.js 同域转发。开发数据在 `.local/dev.db`，附件在 `.local/uploads`，认证密钥在 `.local/keys`。
 
+## Docker 打包
+
+打包机器需要 **Git、Python 3.11+、Docker（Linux 容器模式）**，构建时需要联网下载基础镜像和依赖。.NET 和 Node.js 编译在容器内完成。先提交需要发布的应用源码，再在仓库根目录执行：
+
+```sh
+# 默认生成 Linux amd64 离线包
+python scripts/package-docker.py
+
+# ARM64 服务器可选择此项，发布前需另做 ARM64 实机验收
+python scripts/package-docker.py --platform linux/arm64
+```
+
+上面两条按目标架构选择一条。脚本会拒绝 `src/`、`web/` 或两个 Dockerfile 中未提交的改动，版本号使用日期和 Git 提交号。产物位于 `artifacts/releases/`：
+
+- `cms-<版本>-linux-amd64-sqlite.tar.gz`：离线部署包。
+- 同名 `.tar.gz.sha256`：压缩包校验文件。
+- 同名目录：已展开的发布文件，包括 `images.tar`、Compose 配置、`release.json` 和使用文档。
+
+包内三个镜像分别为 `cms-api`（后端）、`cms-web`（前台与管理后台）和 `cms-gateway`（Nginx 网关）。默认 SQLite，不包含本地数据库、文章、账号、附件或认证密钥，也不会自动推送镜像仓库。服务器已有 Nginx / 宝塔时只需启动 `api`、`web`。
+
+## Docker 部署
+
+服务器需要 **Docker Engine 和 Docker Compose 2.24.4+**，不需要安装 .NET SDK、Node.js 或 Python。下面的服务器命令以 Linux 为例。
+
+### 1. 准备镜像与配置
+
+**使用离线包**：把压缩包及校验文件上传到服务器，将下面的 `<版本>` 替换为实际版本；每一步成功后再继续。
+
+```sh
+sha256sum -c cms-<版本>-linux-amd64-sqlite.tar.gz.sha256
+tar -xzf cms-<版本>-linux-amd64-sqlite.tar.gz
+cd cms-<版本>-linux-amd64-sqlite
+sha256sum -c SHA256SUMS
+docker load -i images.tar
+cp .env.example .env
+chmod 600 .env
+```
+
+**从源码直接部署**：在仓库根目录准备 SQLite 配置并构建镜像，后面的初始化与启动步骤相同：
+
+```sh
+cp deploy/package.env.example .env
+chmod 600 .env
+docker compose -f compose.yaml build api web
+```
+
+编辑 `.env`，首次部署至少确认以下项目：
+
+- `COMPOSE_PROJECT_NAME`：站点的固定项目名，决定数据卷名称，上线后保持不变。
+- `SITE_URL`：自己网站的 HTTPS 地址，替换模板中的示例域名。
+- `SETUP_USERNAME`、`SETUP_PASSWORD`：自定义管理员账号和密码；账号为 3–64 位小写字母、数字或连字符，密码至少 12 字符。没有默认管理员密码。
+- `DB_TYPE=Sqlite`、`DB_CONNECTION_STRING=Data Source=/data/cms.db`：使用内置 SQLite；其他数据库的连接方式见 [部署与配置](docs/deployment.md)。
+- `CMS_ENVIRONMENT=Production`：正式站点使用 HTTPS；`CMS_NETWORK_SUBNET` 需与服务器已有 Docker 网络不冲突。
+
+### 2. 首次初始化
+
+仅新站执行，已有站点直接按下方“旧站升级”操作：
+
+```sh
+docker compose -f compose.yaml run --rm --no-deps api --initialize
+```
+
+成功后清空 `.env` 中的 `SETUP_USERNAME` 和 `SETUP_PASSWORD`，再选择以下一种方式启动。
+
+### 3A. 服务器已有 Nginx / 宝塔
+
+适用于 Nginx 和 Docker 位于同一台服务器。由原 Nginx 处理域名与 HTTPS，仅启动两个业务容器：
+
+```sh
+docker compose -f compose.yaml -f compose.host-nginx.yaml up -d api web
+docker compose -f compose.yaml -f compose.host-nginx.yaml ps
+curl --fail http://127.0.0.1:5080/health/ready
+```
+
+将 `/api/`、`/media/`、`/health/` 转发到 `127.0.0.1:5080`，其他请求转发到 `127.0.0.1:3000`。按 [Nginx 配置示例](deploy/nginx.host.conf) 修改域名和证书路径，并保留代理头设置；完整步骤见 [宿主机 Nginx 部署](docs/host-nginx.md)。本模式不启动 `gateway`，不使用 `compose.https.yaml`。如果之前已启动过包内网关，先执行 `docker compose -f compose.yaml stop gateway`。
+
+### 3B. 使用包内 Nginx 网关
+
+由 `cms-gateway` 处理 HTTPS。准备与 `SITE_URL` 域名匹配的 `fullchain.pem`、`privkey.pem`，放到 `tls/` 或自己的证书目录；在 `.env` 设置 `TLS_DIRECTORY` 指向该目录、`CMS_BIND_ADDRESS=0.0.0.0`、`CMS_PORT=80`，确认服务器 80 / 443 端口可用：
+
+```sh
+docker compose -f compose.yaml -f compose.https.yaml up -d api web gateway
+docker compose -f compose.yaml -f compose.https.yaml ps
+curl --fail https://你的域名/health/ready
+```
+
+包内不提供或自动申请证书。两种模式均在健康检查返回 200 后访问 `https://你的域名/admin`，使用首次初始化的账号登录。
+
+### 4. 旧站升级与数据保留
+
+1. 在原部署目录停止旧 API、前端（网关模式还需停止 `gateway`），备份数据库、附件、认证密钥和 `.env`。SQLite 在停止写入后备份整个 `cms-data` 卷，其他数据库还需单独备份数据库，详见 [备份恢复](docs/operations.md)。
+2. 解压、校验新包并导入 `images.tar`，把原 `.env` 复制到新包目录，保留原项目名、数据库连接、数据卷及自定义端口。使用新包的 Compose 文件，其中已经引用新版本镜像。
+3. 按原来的 3A 或 3B 方式启动。新版 API 会在接收请求前自动升级旧数据库；升级失败会退出，修复原因后可重启继续。数据库账号需具备迁移所需权限，无需再次初始化或手动执行 `--migrate`。
+4. 检查健康状态、原文章和附件、后台访问统计及客户咨询；可用相同 Compose 参数执行 `logs --tail 100 api web` 查看启动日志。
+
+**不要执行 `docker compose down -v`，它会删除数据卷。** 更换发布目录时必须保持原 `COMPOSE_PROJECT_NAME`，否则可能连接到新的空数据卷。需要回退时同时恢复旧镜像和对应的升级前数据备份。完整验证步骤见 [线上升级指南](docs/online-upgrade.md)。
+
 ## 数据库与部署
 
-通过后端 `Database:Type` 和 `Database:ConnectionString` 在启动时选用 `PostgreSQL`、`MySql`、`SqlServer` 或 `Sqlite`。默认部署为 PostgreSQL。四库均经过实际初始化、业务、事务、并发和恢复验证；版本与验证边界见 [验收记录](docs/verification.md)。
+通过后端 `Database:Type` 和 `Database:ConnectionString` 在启动时选用 `PostgreSQL`、`MySql`、`SqlServer` 或 `Sqlite`。仓库的 `.env.example` 默认 PostgreSQL，离线包及上述 Docker 快速部署默认 SQLite。四库均经过实际初始化、业务、事务、并发和恢复验证；版本与验证边界见 [验收记录](docs/verification.md)。
 
 - [部署与配置](docs/deployment.md)：四库连接示例、Docker Compose、HTTPS、Consul、初始化与升级。
 - [Docker 离线包](docs/docker-package.md)：Linux SQLite 镜像导入、初始账号、域名与 HTTPS 部署。
+- [宿主机 Nginx 部署](docs/host-nginx.md)：已有 Nginx / 宝塔时的端口和代理配置。
+- [线上升级指南](docs/online-upgrade.md)：备份、换镜像、启动自动升级和线上功能验证。
 - [使用说明](docs/usage.md)：编辑发布、附件、审核、账号和设置。
+- [访问统计与客户咨询](docs/traffic.md)：文章阅读次数、访问趋势、访客轨迹、客户留资与跟进，以及 schema 7 升级。
 - [丰富编辑器](docs/editor.md)：排版、图片集、音视频、表格、网页嵌入和分栏；[实际验收](docs/editor-verification.md)。
 - [备份恢复与排查](docs/operations.md)：数据库、附件、密钥的配套恢复流程。
 - [验收记录](docs/verification.md)：实际执行的检查、结果与复现命令。

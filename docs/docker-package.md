@@ -42,7 +42,7 @@ docker compose -f compose.yaml -f compose.https.yaml ps
 curl --fail https://itmao.club/health/ready
 ```
 
-访问 `https://itmao.club/admin`，用刚设置的账号登录。需要使用其他域名时同时替换上面的检查地址。正常运行不会自动建表，初始化也不会覆盖已有账号。
+访问 `https://itmao.club/admin`，用刚设置的账号登录。需要使用其他域名时同时替换上面的检查地址。正常启动会升级已有的旧版本数据库；首次建站仍需初始化，初始化不会覆盖已有账号。
 
 ## 暂时没有证书时做本机测试
 
@@ -60,7 +60,7 @@ SQLite 数据库、附件及密钥均位于 `cms-data` 卷，不需要额外数�
 
 SQLite 数据库、附件、认证密钥均位于 `cms-data` 卷。不要使用 `docker compose down -v` 删除运行数据。先停止写入再备份整个卷，并另外保存 `.env`，操作细节见 `docs/operations.md`。
 
-升级前停止写入并备份，再导入新包的 `images.tar`。使用同一个 `COMPOSE_PROJECT_NAME`、相同配置和数据卷；执行 `docker compose run --rm --no-deps api --migrate` 后启动。当前 schema 为 6，三套新主题不另改表。已有库升级使用 `--migrate`，不要重新设置初始管理员凭据。
+升级前停止旧 API、前端并备份，再导入新包的 `images.tar`，将 Compose 中的 API、web 镜像更新到新包版本。保持同一个 `COMPOSE_PROJECT_NAME`、原 `.env` 配置和数据卷，按原部署模式重新启动；新版 API 在提供服务前自动升级数据库，失败则退出。也可先单独执行 `docker compose run --rm --no-deps api --migrate`。当前源码 schema 为 7，详见 [访问统计与客户咨询](traffic.md)。升级不需要重新设置初始管理员凭据；只加载镜像不会修改旧 Compose 引用的版本，旧离线包的行为仍以各自版本为准。
 
 检查日志：
 

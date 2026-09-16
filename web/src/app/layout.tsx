@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import "./globals.css";
+import "./traffic.css";
 import "./themes.css";
 import "./menus.css";
 import "./community-themes.css";

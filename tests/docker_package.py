@@ -24,7 +24,10 @@ from integration import Client
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("archive", type=Path)
-    archive = parser.parse_args().archive.resolve()
+    parser.add_argument("--upgrade-from", type=Path, help="Previous release.json whose API image is already loaded locally")
+    parser.add_argument("--browser", action="store_true", help="Run the traffic browser flow against the packaged HTTPS site")
+    args = parser.parse_args()
+    archive = args.archive.resolve()
     with archive.open("rb") as stream:
         digest = hashlib.file_digest(stream, "sha256").hexdigest()
     assert Path(str(archive) + ".sha256").read_text().split()[0] == digest
@@ -89,6 +92,15 @@ def main():
     override = local / "ports.yaml"
     override.write_text(f"services:\n  gateway:\n    ports: !override\n      - '127.0.0.1:{http}:80'\n      - '127.0.0.1:{https}:443'\n")
     compose = ["docker", "compose", "-p", "cms-" + run_id, "--env-file", str(env_path), "-f", "compose.yaml", "-f", "compose.https.yaml", "-f", str(override)]
+    initial_compose = compose
+    if args.upgrade_from:
+        previous = json.loads(args.upgrade_from.resolve().read_text())
+        assert previous["platform"] == manifest["platform"] and previous["schema"] < manifest["schema"]
+        old_api = next(item for item in previous["images"] if item["service"] == "api")
+        assert json.loads(command(["docker", "image", "inspect", old_api["tag"]]))[0]["Id"] == old_api["id"]
+        legacy_override = local / "legacy-api.json"
+        legacy_override.write_text(json.dumps({"services": {"api": {"image": old_api["tag"]}}}))
+        initial_compose = compose + ["-f", str(legacy_override)]
     admin = Client(base)
     admin.opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(admin.jar), urllib.request.HTTPSHandler(context=ssl.create_default_context(cafile=str(tls / "fullchain.pem"))))
     def ready():
@@ -100,10 +112,10 @@ def main():
         raise RuntimeError("Packaged site failed readiness")
     try:
         command(compose + ["config", "--quiet"])
-        command(compose + ["run", "--rm", "--no-deps", "api", "--initialize"])
-        command(compose + ["run", "--rm", "--no-deps", "api", "--initialize"])
+        command(initial_compose + ["run", "--rm", "--no-deps", "api", "--initialize"])
+        command(initial_compose + ["run", "--rm", "--no-deps", "api", "--initialize"])
         env_path.write_text(env_path.read_text().replace("SETUP_USERNAME=cmsadmin", "SETUP_USERNAME=").replace("SETUP_PASSWORD=" + password, "SETUP_PASSWORD="))
-        command(compose + ["up", "-d", "--no-build", "api", "web", "gateway"])
+        command(initial_compose + ["up", "-d", "--no-build", "api", "web", "gateway"])
         ready()
         assert sorted(command(compose + ["ps", "--services", "--status", "running"]).splitlines()) == ["api", "gateway", "web"]
         admin.login("cmsadmin", password)
@@ -129,7 +141,11 @@ def main():
             assert admin.call(theme["thumbnail"]).startswith(b"\x89PNG")
         assert "SQLite 离线发布正文" in admin.call("/posts/package-proof").decode()
         assert base in admin.call("/sitemap.xml").decode()
-        command(compose + ["restart", "api", "web", "gateway"])
+        if args.upgrade_from:
+            command(compose + ["stop", "api", "web", "gateway"])
+            command(compose + ["up", "-d", "--no-build", "api", "web", "gateway"])
+        else:
+            command(compose + ["restart", "api", "web", "gateway"])
         ready()
         assert admin.call("auth/me")["username"] == "cmsadmin"
         assert admin.call("admin/contents")["total"] == 1
@@ -137,6 +153,23 @@ def main():
         assert admin.call("/media/" + asset["id"]) == png
         assert "SQLite 离线发布正文" in admin.call("/posts/package-proof").decode()
         checks = ["Archive and all bundled file checksums", "Three loaded Linux images match manifest IDs", "Compiled API and media rewrites target the Compose API service", "Direct Next.js API and media proxy requests", "SQLite initialization and repeat initialization", "Blanked setup credentials and three-service startup", "HTTPS captcha login, Secure cookies and CSRF", "Image upload and publication with server-rendered body", "Fifteen theme thumbnails and Cactus activation", "Configured domain in sitemap", "Restart preserves SQLite content, attachments, theme and authenticated session"]
+        if args.upgrade_from:
+            assert admin.call("admin/traffic")["totalViews"] == 0
+            checks.append(f"Replacing the schema {previous['schema']} API image automatically upgrades to schema {manifest['schema']} and preserves the existing site without --migrate")
+        if args.browser:
+            credentials = local / "browser-credentials.json"
+            credentials.write_text(json.dumps({"username": "cmsadmin", "password": password}))
+            browser_env = dict(os.environ, CMS_TEST_BASE_URL=base, CMS_TEST_CREDENTIALS_PATH=str(credentials), CMS_TEST_SELF_SIGNED="1")
+            with (output / "browser.log").open("w", encoding="utf-8") as log:
+                result = subprocess.run(["node", "node_modules/@playwright/test/cli.js", "test", "traffic.spec.ts"], cwd=root / "web", env=browser_env,
+                                        stdout=log, stderr=subprocess.STDOUT, creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
+            assert result.returncode == 0, "Packaged browser flow failed; see browser.log"
+            report, leads = admin.call("admin/traffic"), admin.call("admin/leads")
+            assert leads["total"] > 0 and any(item["status"] == "following" for item in leads["items"])
+            command(compose + ["restart", "api", "web", "gateway"])
+            ready()
+            assert admin.call("admin/traffic") == report and admin.call("admin/leads") == leads
+            checks.append("Packaged browser traffic, private consultation, follow-up, mobile charts and another restart preserve statistics and customer data")
         (output / "results.json").write_text(json.dumps({"status": "passed", "archive": archive.name, "testedArchiveSha256": digest, "platform": manifest["platform"], "sourceRevision": manifest["sourceRevision"], "checks": checks}, ensure_ascii=False, indent=2), encoding="utf-8")
         print("PASS: offline package, SQLite HTTPS and restart; results:", output / "results.json")
     finally:

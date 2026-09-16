@@ -31,10 +31,10 @@
 
 ## 升级和接口
 
-当前 schema 4 在 `cms_menu` 增加 `ParentId`、`Type`、`TargetId`、`OpenInNewTab`、`Version`，并把名称长度扩展至 200，容纳关联文章标题。旧菜单保留 ID、名称、地址和排序，补为顶级自定义链接、当前窗口、版本 0。显式升级时归一化新增字符串列的空值；普通启动不改表。
+schema 4 在 `cms_menu` 增加 `ParentId`、`Type`、`TargetId`、`OpenInNewTab`、`Version`，并把名称长度扩展至 200，容纳关联文章标题。旧菜单保留 ID、名称、地址和排序，补为顶级自定义链接、当前窗口、版本 0。编号迁移归一化新增字符串列的空值；当前 API 启动时会自动完成旧版本升级。
 
 沿用 `GET/POST /api/v1/admin/menu`、`PUT/DELETE /api/v1/admin/menu/{id}`；新增 `GET /api/v1/admin/menu/targets?type=post&q=关键词&page=1`，只返回选择所需的 ID、名称与地址。`GET /api/v1/public/menu` 返回解析后的可用项及父 ID，隐藏不可用分支。旧创建请求未提供类型时按自定义链接处理。
 
-保存带整数版本号，和审计日志处于同一事务；后台删除也提交版本号。所有业务数据保存在当前配置的数据库，无新增部署配置或 Consul 键。升级前应停止服务并备份数据库、附件和密钥，按 [部署说明](deployment.md) 执行 `--migrate`。
+保存带整数版本号，和审计日志处于同一事务；后台删除也提交版本号。所有业务数据保存在当前配置的数据库，无新增部署配置或 Consul 键。升级前应停止旧服务并备份数据库、附件和密钥，按 [部署说明](deployment.md) 更新镜像后启动；`--migrate` 仍可用于单独升级。
 
 本期没有增加多菜单组、菜单元数据、模板位置分配或拖拽库。实际结果见 [菜单验收记录](menus-verification.md)。

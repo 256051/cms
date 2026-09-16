@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { cookies } from "next/headers";
 import { BookOpen, ArrowUpRight } from "lucide-react";
 import { publicApi, siteUrl } from "@/lib/server";
@@ -7,6 +8,7 @@ import { colorModeCookie, parseColorMode, defaultCopyright, siteHref, themeSourc
 import SiteNavigation from "./SiteNavigation";
 import ThemeSidebar from "./ThemeSidebar";
 import ColorModeSwitch from "./ColorModeSwitch";
+import PublicTraffic from "./PublicTraffic";
 
 export default async function SiteShell({
   children,
@@ -50,6 +52,7 @@ export default async function SiteShell({
         <main id="main">{children}</main>
         <ThemeSidebar site={site} taxonomy={taxonomy} preview={context?.preview} />
       </div> : <main id="main">{children}</main>}
+      <Suspense fallback={null}><PublicTraffic preview={!!context?.preview} /></Suspense>
       <footer className="site-footer">
         <div>
           <BookOpen size={20} />

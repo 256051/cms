@@ -38,7 +38,10 @@ public record ContentView(
     string[] TagIds,
     int Version,
     bool Published,
-    DateTime? PublishedAt);
+    DateTime? PublishedAt,
+    long Views = 0,
+    long TodayViews = 0,
+    long Visitors = 0);
 
 /// <summary>Version required for publish, unpublish and delete.</summary>
 public record VersionInput(int Version);

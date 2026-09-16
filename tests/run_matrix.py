@@ -85,9 +85,9 @@ def database(kind, password, owned):
     for _ in range(120):
         try:
             if kind == "PostgreSQL":
-                command(["docker", "exec", name, "pg_isready", "-U", "cms"])
+                command(["docker", "exec", name, "pg_isready", "-h", "127.0.0.1", "-U", "cms"])
             elif kind == "MySql":
-                command(["docker", "exec", "-e", "MYSQL_PWD=" + password, name, "mysql", "-uroot", "-e", "SELECT 1"])
+                command(["docker", "exec", "-e", "MYSQL_PWD=" + password, name, "mysql", "-h127.0.0.1", "-uroot", "-e", "SELECT 1"])
             else:
                 command(["docker", "exec", "-e", "SQLCMDPASSWORD=" + password, name, "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-C", "-Q", "SELECT 1", "-b"])
             break
@@ -187,14 +187,10 @@ def main():
             env = dict(os.environ, Database__Type=kind, Database__ConnectionString=connection, Setup__Username="cmsadmin", Setup__Password=password, ASPNETCORE_ENVIRONMENT="Development", Urls=f"http://127.0.0.1:{port()}", Security__KeyPath=str(LOCAL / kind / "keys"), Storage__Path=str(LOCAL / kind / "uploads"), Consul__Enabled="false")
             (LOCAL / kind).mkdir(parents=True)
             command(["dotnet", str(CHECKS), "--create-v1"], env)
+            command(["dotnet", str(CHECKS), "--verify-v1"], env)
             with (ARTIFACTS / (kind + "-pre-upgrade.log")).open("w", encoding="utf-8") as log:
-                old_process = subprocess.Popen(["dotnet", str(API)], cwd=ROOT, env=env, stdout=log, stderr=log, creationflags=CREATION)
-                try:
-                    wait_http(env["Urls"] + "/health/live", old_process)
-                    Client(env["Urls"]).call("/health/ready", expected=503)
-                    command(["dotnet", str(CHECKS), "--verify-v1"], env)
-                finally:
-                    stop(old_process)
+                old_process = start(env, log)
+                stop(old_process)
             command(["dotnet", str(API), "--migrate"], env)
             command(["dotnet", str(API), "--migrate"], env)
             command(["dotnet", str(CHECKS), "--verify-upgrade"], env)
@@ -204,7 +200,7 @@ def main():
                 process = start(env, log)
                 try:
                     checks = suite(env["Urls"], "cmsadmin", password, ROOT / "docs/openapi.json")
-                    checks.append("explicit repeatable v1 through v6 migration preserves historical audit and content; normal startup does not migrate")
+                    checks.append("startup upgrades v1 through v7 before readiness; repeated explicit migration preserves historical audit and content")
                     session = Client(env["Urls"])
                     session.login("cmsadmin", password)
                     stop(process)
@@ -256,13 +252,9 @@ def main():
                 checks.append("backup restored into a separate database with media and authentication keys")
                 v2 = empty_database(kind, password, env, "cmsv2")
                 command(["dotnet", str(CHECKS), "--create-v2"], v2)
-                process = subprocess.Popen(["dotnet", str(API)], env=v2, cwd=ROOT, stdout=log, stderr=log, creationflags=CREATION)
-                try:
-                    wait_http(v2["Urls"] + "/health/live", process)
-                    Client(v2["Urls"]).call("/health/ready", expected=503)
-                    command(["dotnet", str(CHECKS), "--verify-v2"], v2)
-                finally:
-                    stop(process)
+                command(["dotnet", str(CHECKS), "--verify-v2"], v2)
+                process = start(v2, log)
+                stop(process)
                 command(["dotnet", str(API), "--migrate"], v2)
                 command(["dotnet", str(API), "--migrate"], v2)
                 command(["dotnet", str(CHECKS), "--verify-v2-upgrade"], v2)
@@ -276,46 +268,34 @@ def main():
                     assert len(first.call("admin/users")) == 1
                 finally:
                     stop(process)
-                checks.append("v2 through v6 preserves site metadata; fresh v6 initialization is repeatable with classic defaults")
+                checks.append("v2 through v7 preserves site metadata; fresh v7 initialization is repeatable with classic defaults")
                 v3 = empty_database(kind, password, env, "cmsv3")
                 command(["dotnet", str(CHECKS), "--create-v3"], v3)
-                process = subprocess.Popen(["dotnet", str(API)], env=v3, cwd=ROOT, stdout=log, stderr=log, creationflags=CREATION)
-                try:
-                    wait_http(v3["Urls"] + "/health/live", process)
-                    Client(v3["Urls"]).call("/health/ready", expected=503)
-                    command(["dotnet", str(CHECKS), "--verify-v3"], v3)
-                finally:
-                    stop(process)
+                command(["dotnet", str(CHECKS), "--verify-v3"], v3)
+                process = start(v3, log)
+                stop(process)
                 command(["dotnet", str(API), "--migrate"], v3)
                 command(["dotnet", str(API), "--migrate"], v3)
                 command(["dotnet", str(CHECKS), "--verify-v3-upgrade"], v3)
-                checks.append("v3 through v6 preserves old links and active theme; repeated upgrade and normal startup verified")
+                checks.append("v3 through v7 preserves old links and active theme; repeated upgrade and normal startup verified")
                 v4 = empty_database(kind, password, env, "cmsv4")
                 command(["dotnet", str(CHECKS), "--create-v4"], v4)
-                process = subprocess.Popen(["dotnet", str(API)], env=v4, cwd=ROOT, stdout=log, stderr=log, creationflags=CREATION)
-                try:
-                    wait_http(v4["Urls"] + "/health/live", process)
-                    Client(v4["Urls"]).call("/health/ready", expected=503)
-                    command(["dotnet", str(CHECKS), "--verify-v4"], v4)
-                finally:
-                    stop(process)
+                command(["dotnet", str(CHECKS), "--verify-v4"], v4)
+                process = start(v4, log)
+                stop(process)
                 command(["dotnet", str(API), "--migrate"], v4)
                 command(["dotnet", str(API), "--migrate"], v4)
                 command(["dotnet", str(CHECKS), "--verify-v4-upgrade"], v4)
-                checks.append("v4 through v6 preserves identity, menu and theme, initializes settings defaults and supports repeated explicit upgrade")
+                checks.append("v4 through v7 preserves identity, menu and theme, initializes settings defaults and supports repeated explicit upgrade")
                 v5 = empty_database(kind, password, env, "cmsv5")
                 command(["dotnet", str(CHECKS), "--create-v5"], v5)
-                process = subprocess.Popen(["dotnet", str(API)], env=v5, cwd=ROOT, stdout=log, stderr=log, creationflags=CREATION)
-                try:
-                    wait_http(v5["Urls"] + "/health/live", process)
-                    Client(v5["Urls"]).call("/health/ready", expected=503)
-                    command(["dotnet", str(CHECKS), "--verify-v5"], v5)
-                finally:
-                    stop(process)
+                command(["dotnet", str(CHECKS), "--verify-v5"], v5)
+                process = start(v5, log)
+                stop(process)
                 command(["dotnet", str(API), "--migrate"], v5)
                 command(["dotnet", str(API), "--migrate"], v5)
                 command(["dotnet", str(CHECKS), "--verify-v5-upgrade"], v5)
-                checks.append("v5 to v6 preserves custom settings, account hashes, article versions and historical audit; ordinary startup and repeated migration verified")
+                checks.append("v5 to v7 preserves custom settings, account hashes, article versions and historical audit; ordinary startup and repeated migration verified")
                 if kind == "Sqlite":
                     check_consul(env, password, owned, log)
                     checks.append("Consul overrides local config, environment overrides Consul, unavailable Consul fails startup")

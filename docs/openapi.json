@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "http://127.0.0.1:65199/"
+      "url": "http://127.0.0.1:62452/"
     }
   ],
   "paths": {
@@ -436,6 +436,14 @@
               "type": "integer",
               "format": "int32",
               "default": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "recent"
             }
           }
         ],
@@ -2781,6 +2789,525 @@
           }
         }
       }
+    },
+    "/api/v1/public/visits": {
+      "post": {
+        "tags": [
+          "PublicTraffic"
+        ],
+        "summary": "Accept one visible public page navigation.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageVisitReceipt"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageVisitReceipt"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageVisitReceipt"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/visits/{id}/reading": {
+      "post": {
+        "tags": [
+          "PublicTraffic"
+        ],
+        "summary": "Update cumulative reading observations without incrementing page views.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadingInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadingInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReadingInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/visits/{id}/events": {
+      "post": {
+        "tags": [
+          "PublicTraffic"
+        ],
+        "summary": "Accept one user-initiated download or consultation click.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitEventInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitEventInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VisitEventInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/leads": {
+      "post": {
+        "tags": [
+          "PublicTraffic"
+        ],
+        "summary": "Submit customer information privately and return only a receipt.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeadInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeadInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeadInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfVisitReceipt"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfVisitReceipt"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfVisitReceipt"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/traffic": {
+      "get": {
+        "tags": [
+          "Traffic"
+        ],
+        "summary": "Aggregate public traffic and customer inquiries over a bounded date range.",
+        "parameters": [
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfTrafficReport"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfTrafficReport"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfTrafficReport"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/visitors": {
+      "get": {
+        "tags": [
+          "Traffic"
+        ],
+        "summary": "Page pseudonymous browser profiles.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfVisitorProfile"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfVisitorProfile"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfVisitorProfile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/visitors/{id}/visits": {
+      "get": {
+        "tags": [
+          "Traffic"
+        ],
+        "summary": "Page a browser's accepted public navigation history.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfPageVisit"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfPageVisit"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfPageVisit"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/leads": {
+      "get": {
+        "tags": [
+          "Traffic"
+        ],
+        "summary": "Page private customer inquiries.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfCustomerLead"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfCustomerLead"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfCustomerLead"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/leads/{id}": {
+      "put": {
+        "tags": [
+          "Traffic"
+        ],
+        "summary": "Save follow-up state and notes at an expected revision.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeadUpdateInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeadUpdateInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LeadUpdateInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfCustomerLead"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfCustomerLead"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfCustomerLead"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Traffic"
+        ],
+        "summary": "Delete private contact data at an expected revision.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -3013,6 +3540,37 @@
               },
               {
                 "$ref": "#/components/schemas/ContentView"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfCustomerLead": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CustomerLead"
               }
             ]
           },
@@ -3390,6 +3948,37 @@
         },
         "description": "Consistent HTTP response envelope."
       },
+      "ApiResponseOfPageResultOfCustomerLead": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageResultOfCustomerLead"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
       "ApiResponseOfPageResultOfMenuTarget": {
         "required": [
           "code",
@@ -3412,6 +4001,99 @@
               },
               {
                 "$ref": "#/components/schemas/PageResultOfMenuTarget"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfPageResultOfPageVisit": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageResultOfPageVisit"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfPageResultOfVisitorProfile": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageResultOfVisitorProfile"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfPageVisitReceipt": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageVisitReceipt"
               }
             ]
           },
@@ -3576,6 +4258,37 @@
         },
         "description": "Consistent HTTP response envelope."
       },
+      "ApiResponseOfTrafficReport": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TrafficReport"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
       "ApiResponseOfUserView": {
         "required": [
           "code",
@@ -3598,6 +4311,37 @@
               },
               {
                 "$ref": "#/components/schemas/UserView"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfVisitReceipt": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/VisitReceipt"
               }
             ]
           },
@@ -3864,9 +4608,98 @@
               "string"
             ],
             "format": "date-time"
+          },
+          "views": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
+          },
+          "todayViews": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
+          },
+          "visitors": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
           }
         },
         "description": "Immutable sanitized content snapshot."
+      },
+      "CustomerLead": {
+        "type": "object",
+        "properties": {
+          "visitorId": {
+            "type": "string",
+            "description": "Browser identity for retry ownership; not a verified person."
+          },
+          "visitId": {
+            "type": "string",
+            "description": "Optional originating view."
+          },
+          "contentId": {
+            "type": "string",
+            "description": "Originating content, when submitted from an article or page."
+          },
+          "path": {
+            "type": "string",
+            "description": "Originating public path."
+          },
+          "source": {
+            "type": "string",
+            "description": "Acquisition channel."
+          },
+          "name": {
+            "type": "string",
+            "description": "Customer-provided name."
+          },
+          "contact": {
+            "type": "string",
+            "description": "Phone, email or WeChat handle provided for a reply."
+          },
+          "organization": {
+            "type": "string",
+            "description": "Optional company or school."
+          },
+          "need": {
+            "type": "string",
+            "description": "Requested assistance."
+          },
+          "status": {
+            "type": "string",
+            "description": "new, following, completed or invalid."
+          },
+          "notes": {
+            "type": "string",
+            "description": "Private follow-up notes."
+          },
+          "consentedAt": {
+            "type": "string",
+            "description": "Customer agreed to use the provided details for this inquiry.",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last follow-up edit.",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "integer",
+            "description": "Prevents concurrent follow-up overwrites.",
+            "format": "int32"
+          },
+          "id": {
+            "type": "string",
+            "description": "Opaque portable identifier."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "UTC creation timestamp.",
+            "format": "date-time"
+          }
+        },
+        "description": "Private customer inquiry with optimistic follow-up state."
       },
       "IFormFile": {
         "type": "string",
@@ -3903,6 +4736,79 @@
           }
         },
         "description": "The secret is returned only in this issuance response."
+      },
+      "LeadInput": {
+        "required": [
+          "id",
+          "path",
+          "name",
+          "contact",
+          "organization",
+          "need",
+          "consent"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "contact": {
+            "type": "string"
+          },
+          "organization": {
+            "type": "string"
+          },
+          "need": {
+            "type": "string"
+          },
+          "consent": {
+            "type": "boolean"
+          },
+          "visitId": {
+            "type": "string",
+            "default": ""
+          },
+          "referrer": {
+            "type": "string",
+            "default": ""
+          },
+          "campaign": {
+            "type": "string",
+            "default": ""
+          },
+          "website": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        "description": "Customer-supplied inquiry; contact data never appears in its receipt."
+      },
+      "LeadUpdateInput": {
+        "required": [
+          "status",
+          "notes",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Private follow-up changes with optimistic concurrency."
       },
       "LoginInput": {
         "required": [
@@ -4202,6 +5108,36 @@
         },
         "description": "Server-side paginated result."
       },
+      "PageResultOfCustomerLead": {
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerLead"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Server-side paginated result."
+      },
       "PageResultOfMenuTarget": {
         "required": [
           "items",
@@ -4232,6 +5168,136 @@
         },
         "description": "Server-side paginated result."
       },
+      "PageResultOfPageVisit": {
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageVisit"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Server-side paginated result."
+      },
+      "PageResultOfVisitorProfile": {
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VisitorProfile"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Server-side paginated result."
+      },
+      "PageVisit": {
+        "type": "object",
+        "properties": {
+          "visitorId": {
+            "type": "string",
+            "description": "Server-issued browser identity."
+          },
+          "contentId": {
+            "type": "string",
+            "description": "Published content identity, empty for listing pages."
+          },
+          "path": {
+            "type": "string",
+            "description": "Canonical local page path without query strings."
+          },
+          "title": {
+            "type": "string",
+            "description": "Public title when the visit was accepted."
+          },
+          "day": {
+            "type": "string",
+            "description": "Calendar day in Asia/Shanghai."
+          },
+          "source": {
+            "type": "string",
+            "description": "Campaign label or external referring hostname, never the full referring URL."
+          },
+          "device": {
+            "type": "string",
+            "description": "Coarse device category."
+          },
+          "activeSeconds": {
+            "type": "integer",
+            "description": "Cumulative visible seconds, bounded by elapsed server time and four hours.",
+            "format": "int32"
+          },
+          "depth": {
+            "type": "integer",
+            "description": "Maximum visible article depth, between zero and one hundred.",
+            "format": "int32"
+          },
+          "id": {
+            "type": "string",
+            "description": "Opaque portable identifier."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "UTC creation timestamp.",
+            "format": "date-time"
+          }
+        },
+        "description": "One visible page lifecycle; its primary key also deduplicates retries."
+      },
+      "PageVisitReceipt": {
+        "required": [
+          "id",
+          "views"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "views": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "Accepted navigation and current public article count."
+      },
       "PasswordInput": {
         "required": [
           "currentPassword",
@@ -4247,6 +5313,64 @@
           }
         },
         "description": "Password rotation request."
+      },
+      "PopularContent": {
+        "required": [
+          "contentId",
+          "path",
+          "title",
+          "views",
+          "visitors",
+          "activeSeconds",
+          "depthSum"
+        ],
+        "type": "object",
+        "properties": {
+          "contentId": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "views": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "visitors": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "activeSeconds": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "depthSum": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "Popular article with period reading metrics."
+      },
+      "ReadingInput": {
+        "required": [
+          "activeSeconds",
+          "depth"
+        ],
+        "type": "object",
+        "properties": {
+          "activeSeconds": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "depth": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Absolute, monotonic reading observations for one page lifecycle."
       },
       "SettingsInput": {
         "required": [
@@ -4614,6 +5738,167 @@
         },
         "description": "Public or authenticated-preview rendering configuration."
       },
+      "TrafficBucket": {
+        "required": [
+          "name",
+          "views",
+          "visitors"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "views": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "visitors": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "Counts for one dimension or calendar day."
+      },
+      "TrafficDay": {
+        "required": [
+          "day",
+          "views",
+          "visitors",
+          "leads"
+        ],
+        "type": "object",
+        "properties": {
+          "day": {
+            "type": "string"
+          },
+          "views": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "visitors": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "leads": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "Daily traffic and successful inquiries."
+      },
+      "TrafficReport": {
+        "required": [
+          "start",
+          "end",
+          "today",
+          "period",
+          "totalViews",
+          "totalVisitors",
+          "todayLeads",
+          "periodLeads",
+          "downloadClicks",
+          "consultationClicks",
+          "days",
+          "sources",
+          "devices",
+          "popular"
+        ],
+        "type": "object",
+        "properties": {
+          "start": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "today": {
+            "$ref": "#/components/schemas/TrafficTotals"
+          },
+          "period": {
+            "$ref": "#/components/schemas/TrafficTotals"
+          },
+          "totalViews": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "totalVisitors": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "todayLeads": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "periodLeads": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "downloadClicks": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "consultationClicks": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "days": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrafficDay"
+            }
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrafficBucket"
+            }
+          },
+          "devices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TrafficBucket"
+            }
+          },
+          "popular": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PopularContent"
+            }
+          }
+        },
+        "description": "Period and lifetime metrics plus database-aggregated chart series."
+      },
+      "TrafficTotals": {
+        "required": [
+          "views",
+          "visitors",
+          "activeSeconds",
+          "depthSum"
+        ],
+        "type": "object",
+        "properties": {
+          "views": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "visitors": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "activeSeconds": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "depthSum": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "description": "Database aggregate of page counts and cumulative reading samples."
+      },
       "UserInput": {
         "required": [
           "username",
@@ -4685,6 +5970,95 @@
           }
         },
         "description": "Version required for publish, unpublish and delete."
+      },
+      "VisitEventInput": {
+        "required": [
+          "id",
+          "kind"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "targetId": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        "description": "One user-initiated action with a retry identifier."
+      },
+      "VisitInput": {
+        "required": [
+          "id",
+          "path"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "referrer": {
+            "type": "string",
+            "default": ""
+          },
+          "campaign": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        "description": "Visible browser navigation with a client-generated retry identifier."
+      },
+      "VisitorProfile": {
+        "type": "object",
+        "properties": {
+          "lastSeenAt": {
+            "type": "string",
+            "description": "Most recent accepted page visit in UTC.",
+            "format": "date-time"
+          },
+          "views": {
+            "type": "integer",
+            "description": "Accepted page views.",
+            "format": "int64"
+          },
+          "source": {
+            "type": "string",
+            "description": "First observed acquisition channel."
+          },
+          "device": {
+            "type": "string",
+            "description": "Most recent coarse device category."
+          },
+          "id": {
+            "type": "string",
+            "description": "Opaque portable identifier."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "UTC creation timestamp.",
+            "format": "date-time"
+          }
+        },
+        "description": "First-party pseudonymous browser profile; contains no IP or contact details."
+      },
+      "VisitReceipt": {
+        "required": [
+          "id"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        },
+        "description": "Accepted visit identifier; empty means intentionally excluded from telemetry."
       }
     },
     "securitySchemes": {
@@ -4713,6 +6087,12 @@
     },
     {
       "name": "AccessTokens"
+    },
+    {
+      "name": "PublicTraffic"
+    },
+    {
+      "name": "Traffic"
     }
   ]
 }

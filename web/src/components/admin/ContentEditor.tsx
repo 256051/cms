@@ -48,6 +48,7 @@ export default function ContentEditor({
         version: 0,
         published: false,
         publishedAt: null,
+        views: 0, todayViews: 0, visitors: 0,
       });
   }, [id, kind]);
   const change = (patch: Partial<Content>) => {

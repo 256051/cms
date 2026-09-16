@@ -6,8 +6,9 @@ import { Heading, Notice, Pager, useLoad, LoadState } from "./shared";
 export default function ContentManager({ kind }: { kind: "post" | "page" }) {
   const [page, setPage] = useState(1);
   const [q, setQ] = useState("");
+  const [sort, setSort] = useState("recent");
   const { data, error, loading, reload } = useLoad<Page<Content>>(
-    `admin/contents?kind=${kind}&page=${page}&q=${encodeURIComponent(q)}`,
+    `admin/contents?kind=${kind}&page=${page}&q=${encodeURIComponent(q)}&sort=${sort}`,
   );
   const base = kind === "post" ? "posts" : "pages";
   return (
@@ -32,6 +33,9 @@ export default function ContentManager({ kind }: { kind: "post" | "page" }) {
           <strong>
             全部内容 <span className="count-badge">{data?.total ?? "—"}</span>
           </strong>
+          <label>排序<select value={sort} onChange={event => { setSort(event.target.value); setPage(1); }}>
+            <option value="recent">最近创建</option><option value="views">浏览量从高到低</option>
+          </select></label>
           <form
             className="compact-search"
             onSubmit={(e) => {
@@ -57,6 +61,8 @@ export default function ContentManager({ kind }: { kind: "post" | "page" }) {
                 <th>标题</th>
                 <th>状态</th>
                 <th>最近发布</th>
+                <th>累计 / 今日浏览</th>
+                <th>独立访客</th>
                 <th>操作</th>
               </tr>
             </thead>
@@ -87,8 +93,11 @@ export default function ContentManager({ kind }: { kind: "post" | "page" }) {
                       ? new Date(c.publishedAt).toLocaleDateString("zh-CN")
                       : "—"}
                   </td>
+                  <td>{c.views ?? 0} / {c.todayViews ?? 0}</td>
+                  <td>{c.visitors ?? 0}</td>
                   <td>
                     <div className="row-actions">
+                      <span className="sr-only">文章操作</span>
                       <a href={`/admin/${base}/${c.id}`}>编辑</a>
                       {c.published && (
                         <a

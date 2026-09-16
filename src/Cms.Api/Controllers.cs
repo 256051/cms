@@ -132,9 +132,9 @@ public sealed class AdminController(
     /// <summary>List content drafts.</summary>
     [HttpGet("contents")]
     public async Task<ApiResponse<PageResult<ContentView>>> Contents(string kind = "post", string? q = null,
-        int page = 1)
+        int page = 1, string sort = "recent")
     {
-        return Result(await content.ListAsync(false, kind, q, null, null, page, 20));
+        return Result(await content.ListAsync(false, kind, q, null, null, page, 20, sort));
     }
 
     /// <summary>Get draft or authenticated preview data.</summary>

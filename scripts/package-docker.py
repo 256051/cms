@@ -68,7 +68,7 @@ def main():
     metadata = json.loads(run(["docker", "image", "inspect", *images.values()], True))
     if any(item["Os"] + "/" + item["Architecture"] != args.platform for item in metadata):
         raise RuntimeError("An image does not match the requested platform.")
-    manifest = {"version": version, "sourceRevision": revision, "platform": args.platform, "database": "Sqlite", "schema": 6,
+    manifest = {"version": version, "sourceRevision": revision, "platform": args.platform, "database": "Sqlite", "schema": 7,
                 "images": [{"service": service, "tag": tag, "id": item["Id"]} for (service, tag), item in zip(images.items(), metadata)]}
     (bundle / "release.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     run(["docker", "image", "save", "--output", str(bundle / "images.tar"), *images.values()])

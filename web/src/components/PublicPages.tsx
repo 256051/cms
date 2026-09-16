@@ -8,6 +8,7 @@ import { publicApi, PublicApiError, siteUrl } from "@/lib/server";
 import { contentUrl, type Content, type Page, type Settings, type Taxonomy, type ThemeView } from "@/lib/types";
 import { siteHref, themeSource, type ThemeContext } from "@/lib/theme";
 import ArticleToc from "./ArticleToc";
+import { ArticleViewCount } from "./PublicTraffic";
 
 export async function homeMetadata() {
   const s = await publicApi<Settings>("settings");
@@ -193,6 +194,7 @@ export async function DetailPage({
                   timeZone: "UTC",
                 })}
             </time>
+            <ArticleViewCount key={post.id} initial={post.views ?? 0} />
           </div>
           <h1>{post.title}</h1>
           {post.summary && <p className="reading-summary">{post.summary}</p>}

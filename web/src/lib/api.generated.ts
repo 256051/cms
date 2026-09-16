@@ -483,6 +483,7 @@ export interface paths {
                     kind?: string;
                     q?: string;
                     page?: number;
+                    sort?: string;
                 };
                 header?: never;
                 path?: never;
@@ -2482,6 +2483,423 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/public/visits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept one visible public page navigation. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["VisitInput"];
+                    "text/json": components["schemas"]["VisitInput"];
+                    "application/*+json": components["schemas"]["VisitInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfPageVisitReceipt"];
+                        "application/json": components["schemas"]["ApiResponseOfPageVisitReceipt"];
+                        "text/json": components["schemas"]["ApiResponseOfPageVisitReceipt"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/visits/{id}/reading": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Update cumulative reading observations without incrementing page views. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ReadingInput"];
+                    "text/json": components["schemas"]["ReadingInput"];
+                    "application/*+json": components["schemas"]["ReadingInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfboolean"];
+                        "application/json": components["schemas"]["ApiResponseOfboolean"];
+                        "text/json": components["schemas"]["ApiResponseOfboolean"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/visits/{id}/events": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept one user-initiated download or consultation click. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["VisitEventInput"];
+                    "text/json": components["schemas"]["VisitEventInput"];
+                    "application/*+json": components["schemas"]["VisitEventInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfboolean"];
+                        "application/json": components["schemas"]["ApiResponseOfboolean"];
+                        "text/json": components["schemas"]["ApiResponseOfboolean"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/leads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit customer information privately and return only a receipt. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["LeadInput"];
+                    "text/json": components["schemas"]["LeadInput"];
+                    "application/*+json": components["schemas"]["LeadInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfVisitReceipt"];
+                        "application/json": components["schemas"]["ApiResponseOfVisitReceipt"];
+                        "text/json": components["schemas"]["ApiResponseOfVisitReceipt"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/traffic": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Aggregate public traffic and customer inquiries over a bounded date range. */
+        get: {
+            parameters: {
+                query?: {
+                    from?: string;
+                    to?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfTrafficReport"];
+                        "application/json": components["schemas"]["ApiResponseOfTrafficReport"];
+                        "text/json": components["schemas"]["ApiResponseOfTrafficReport"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/visitors": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Page pseudonymous browser profiles. */
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfPageResultOfVisitorProfile"];
+                        "application/json": components["schemas"]["ApiResponseOfPageResultOfVisitorProfile"];
+                        "text/json": components["schemas"]["ApiResponseOfPageResultOfVisitorProfile"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/visitors/{id}/visits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Page a browser's accepted public navigation history. */
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfPageResultOfPageVisit"];
+                        "application/json": components["schemas"]["ApiResponseOfPageResultOfPageVisit"];
+                        "text/json": components["schemas"]["ApiResponseOfPageResultOfPageVisit"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/leads": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Page private customer inquiries. */
+        get: {
+            parameters: {
+                query?: {
+                    status?: string;
+                    q?: string;
+                    page?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfPageResultOfCustomerLead"];
+                        "application/json": components["schemas"]["ApiResponseOfPageResultOfCustomerLead"];
+                        "text/json": components["schemas"]["ApiResponseOfPageResultOfCustomerLead"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/leads/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Save follow-up state and notes at an expected revision. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["LeadUpdateInput"];
+                    "text/json": components["schemas"]["LeadUpdateInput"];
+                    "application/*+json": components["schemas"]["LeadUpdateInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfCustomerLead"];
+                        "application/json": components["schemas"]["ApiResponseOfCustomerLead"];
+                        "text/json": components["schemas"]["ApiResponseOfCustomerLead"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** Delete private contact data at an expected revision. */
+        delete: {
+            parameters: {
+                query?: {
+                    version?: number;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfboolean"];
+                        "application/json": components["schemas"]["ApiResponseOfboolean"];
+                        "text/json": components["schemas"]["ApiResponseOfboolean"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2544,6 +2962,13 @@ export interface components {
             code: string;
             message: string;
             data: null | components["schemas"]["ContentView"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfCustomerLead: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["CustomerLead"];
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
@@ -2631,10 +3056,38 @@ export interface components {
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
+        ApiResponseOfPageResultOfCustomerLead: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["PageResultOfCustomerLead"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
         ApiResponseOfPageResultOfMenuTarget: {
             code: string;
             message: string;
             data: null | components["schemas"]["PageResultOfMenuTarget"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfPageResultOfPageVisit: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["PageResultOfPageVisit"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfPageResultOfVisitorProfile: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["PageResultOfVisitorProfile"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfPageVisitReceipt: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["PageVisitReceipt"];
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
@@ -2673,10 +3126,24 @@ export interface components {
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
+        ApiResponseOfTrafficReport: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["TrafficReport"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
         ApiResponseOfUserView: {
             code: string;
             message: string;
             data: null | components["schemas"]["UserView"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfVisitReceipt: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["VisitReceipt"];
             traceId: string;
         };
         /** @description Browser-visible file metadata. */
@@ -2774,6 +3241,68 @@ export interface components {
             published: boolean;
             /** Format: date-time */
             publishedAt: null | string;
+            /**
+             * Format: int64
+             * @default 0
+             */
+            views: number;
+            /**
+             * Format: int64
+             * @default 0
+             */
+            todayViews: number;
+            /**
+             * Format: int64
+             * @default 0
+             */
+            visitors: number;
+        };
+        /** @description Private customer inquiry with optimistic follow-up state. */
+        CustomerLead: {
+            /** @description Browser identity for retry ownership; not a verified person. */
+            visitorId?: string;
+            /** @description Optional originating view. */
+            visitId?: string;
+            /** @description Originating content, when submitted from an article or page. */
+            contentId?: string;
+            /** @description Originating public path. */
+            path?: string;
+            /** @description Acquisition channel. */
+            source?: string;
+            /** @description Customer-provided name. */
+            name?: string;
+            /** @description Phone, email or WeChat handle provided for a reply. */
+            contact?: string;
+            /** @description Optional company or school. */
+            organization?: string;
+            /** @description Requested assistance. */
+            need?: string;
+            /** @description new, following, completed or invalid. */
+            status?: string;
+            /** @description Private follow-up notes. */
+            notes?: string;
+            /**
+             * Format: date-time
+             * @description Customer agreed to use the provided details for this inquiry.
+             */
+            consentedAt?: string;
+            /**
+             * Format: date-time
+             * @description Last follow-up edit.
+             */
+            updatedAt?: string;
+            /**
+             * Format: int32
+             * @description Prevents concurrent follow-up overwrites.
+             */
+            version?: number;
+            /** @description Opaque portable identifier. */
+            id?: string;
+            /**
+             * Format: date-time
+             * @description UTC creation timestamp.
+             */
+            createdAt?: string;
         };
         /** Format: binary */
         IFormFile: string;
@@ -2786,6 +3315,31 @@ export interface components {
         IssuedAccessToken: {
             token: components["schemas"]["AccessTokenView"];
             secret: string;
+        };
+        /** @description Customer-supplied inquiry; contact data never appears in its receipt. */
+        LeadInput: {
+            id: string;
+            path: string;
+            name: string;
+            contact: string;
+            organization: string;
+            need: string;
+            consent: boolean;
+            /** @default  */
+            visitId: string;
+            /** @default  */
+            referrer: string;
+            /** @default  */
+            campaign: string;
+            /** @default  */
+            website: string;
+        };
+        /** @description Private follow-up changes with optimistic concurrency. */
+        LeadUpdateInput: {
+            status: string;
+            notes: string;
+            /** Format: int32 */
+            version: number;
         };
         /** @description Login credentials. */
         LoginInput: {
@@ -2890,6 +3444,16 @@ export interface components {
             pageSize: number;
         };
         /** @description Server-side paginated result. */
+        PageResultOfCustomerLead: {
+            items: components["schemas"]["CustomerLead"][];
+            /** Format: int64 */
+            total: number;
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
+        /** @description Server-side paginated result. */
         PageResultOfMenuTarget: {
             items: components["schemas"]["MenuTarget"][];
             /** Format: int64 */
@@ -2899,10 +3463,91 @@ export interface components {
             /** Format: int32 */
             pageSize: number;
         };
+        /** @description Server-side paginated result. */
+        PageResultOfPageVisit: {
+            items: components["schemas"]["PageVisit"][];
+            /** Format: int64 */
+            total: number;
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
+        /** @description Server-side paginated result. */
+        PageResultOfVisitorProfile: {
+            items: components["schemas"]["VisitorProfile"][];
+            /** Format: int64 */
+            total: number;
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
+        /** @description One visible page lifecycle; its primary key also deduplicates retries. */
+        PageVisit: {
+            /** @description Server-issued browser identity. */
+            visitorId?: string;
+            /** @description Published content identity, empty for listing pages. */
+            contentId?: string;
+            /** @description Canonical local page path without query strings. */
+            path?: string;
+            /** @description Public title when the visit was accepted. */
+            title?: string;
+            /** @description Calendar day in Asia/Shanghai. */
+            day?: string;
+            /** @description Campaign label or external referring hostname, never the full referring URL. */
+            source?: string;
+            /** @description Coarse device category. */
+            device?: string;
+            /**
+             * Format: int32
+             * @description Cumulative visible seconds, bounded by elapsed server time and four hours.
+             */
+            activeSeconds?: number;
+            /**
+             * Format: int32
+             * @description Maximum visible article depth, between zero and one hundred.
+             */
+            depth?: number;
+            /** @description Opaque portable identifier. */
+            id?: string;
+            /**
+             * Format: date-time
+             * @description UTC creation timestamp.
+             */
+            createdAt?: string;
+        };
+        /** @description Accepted navigation and current public article count. */
+        PageVisitReceipt: {
+            id: string;
+            /** Format: int64 */
+            views: number;
+        };
         /** @description Password rotation request. */
         PasswordInput: {
             currentPassword: string;
             newPassword: string;
+        };
+        /** @description Popular article with period reading metrics. */
+        PopularContent: {
+            contentId: string;
+            path: string;
+            title: string;
+            /** Format: int64 */
+            views: number;
+            /** Format: int64 */
+            visitors: number;
+            /** Format: int64 */
+            activeSeconds: number;
+            /** Format: int64 */
+            depthSum: number;
+        };
+        /** @description Absolute, monotonic reading observations for one page lifecycle. */
+        ReadingInput: {
+            /** Format: int32 */
+            activeSeconds: number;
+            /** Format: int32 */
+            depth: number;
         };
         /** @description Public site settings input. */
         SettingsInput: {
@@ -3081,6 +3726,60 @@ export interface components {
             themeId: string;
             options: components["schemas"]["ThemeOptions"];
         };
+        /** @description Counts for one dimension or calendar day. */
+        TrafficBucket: {
+            name: string;
+            /** Format: int64 */
+            views: number;
+            /** Format: int64 */
+            visitors: number;
+        };
+        /** @description Daily traffic and successful inquiries. */
+        TrafficDay: {
+            day: string;
+            /** Format: int64 */
+            views: number;
+            /** Format: int64 */
+            visitors: number;
+            /** Format: int64 */
+            leads: number;
+        };
+        /** @description Period and lifetime metrics plus database-aggregated chart series. */
+        TrafficReport: {
+            /** Format: date-time */
+            start: string;
+            /** Format: date-time */
+            end: string;
+            today: components["schemas"]["TrafficTotals"];
+            period: components["schemas"]["TrafficTotals"];
+            /** Format: int64 */
+            totalViews: number;
+            /** Format: int64 */
+            totalVisitors: number;
+            /** Format: int64 */
+            todayLeads: number;
+            /** Format: int64 */
+            periodLeads: number;
+            /** Format: int64 */
+            downloadClicks: number;
+            /** Format: int64 */
+            consultationClicks: number;
+            days: components["schemas"]["TrafficDay"][];
+            sources: components["schemas"]["TrafficBucket"][];
+            devices: components["schemas"]["TrafficBucket"][];
+            popular: components["schemas"]["PopularContent"][];
+        };
+        /** @description Database aggregate of page counts and cumulative reading samples. */
+        TrafficTotals: {
+            /** Format: int64 */
+            views: number;
+            /** Format: int64 */
+            visitors: number;
+            /** Format: int64 */
+            activeSeconds: number;
+            /** Format: int64 */
+            depthSum: number;
+        };
         /** @description Account administration input; password optional on edit. */
         UserInput: {
             username: string;
@@ -3101,6 +3800,50 @@ export interface components {
         VersionInput: {
             /** Format: int32 */
             version: number;
+        };
+        /** @description One user-initiated action with a retry identifier. */
+        VisitEventInput: {
+            id: string;
+            kind: string;
+            /** @default  */
+            targetId: string;
+        };
+        /** @description Visible browser navigation with a client-generated retry identifier. */
+        VisitInput: {
+            id: string;
+            path: string;
+            /** @default  */
+            referrer: string;
+            /** @default  */
+            campaign: string;
+        };
+        /** @description First-party pseudonymous browser profile; contains no IP or contact details. */
+        VisitorProfile: {
+            /**
+             * Format: date-time
+             * @description Most recent accepted page visit in UTC.
+             */
+            lastSeenAt?: string;
+            /**
+             * Format: int64
+             * @description Accepted page views.
+             */
+            views?: number;
+            /** @description First observed acquisition channel. */
+            source?: string;
+            /** @description Most recent coarse device category. */
+            device?: string;
+            /** @description Opaque portable identifier. */
+            id?: string;
+            /**
+             * Format: date-time
+             * @description UTC creation timestamp.
+             */
+            createdAt?: string;
+        };
+        /** @description Accepted visit identifier; empty means intentionally excluded from telemetry. */
+        VisitReceipt: {
+            id: string;
         };
     };
     responses: never;

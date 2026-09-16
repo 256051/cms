@@ -92,7 +92,7 @@ test("traffic collection, customer follow-up and responsive reporting through re
   await expect(adminPage.getByRole("button", { name: "查看 / 跟进" })).toHaveCount(1);
   await adminPage.getByRole("button", { name: "查看 / 跟进" }).click();
   await adminPage.locator(".lead-detail").getByLabel("跟进状态").selectOption("following");
-  await adminPage.getByLabel("跟进备注").fill("已联系，周五演示。");
+  await adminPage.getByLabel("本次跟进记录").fill("已联系，周五演示。");
   await adminPage.getByRole("button", { name: "保存跟进" }).click();
   await expect(adminPage.locator(".lead-detail")).toHaveCount(0);
   await expect(adminPage.getByText("跟进中", { exact: true }).last()).toBeVisible();
@@ -101,7 +101,8 @@ test("traffic collection, customer follow-up and responsive reporting through re
   await adminPage.getByRole("button", { name: "搜索", exact: true }).click();
   await expect(adminPage.getByRole("button", { name: "查看 / 跟进" })).toHaveCount(1);
   await adminPage.getByRole("button", { name: "查看 / 跟进" }).click();
-  await expect(adminPage.getByLabel("跟进备注")).toHaveValue("已联系，周五演示。");
+  await expect(adminPage.getByLabel("本次跟进记录")).toHaveValue("");
+  await expect(adminPage.locator(".history-list")).toContainText("已联系，周五演示。");
   await adminPage.getByRole("link", { name: /查看此浏览器的访问轨迹/ }).click();
   await expect(adminPage.getByText(article.title, { exact: true }).first()).toBeVisible();
   expect((await visitor.request.get("/api/v1/admin/leads")).status()).toBe(401);

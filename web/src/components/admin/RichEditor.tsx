@@ -39,14 +39,13 @@ import {
   Superscript as SupIcon,
   Subscript as SubIcon,
   PanelRight,
-  X,
   Highlighter,
 } from "lucide-react";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Editor, JSONContent } from "@tiptap/core";
 import { api } from "@/lib/client";
 import type { Asset } from "@/lib/types";
-import AssetSelector from "./AssetSelector";
+import EditorDialog from "./EditorDialog";
 import EditorAssetPicker, { type InsertKind } from "./EditorAssetPicker";
 import {
   EditorImage,
@@ -58,43 +57,6 @@ import {
   Column,
 } from "./EditorExtensions";
 
-function EditorDialog({
-  title,
-  close,
-  children,
-}: {
-  title: string;
-  close: () => void;
-  children: ReactNode;
-}) {
-  const ref = useRef<HTMLDialogElement>(null);
-  useEffect(() => {
-    const dialog = ref.current!;
-    dialog.showModal();
-    return () => dialog.close();
-  }, []);
-  return (
-    <dialog
-      ref={ref}
-      className="editor-dialog"
-      aria-labelledby="editor-dialog-title"
-      onCancel={close}
-    >
-      <div className="editor-dialog-heading">
-        <h2 id="editor-dialog-title">{title}</h2>
-        <button
-          type="button"
-          className="icon-button"
-          aria-label="关闭插入窗口"
-          onClick={close}
-        >
-          <X size={20} />
-        </button>
-      </div>
-      {children}
-    </dialog>
-  );
-}
 const accepts: Record<InsertKind, string> = {
   image: ".png,.jpg,.jpeg,.gif,.webp",
   gallery: ".png,.jpg,.jpeg,.gif,.webp",
@@ -158,7 +120,6 @@ export default function RichEditor({
   const uploadRef = useRef<(files: File[], kind: InsertKind) => void>(() => {});
   const slashKeys = useRef<(event: KeyboardEvent) => boolean>(() => false);
   const [uploading, setUploading] = useState(false);
-  const [library, setLibrary] = useState(false);
   const [menu, setMenu] = useState(false);
   const [slash, setSlash] = useState(false);
   const [choice, setChoice] = useState(0);
@@ -795,7 +756,7 @@ export default function RichEditor({
             type="button"
             className="editor-text-button"
             disabled={disabled}
-            onClick={() => setLibrary(!library)}
+            onClick={() => open("image")}
           >
             从附件库插入图片
           </button>
@@ -906,19 +867,6 @@ export default function RichEditor({
           )}
           {uploading && <span role="status">正在上传，请稍候…</span>}
         </div>
-        {library && (
-          <AssetSelector
-            label="选择已有图片插入正文"
-            value=""
-            onChange={(id) => {
-              if (id)
-                chain()
-                  .setImage({ src: `/media/${id}`, alt: "" })
-                  .run();
-              setLibrary(false);
-            }}
-          />
-        )}
         {editor.isActive("table") && (
           <div className="editor-contextbar" aria-label="表格操作">
             {(

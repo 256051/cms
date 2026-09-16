@@ -11,9 +11,10 @@ export default function SiteNavigation({ items, preview, origin }: { items: Menu
   const nav = useRef<HTMLElement>(null);
   function closeAll() { nav.current?.querySelectorAll<HTMLDetailsElement>("details[open]").forEach(x => { x.open = false; }); }
   useEffect(() => {
+    const owner = nav.current?.ownerDocument ?? document;
     const outside = (e: PointerEvent) => { if (!nav.current?.contains(e.target as Node)) closeAll(); };
-    document.addEventListener("pointerdown", outside);
-    return () => document.removeEventListener("pointerdown", outside);
+    owner.addEventListener("pointerdown", outside);
+    return () => owner.removeEventListener("pointerdown", outside);
   }, []);
   function render(parent = "", depth = 0): React.ReactNode {
     if (depth >= 5) return null;

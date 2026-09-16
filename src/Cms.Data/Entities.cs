@@ -55,6 +55,13 @@ public class Content : Entity
     [Column(StringLength = 160)]
     public string Slug { get; set; } = "";
 
+    /// <summary>Proposed address; the live address changes only when the selected draft is published.</summary>
+    [Column(StringLength = 160)] public string DraftSlug { get; set; } = "";
+    /// <summary>Draft page SEO options included in publication and revision snapshots.</summary>
+    [Column(StringLength = -2)] public string SeoJson { get; set; } = "";
+    /// <summary>Ordered product or case fields preserved with each historical snapshot.</summary>
+    [Column(StringLength = -2)] public string FieldsJson { get; set; } = "";
+
     /// <summary>Draft title.</summary>
     [Column(StringLength = 200)]
     public string Title { get; set; } = "";
@@ -66,6 +73,10 @@ public class Content : Entity
     /// <summary>Sanitized draft HTML.</summary>
     [Column(StringLength = -2)]
     public string Html { get; set; } = "";
+
+    /// <summary>Optional versioned page composition; empty for ordinary rich-text content.</summary>
+    [Column(StringLength = -2)]
+    public string LayoutJson { get; set; } = "";
 
     /// <summary>Optional cover identifier.</summary>
     [Column(StringLength = 32)]
@@ -84,6 +95,21 @@ public class Content : Entity
 
     /// <summary>Last editorial update.</summary>
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    /// <summary>Recoverable removal timestamp.</summary>
+    public DateTime? DeletedAt { get; set; }
+    /// <summary>Most recent public snapshot update; PublishedAt remains the first publication.</summary>
+    public DateTime? LastPublishedAt { get; set; }
+    /// <summary>UTC time to publish the frozen scheduled snapshot.</summary>
+    public DateTime? ScheduledPublishAt { get; set; }
+    /// <summary>UTC time to withdraw public visibility.</summary>
+    public DateTime? ScheduledUnpublishAt { get; set; }
+    /// <summary>Sanitized snapshot explicitly selected for scheduled publication.</summary>
+    [Column(StringLength = -2)]
+    public string ScheduledJson { get; set; } = "";
+    /// <summary>Plain published body for portable database searches.</summary>
+    [Column(StringLength = -2)]
+    public string PublishedText { get; set; } = "";
 
     /// <summary>Publication visibility.</summary>
     public bool Published { get; set; }
@@ -134,6 +160,10 @@ public class Taxonomy : Entity
 [Table(Name = "cms_assets")]
 public class Asset : Entity
 {
+    /// <summary>Optional library group; does not change the file path or existing references.</summary>
+    [Column(StringLength = 80)] public string Group { get; set; } = "";
+    /// <summary>Optimistic metadata edit version.</summary>
+    public int Version { get; set; } = 1;
     /// <summary>Original display filename.</summary>
     [Column(StringLength = 200)]
     public string Name { get; set; } = "";
@@ -238,6 +268,10 @@ public class SiteSettings : Entity
 
     /// <summary>Home page list size.</summary>
     public int HomePageSize { get; set; } = 12;
+
+    /// <summary>Optional published standalone page displayed at the site root.</summary>
+    [Column(StringLength = 32)]
+    public string HomePageId { get; set; } = "";
 
     /// <summary>Category archive list size.</summary>
     public int CategoryPageSize { get; set; } = 12;

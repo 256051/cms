@@ -1,6 +1,6 @@
 # Docker 离线部署包
 
-适用于全新站点，默认 SQLite。包内包含 CMS API、Next.js 前端、Nginx 三个镜像及完整主题许可，不包含本地文章、账号、附件或密钥。平台和镜像版本见 `release.json`。服务器需要 Docker Engine 和 Docker Compose 2.24.4 或更新版本，不需要 .NET SDK、Node.js 或 Python。
+支持新站部署和旧站升级，默认 SQLite。包内包含 CMS API、Next.js 前端、Nginx 三个镜像及完整主题许可，不包含本地文章、账号、附件或密钥。平台和镜像版本见 `release.json`。服务器需要 Docker Engine 和 Docker Compose 2.24.4 或更新版本，不需要 .NET SDK、Node.js 或 Python。已有站点先按 [线上升级指南](online-upgrade.md) 保留原配置和数据路径，勿直接执行以下新站初始化步骤。
 
 ## 1. 解压并导入
 
@@ -60,7 +60,19 @@ SQLite 数据库、附件及密钥均位于 `cms-data` 卷，不需要额外数�
 
 SQLite 数据库、附件、认证密钥均位于 `cms-data` 卷。不要使用 `docker compose down -v` 删除运行数据。先停止写入再备份整个卷，并另外保存 `.env`，操作细节见 `docs/operations.md`。
 
-升级前停止旧 API、前端并备份，再导入新包的 `images.tar`，将 Compose 中的 API、web 镜像更新到新包版本。保持同一个 `COMPOSE_PROJECT_NAME`、原 `.env` 配置和数据卷，按原部署模式重新启动；新版 API 在提供服务前自动升级数据库，失败则退出。也可先单独执行 `docker compose run --rm --no-deps api --migrate`。当前源码 schema 为 7，详见 [访问统计与客户咨询](traffic.md)。升级不需要重新设置初始管理员凭据；只加载镜像不会修改旧 Compose 引用的版本，旧离线包的行为仍以各自版本为准。
+升级前停止旧 API、前端并备份，再导入新包的 `images.tar`，将 Compose 中的 API、web 镜像更新到新包版本。保持同一个 `COMPOSE_PROJECT_NAME`、原 `.env` 配置和数据卷，按原部署模式重新启动；新版 API 在提供服务前自动升级数据库，失败则退出。当前 schema 为 14，新增功能见 `docs/next-enhancements.md`。升级不需要重新设置初始管理员凭据；只加载镜像不会修改旧 Compose 引用的版本，旧离线包的行为仍以各自版本为准。
+
+已有宿主 Nginx、使用 `./cms-data:/data` 和自定义端口的站点，请把包内 `compose.upgrade.yaml` 复制到**原部署目录**。该文件仅覆盖 API/web 镜像，保留原 `docker-compose.yml` 中的数据路径、端口、域名和环境设置：
+
+```sh
+# 在原部署目录完成停机备份后执行；images.tar 已从新包导入。
+docker compose -f docker-compose.yml -f compose.upgrade.yaml config --quiet
+docker compose -f docker-compose.yml -f compose.upgrade.yaml up -d --no-build api web
+docker compose -f docker-compose.yml -f compose.upgrade.yaml logs --tail 100 api web
+curl --fail http://127.0.0.1:5080/health/ready
+```
+
+后续管理保留相同的两个 `-f` 参数。原部署若使用 `compose.yaml` 或更多覆盖文件，保留原文件顺序并把 `compose.upgrade.yaml` 放最后。不要把原绑定目录替换为新包默认命名卷。
 
 检查日志：
 

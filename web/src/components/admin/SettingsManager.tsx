@@ -1,9 +1,9 @@
 "use client";
 import { useState } from "react";
 import { api } from "@/lib/client";
-import type { Settings } from "@/lib/types";
+import type { Settings, MenuTarget, Page } from "@/lib/types";
 import { defaultCopyright } from "@/lib/theme";
-import { Heading, Notice, LoadState, useLoad } from "./shared";
+import { Heading, Notice, LoadState, useLoad, Pager } from "./shared";
 import AssetSelector from "./AssetSelector";
 import { useUnsavedChanges } from "./unsaved";
 
@@ -14,6 +14,8 @@ export default function SettingsManager() {
   const changes = useUnsavedChanges();
   const { data, setData, error, setError, loading } = useLoad<Settings>("admin/settings");
   const [busy, setBusy] = useState(false), [success, setSuccess] = useState("");
+  const [homeSearch, setHomeSearch] = useState(""), [homePage, setHomePage] = useState(1);
+  const homes = useLoad<Page<MenuTarget>>(`admin/menu/targets?type=page&q=${encodeURIComponent(homeSearch)}&page=${homePage}`);
   function change<K extends keyof Settings>(key: K, value: Settings[K]) {
     if (data) setData({ ...data, [key]: value });
     changes.markChanged(); setSuccess("");
@@ -46,6 +48,11 @@ export default function SettingsManager() {
           </section>
           <section className="panel settings-card" aria-labelledby="settings-posts">
             <h2 id="settings-posts" tabIndex={-1}>文章显示</h2><p className="muted">每页显示 1–50 篇文章，影响前台列表和分页。</p>
+            <label>网站首页<select aria-label="网站首页" value={data.homePageId} disabled={homes.loading || !!homes.error} onChange={e => change("homePageId", e.target.value)}>
+              <option value="">默认博客首页</option>{data.homePageId && !homes.data?.items.some(x => x.id === data.homePageId) && <option value={data.homePageId}>当前选择的页面</option>}
+              {homes.data?.items.map(x => <option key={x.id} value={x.id}>{x.label}</option>)}</select></label>
+            <label>查找首页页面<input maxLength={200} placeholder="搜索已发布的独立页面" value={homeSearch} onChange={e => { setHomeSearch(e.target.value); setHomePage(1); }} /></label>
+            <Notice error={homes.error} /><Pager data={homes.data} setPage={setHomePage} /><small>所选页面下架时恢复默认博客首页。更换首页后，原页面仍保留。</small>
             <div className="form-grid">{sizes.map(([key, label]) => <label key={key}>{label}<input type="number" required min={1} max={50} step={1} value={data[key] || ""} onChange={e => change(key, Number(e.target.value))} /></label>)}</div>
           </section>
           <section className="panel settings-card" aria-labelledby="settings-seo">

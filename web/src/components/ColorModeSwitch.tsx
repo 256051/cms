@@ -4,10 +4,11 @@ import { Monitor, Sun } from "lucide-react";
 import { colorModeCookie, parseColorMode, type ColorMode } from "@/lib/theme";
 
 /** The root attribute survives client navigation; the preference cookie also covers SSR and new tabs. */
-export default function ColorModeSwitch({ initialMode }: { initialMode: ColorMode }) {
+export default function ColorModeSwitch({ initialMode, readOnly = false }: { initialMode: ColorMode; readOnly?: boolean }) {
   const [mode, setMode] = useState(initialMode);
   const [ready, setReady] = useState(false);
   useEffect(() => {
+    if (readOnly) return;
     const sync = () => {
       const saved = document.cookie.split("; ").find(cookie => cookie.startsWith(`${colorModeCookie}=`))?.split("=")[1];
       const current = parseColorMode(saved);
@@ -19,7 +20,7 @@ export default function ColorModeSwitch({ initialMode }: { initialMode: ColorMod
     window.addEventListener("pageshow", sync);
     window.addEventListener("focus", sync);
     return () => { window.removeEventListener("pageshow", sync); window.removeEventListener("focus", sync); };
-  }, [initialMode]);
+  }, [initialMode, readOnly]);
   const next: ColorMode = mode === "light" ? "dark" : mode === "dark" ? "system" : "light";
   const names = { light: "明亮模式", dark: "黑暗模式", system: "跟随系统" };
   const label = `显示模式：当前${names[mode]}，点击切换为${names[next]}`;

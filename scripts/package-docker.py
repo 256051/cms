@@ -55,6 +55,9 @@ def main():
     for service, base in [("gateway", "nginx:1.28-alpine")]:
         compose = compose.replace("    image: " + base + "\n", "    image: " + images[service] + "\n    pull_policy: never\n")
     (bundle / "compose.yaml").write_text(compose, encoding="utf-8")
+    # Only replace image tags when upgrading an existing host-Nginx/bind-mounted deployment.
+    (bundle / "compose.upgrade.yaml").write_text("services:\n" + "".join(
+        f"  {service}:\n    image: {tag}\n    pull_policy: never\n" for service, tag in images.items() if service != "gateway"), encoding="utf-8")
     for name in ["compose.https.yaml", "compose.host-nginx.yaml", "LICENSE", "THIRD_PARTY_NOTICES.md", "CHANGELOG.md"]:
         shutil.copy2(ROOT / name, bundle / name)
     for name in ["deploy/nginx.conf", "deploy/nginx.https.conf", "deploy/nginx.host.conf", "scripts/publish-article.py"]:
@@ -63,12 +66,14 @@ def main():
         shutil.copy2(ROOT / name, target)
     shutil.copytree(ROOT / "docs", bundle / "docs")
     shutil.copytree(ROOT / "licenses", bundle / "licenses")
-    shutil.copy2(ROOT / "docs/docker-package.md", bundle / "README.md")
+    readme = (ROOT / "docs/docker-package.md").read_text(encoding="utf-8")
+    (bundle / "README.md").write_text(re.sub(r"\]\((?!https?://|#)([^)]+)\)", r"](docs/\1)", readme), encoding="utf-8")
     shutil.copy2(ROOT / "deploy/package.env.example", bundle / ".env.example")
     metadata = json.loads(run(["docker", "image", "inspect", *images.values()], True))
     if any(item["Os"] + "/" + item["Architecture"] != args.platform for item in metadata):
         raise RuntimeError("An image does not match the requested platform.")
-    manifest = {"version": version, "sourceRevision": revision, "platform": args.platform, "database": "Sqlite", "schema": 7,
+    schema = int(re.search(r"CurrentSchemaVersion\s*=\s*(\d+)", (ROOT / "src/Cms.Data/CmsRepository.cs").read_text(encoding="utf-8")).group(1))
+    manifest = {"version": version, "sourceRevision": revision, "platform": args.platform, "database": "Sqlite", "schema": schema,
                 "images": [{"service": service, "tag": tag, "id": item["Id"]} for (service, tag), item in zip(images.items(), metadata)]}
     (bundle / "release.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     run(["docker", "image", "save", "--output", str(bundle / "images.tar"), *images.values()])

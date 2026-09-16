@@ -13,17 +13,39 @@ public sealed class AssetService(CmsRepository repository, IConfiguration config
     private readonly string root = Path.GetFullPath(config["Storage:Path"] ?? "data/uploads");
 
     /// <summary>List uploaded files without disclosing disk paths.</summary>
-    public async Task<PageResult<AssetView>> ListAsync(int page)
+    public async Task<PageResult<AssetView>> ListAsync(int page, string q = "", string type = "", string group = "")
     {
-        var result = await repository.PageAsync<Asset>(x => true, page, 40);
+        if (q.Length > 200 || group.Length > 80 || type is not ("" or "image" or "video" or "audio" or "application")) throw Bad("附件筛选条件无效。");
+        var prefix = type == "" ? "" : type + "/";
+        var result = await repository.PageAsync<Asset>(x => (q == "" || x.Name.Contains(q)) &&
+            (prefix == "" || x.ContentType.StartsWith(prefix)) && (group == "" || x.Group == group), page, 40);
         return new PageResult<AssetView>(result.Items.Select(View).ToList(), result.Total, result.Page,
             result.PageSize);
     }
 
+    /// <summary>Available groups for management and every attachment picker.</summary>
+    public Task<List<string>> GroupsAsync() => repository.AssetGroupsAsync();
+
+    /// <summary>Atomically edit only a file's display metadata, preserving bytes and references.</summary>
+    public Task<AssetView> UpdateAsync(string actor, string id, AssetMetadataInput input) => repository.WriteAsync(actor, "asset.metadata", async repo =>
+    {
+        if (string.IsNullOrWhiteSpace(input.Name) || input.Name.Length > 200 || input.Name != Path.GetFileName(input.Name) ||
+            input.Name.Any(c => char.IsControl(c) || c is '/' or '\\' or ':') || input.Group == null || input.Group.Trim().Length > 80 || input.Group.Any(char.IsControl))
+            throw Bad("请填写有效的文件名和分组，分组不超过 80 字。");
+        var row = await repo.FindAsync<Asset>(id) ?? throw Missing();
+        if (row.Version != input.Version) throw new CmsException(409, "VERSION_CONFLICT", "附件信息已被修改，请刷新后重试。");
+        if (!Path.GetExtension(row.Name).Equals(Path.GetExtension(input.Name.Trim()), StringComparison.OrdinalIgnoreCase))
+            throw Bad("重命名时请保留原文件扩展名。");
+        row.Name = input.Name.Trim(); row.Group = input.Group.Trim(); row.Version++;
+        repo.SetAuditTarget("asset", row.Id, row.Name); await repo.UpdateAsync(row);
+        return View(row);
+    });
+
     /// <summary>Verify a bounded upload, persist metadata, and clean up on transaction failure.</summary>
     public async Task<AssetView> UploadAsync(string actor, string filename, Stream input,
-        CancellationToken cancellation)
+        CancellationToken cancellation, string group = "")
     {
+        if (group.Length > 80 || group.Any(char.IsControl)) throw Bad("分组名称无效。");
         filename = Path.GetFileName(filename);
         if (filename.Length is 0 or > 200) throw Bad("文件名无效。");
         using var buffer = new MemoryStream();
@@ -37,10 +59,7 @@ public sealed class AssetService(CmsRepository repository, IConfiguration config
         }
 
         var bytes = buffer.ToArray();
-        var extension = Path.GetExtension(filename).ToLowerInvariant();
-        var mime = Detect(bytes, extension) ?? throw Bad("文件格式无效。支持 PNG、JPEG、GIF、WebP、PDF、MP4、WebM、MP3 和 WAV。");
-        var row = new Asset { Name = filename, Size = bytes.Length, ContentType = mime };
-        row.StorageName = row.Id + extension;
+        var row = PrepareUpload(filename, bytes, group);
         Directory.CreateDirectory(root);
         var path = Path.Combine(root, row.StorageName);
         repository.OnRollback(() => File.Delete(path));
@@ -59,6 +78,19 @@ public sealed class AssetService(CmsRepository repository, IConfiguration config
             File.Delete(path);
             throw;
         }
+    }
+
+    internal Asset PrepareUpload(string filename, byte[] bytes, string group)
+    {
+        if (filename.Length is 0 or > 200 || filename != Path.GetFileName(filename) ||
+            filename.Any(c => char.IsControl(c) || c is '/' or '\\' or ':') || group.Length > 80 || group.Any(char.IsControl))
+            throw Bad("附件名称或分组无效。");
+        if (bytes.LongLength > maxBytes) throw new CmsException(413, "FILE_TOO_LARGE", $"单个附件不能超过 {maxBytes / 1024 / 1024} MB。");
+        var extension = Path.GetExtension(filename).ToLowerInvariant();
+        var mime = Detect(bytes, extension) ?? throw Bad("文件格式无效。支持 PNG、JPEG、GIF、WebP、PDF、MP4、WebM、MP3 和 WAV。");
+        var row = new Asset { Name = filename, Size = bytes.Length, ContentType = mime, Group = group.Trim() };
+        row.StorageName = row.Id + extension;
+        return row;
     }
 
     /// <summary>Authorize files using live published references or a valid editor session.</summary>
@@ -90,9 +122,38 @@ public sealed class AssetService(CmsRepository repository, IConfiguration config
     {
         var site = await repo.FindAsync<SiteSettings>("site");
         if (site?.LogoId == id || site?.FaviconId == id) return true;
-        var rows = onlyPublic ? await repo.ListAsync<Content>(x => x.Published) : await repo.ListAsync<Content>();
+        var rows = onlyPublic ? await repo.ListAsync<Content>(x => x.Published && x.Kind != "template" && x.Kind != "block") : await repo.ListAsync<Content>();
+        if (onlyPublic)
+        {
+            foreach (var row in rows)
+            {
+                var snapshot = await ContentService.ResolvePublishedAsync(repo, row);
+                if (snapshot.CoverId == id || snapshot.Seo?.ImageId == id || snapshot.Html.Contains(id)) return true;
+            }
+            return false;
+        }
         // ponytail: reference scan is linear in site content; introduce a reference table for large media libraries.
-        return rows.Any(x => (!onlyPublic && (x.CoverId == id || x.Html.Contains(id))) || x.PublishedJson.Contains(id));
+        return rows.Any(x => (!onlyPublic && (x.CoverId == id || x.SeoJson.Contains(id) || x.Html.Contains(id) || x.LayoutJson.Contains(id) || x.ScheduledJson.Contains(id))) || x.PublishedJson.Contains(id)) ||
+            (!onlyPublic && await repo.CountAsync<ContentRevision>(x => x.SnapshotJson.Contains(id)) > 0);
+    }
+
+    /// <summary>Locate every retained use of an attachment, including deleted content and historical snapshots.</summary>
+    public async Task<IReadOnlyList<AssetReference>> ReferencesAsync(string id)
+    {
+        _ = await repository.FindAsync<Asset>(id) ?? throw Missing();
+        var result = new List<AssetReference>();
+        var site = await repository.FindAsync<SiteSettings>("site");
+        if (site?.LogoId == id || site?.FaviconId == id) result.Add(new("", "site", "站点设置", "站点图片", null));
+        foreach (var row in await repository.ListAsync<Content>())
+        {
+            var state = row.DeletedAt == null ? "草稿" : "回收站";
+            if (row.CoverId == id || row.SeoJson.Contains(id) || row.Html.Contains(id) || row.LayoutJson.Contains(id)) result.Add(new(row.Id, row.Kind, row.Title, state, null, row.DeletedAt != null));
+            if (row.PublishedJson.Contains(id)) result.Add(new(row.Id, row.Kind, row.Title, "发布快照", null, row.DeletedAt != null));
+            if (row.ScheduledJson.Contains(id)) result.Add(new(row.Id, row.Kind, row.Title, "定时发布", null, row.DeletedAt != null));
+            var revisions = await repository.ListAsync<ContentRevision>(x => x.ContentId == row.Id && x.SnapshotJson.Contains(id));
+            foreach (var version in revisions) result.Add(new(row.Id, row.Kind, version.Title, "历史版本", version.Version, row.DeletedAt != null));
+        }
+        return result;
     }
 
     private static string? Detect(byte[] b, string ext)
@@ -192,7 +253,7 @@ public sealed class AssetService(CmsRepository repository, IConfiguration config
 
     private static AssetView View(Asset a)
     {
-        return new AssetView(a.Id, a.Name, a.ContentType, a.Size, a.CreatedAt, "/media/" + a.Id);
+        return new AssetView(a.Id, a.Name, a.ContentType, a.Size, a.CreatedAt, "/media/" + a.Id, a.Group, a.Version);
     }
 
     private static CmsException Bad(string message)

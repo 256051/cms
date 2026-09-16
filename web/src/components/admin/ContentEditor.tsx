@@ -1,27 +1,66 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Eye, Save, Send, Trash2 } from "lucide-react";
-import { api } from "@/lib/client";
-import type { Asset, Content, Taxonomy } from "@/lib/types";
+import { api, ApiError } from "@/lib/client";
+import { editorSection, type Asset, type Content, type Taxonomy } from "@/lib/types";
+import { newBlock, newLayout } from "@/lib/page-layout";
 import { Heading, Notice, useLoad, LoadState } from "./shared";
 import RichEditor from "./RichEditor";
 import AssetSelector from "./AssetSelector";
 import { useUnsavedChanges } from "./unsaved";
+import ContentHistory from "./ContentHistory";
+import PageBuilder from "./PageBuilder";
+import BusinessFieldsEditor, { defaultBusinessFields } from "./BusinessFieldsEditor";
+import type { components } from "@/lib/api.generated";
+
+function BlockUses({ id }: { id: string }) {
+  const { data, error, loading, reload } = useLoad<Required<components["schemas"]["BlockReference"]>[]>(`admin/blocks/${id}/references`);
+  return <section className="panel"><div className="row-actions"><h2>区块引用位置</h2><button type="button" className="secondary" onClick={() => void reload()}>刷新引用</button></div>
+    <Notice error={error} />{!loading && !data?.length && <p className="muted">暂未被引用。</p>}
+    <ul className="reference-list">{data?.map((ref, index) => <li key={index}><a href={`/admin/${editorSection(ref.kind as Content["kind"])}${ref.deleted ? "?status=trash" : "/" + ref.contentId}`}>{ref.title}</a> · {ref.source}{ref.deleted && "（回收站）"}</li>)}</ul>
+    <small>公开页面或定时计划引用中的区块不能下架；历史引用保留时不能永久删除。</small>
+  </section>;
+}
 
 export default function ContentEditor({
   kind,
   id,
+  userId,
 }: {
-  kind: "post" | "page";
+  kind: Content["kind"];
   id?: string;
+  userId: string;
 }) {
   const [doc, setDoc] = useState<Content>();
+  const seo = doc?.seo ?? { title: "", description: "", imageId: "", noIndex: false };
   const { dirty, setDirty } = useUnsavedChanges();
   const [busy, setBusy] = useState(false);
   const [wide, setWide] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(!!id);
+  const [recovery, setRecovery] = useState<Content>();
+  const [conflict, setConflict] = useState(false);
+  const [failures, setFailures] = useState(0);
+  const [localError, setLocalError] = useState("");
+  const saving = useRef(false);
+  const draftKey = `cms:draft:${userId}:${kind}:${id || "new"}`;
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(draftKey);
+      if (saved) {
+        const value = JSON.parse(saved) as Content;
+        if (value.kind === kind && typeof value.html === "string" && typeof value.title === "string" &&
+          Array.isArray(value.tagIds) && Number.isInteger(value.version)) setRecovery(value);
+      }
+    } catch { setLocalError("浏览器恢复副本不可用，请及时保存草稿。"); }
+  }, [draftKey, kind]);
+  function clearLocal() { try { localStorage.removeItem(draftKey); } catch { /* Saving to server remains available. */ } }
+  useEffect(() => {
+    if (!doc || !dirty || recovery) return;
+    try { localStorage.setItem(draftKey, JSON.stringify(doc)); setLocalError(""); }
+    catch { setLocalError("浏览器存储空间不足或不可用，当前输入尚未备份到本机，请保存草稿。"); }
+  }, [doc, dirty, recovery, draftKey]);
   const {
     data: terms,
     error: termsError,
@@ -48,16 +87,23 @@ export default function ContentEditor({
         version: 0,
         published: false,
         publishedAt: null,
+        layout: (kind === "template" || kind === "block") ? newLayout() : null,
+        seo: { title: "", description: "", imageId: "", noIndex: false },
+        fields: defaultBusinessFields(kind),
+        publicSlug: "",
         views: 0, todayViews: 0, visitors: 0,
+        updatedAt: null, lastPublishedAt: null, deletedAt: null, scheduledPublishAt: null, scheduledUnpublishAt: null,
       });
   }, [id, kind]);
   const change = (patch: Partial<Content>) => {
     setDoc((d) => (d ? { ...d, ...patch } : d));
     setDirty(true);
     setSuccess("");
+    setFailures(0);
   };
   async function save(publish = false) {
-    if (!doc || busy) return;
+    if (!doc || busy || saving.current || recovery) return;
+    saving.current = true;
     setBusy(true);
     setError("");
     let saved: Content | undefined;
@@ -71,6 +117,9 @@ export default function ContentEditor({
       // A saved draft remains recoverable even if the separate publish request fails.
       setDoc(saved);
       setDirty(false);
+      clearLocal();
+      setFailures(0);
+      setConflict(false);
       if (publish)
         saved = await api<Content>(
           `admin/contents/${saved.id}/publish`,
@@ -79,18 +128,26 @@ export default function ContentEditor({
         );
       setDoc(saved);
       setDirty(false);
-      setSuccess(publish ? "已发布，网站内容已更新。" : "草稿已保存。");
+      setSuccess(publish ? kind === "block" ? "公共区块已发布，引用页面同步更新。" : kind === "template" ? "模板已发布，可在页面搭建器中选择。" : "已发布，网站内容已更新。" : "草稿已保存。");
       completed = true;
     } catch (e) {
       setError((e as Error).message);
+      setFailures(n => n + 1);
+      if (e instanceof ApiError && e.status === 409) setConflict(true);
     } finally {
+      saving.current = false;
       setBusy(false);
-      if (!id && saved && completed)
+      if (!doc.id && saved && completed)
         window.location.replace(
-          `/admin/${kind === "post" ? "posts" : "pages"}/${saved.id}`,
+          `/admin/${editorSection(kind)}/${saved.id}`,
         );
     }
   }
+  useEffect(() => {
+    if (!dirty || !doc?.title.trim() || busy || conflict || recovery || failures >= 3) return;
+    const timer = window.setTimeout(() => void save(), failures ? 10000 : 5000);
+    return () => window.clearTimeout(timer);
+  });
   useEffect(() => {
     const shortcut = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
@@ -131,11 +188,22 @@ export default function ContentEditor({
           </button>
           <button disabled={busy || !doc} onClick={() => save(true)}>
             <Send size={16} />
-            {busy ? "处理中…" : "保存并发布"}
+            {busy ? "处理中…" : kind === "block" ? "发布公共区块" : kind === "template" ? "发布模板" : "保存并发布"}
           </button>
         </div>
       </Heading>
       <Notice error={error} success={success} />
+      <Notice error={localError} />
+      <p role="status" className="muted">{busy ? "正在处理…" : dirty ? "输入已保留，停止编辑 5 秒后自动保存草稿。" : "草稿已同步。"}
+        {doc?.updatedAt && ` 最后保存：${new Date(doc.updatedAt).toLocaleString("zh-CN")}`}
+        {failures >= 3 && " 自动重试已暂停，请检查网络后手动保存。"}</p>
+      {recovery && <section className="panel"><h2>发现未提交的本机恢复副本</h2>
+        <p>恢复副本：{recovery.title || "未命名"}。{doc && recovery.version !== doc.version ? "服务器版本已变化，恢复后需另存为新草稿。" : "恢复后可以继续编辑。"}</p>
+        <div className="row-actions"><button disabled={!doc || busy} onClick={() => { setConflict(recovery.version !== doc?.version); setDoc(recovery); setDirty(true); setRecovery(undefined); }}>恢复输入</button>
+          <button className="secondary" onClick={() => { clearLocal(); setRecovery(undefined); }}>放弃恢复副本</button></div></section>}
+      {conflict && doc && <section className="panel"><h2>版本冲突，当前输入已保留</h2><p>请另存为新草稿，或复制需要的内容后重新加载服务器版本。</p>
+        <button disabled={busy} onClick={() => { setDoc({ ...doc, id: "", slug: `copy-${Date.now().toString(36)}`, version: 0,
+          published: false, publishedAt: null, lastPublishedAt: null, scheduledPublishAt: null, scheduledUnpublishAt: null }); setConflict(false); setFailures(0); setDirty(true); }}>将当前输入另存为新草稿</button></section>}
       <LoadState
         loading={loading}
         error={error}
@@ -143,8 +211,8 @@ export default function ContentEditor({
       />
       {doc && (
         <fieldset
-          className={`editor-layout editor-fields${wide ? " editor-wide" : ""}`}
-          disabled={busy}
+          className={`editor-layout editor-fields${wide ? " editor-wide" : ""}${doc.layout ? " editor-builder" : ""}`}
+          disabled={busy || !!recovery}
         >
           <section className="panel editor-main">
             <label>
@@ -157,10 +225,30 @@ export default function ContentEditor({
                 onChange={(e) => change({ title: e.target.value })}
               />
             </label>
-            <label>正文</label>
-            <RichEditor
+            {(kind === "product" || kind === "case") && <BusinessFieldsEditor fields={doc.fields || []} onChange={fields => change({ fields })} />}
+            {kind !== "post" && <div className="builder-mode row-actions">
+              <strong>{doc.layout ? "可视化页面搭建" : "富文本页面"}</strong>
+              {!doc.layout && <button type="button" className="secondary" onClick={() => {
+                const text = new DOMParser().parseFromString(doc.html, "text/html").body.textContent?.trim() || "";
+                if (text && !confirm("切换后将保留正文文字，原有富文本排版可从保存后的历史版本恢复。是否继续？")) return;
+                change({ layout: newLayout(text ? [{ ...newBlock("text"), title: "", text }] : []) });
+              }}>使用页面搭建</button>}
+              {doc.layout && kind !== "template" && kind !== "block" && <button type="button" className="secondary" onClick={() => {
+                if (dirty) { setError("请先保存当前布局，再切换为富文本。"); return; }
+                if (confirm("切换为富文本将保留静态文字和图片，动态模块不再自动更新。原布局可从历史恢复，是否继续？")) change({ layout: null });
+              }}>转为富文本</button>}
+              {doc.layout && kind !== "template" && kind !== "block" && <button type="button" className="secondary" onClick={async () => {
+                const title = prompt("模板名称", (doc.title + "模板").slice(0, 200));
+                if (!title?.trim()) return;
+                setBusy(true); setError("");
+                try { const template = await api<Content>("admin/contents", "POST", { ...doc, kind: "template", slug: `template-${Date.now().toString(36)}`, title, version: 0, fields: [] });
+                  setSuccess(`已保存模板草稿“${template.title}”，可在模板库中编辑并发布。`); }
+                catch (e) { setError((e as Error).message); } finally { setBusy(false); }
+              }}>另存为模板</button>}
+            </div>}
+            {doc.layout ? <PageBuilder fields={doc.fields} allowReferences={kind !== "block"} layout={doc.layout} title={doc.title} disabled={busy || !!recovery} onChange={layout => change({ layout })} onBusyChange={setBusy} /> : <><label>正文</label><RichEditor
               value={doc.html}
-              disabled={busy}
+              disabled={busy || !!recovery}
               wide={wide}
               onWideChange={() => setWide(!wide)}
               onBusyChange={(v) => {
@@ -169,7 +257,7 @@ export default function ContentEditor({
               }}
               onChange={(html) => change({ html })}
               onError={setError}
-            />
+            /></>}
           </section>
           <aside className="editor-aside">
             <section className="panel">
@@ -195,13 +283,13 @@ export default function ContentEditor({
               <label>
                 访问地址
                 <input
+                  aria-label="访问地址"
                   value={doc.slug}
-                  disabled={!!doc.id}
                   pattern="[a-z0-9]+(-[a-z0-9]+)*"
                   maxLength={160}
                   onChange={(e) => change({ slug: e.target.value })}
                 />
-                <small>小写字母、数字和连字符；创建后固定。</small>
+                <small>小写字母、数字和连字符。发布后新地址生效，已发布过的旧链接自动跳转。</small>
               </label>
               <label>
                 分类
@@ -255,6 +343,17 @@ export default function ContentEditor({
                   )}
               </fieldset>
             </section>
+            {kind !== "template" && kind !== "block" && <section className="panel"><h2>搜索与分享</h2>
+              <label>SEO 标题<input value={doc.seo?.title || ""} placeholder={doc.title} maxLength={200}
+                onChange={e => change({ seo: { ...seo, title: e.target.value } })} /></label>
+              <label>SEO 描述<textarea value={doc.seo?.description || ""} placeholder={doc.summary} maxLength={500} rows={3}
+                onChange={e => change({ seo: { ...seo, description: e.target.value } })} /></label>
+              <AssetSelector label="分享图片" disabled={busy} value={doc.seo?.imageId || ""}
+                onChange={imageId => change({ seo: { ...seo, imageId } })} />
+              <label className="checkbox-label"><input type="checkbox" checked={doc.seo?.noIndex || false}
+                onChange={e => change({ seo: { ...seo, noIndex: e.target.checked } })} />禁止搜索引擎收录此页</label>
+              <small>留空时使用标题、摘要及封面。更改随发布生效；禁止收录的页面从站点地图移除。</small>
+            </section>}
             <section className="panel">
               <h2>封面图片</h2>
               {doc.coverId && (
@@ -266,6 +365,7 @@ export default function ContentEditor({
               )}
               <AssetSelector
                 label="从附件库选择"
+                disabled={busy}
                 value={doc.coverId}
                 onChange={(coverId) => change({ coverId })}
               />
@@ -329,7 +429,7 @@ export default function ContentEditor({
                   className="danger"
                   disabled={busy}
                   onClick={async () => {
-                    if (!confirm("永久删除此内容及评论？此操作无法撤销。"))
+                    if (!confirm("将此内容移入回收站？评论和历史版本会保留，可从回收站恢复。"))
                       return;
                     setBusy(true);
                     try {
@@ -337,8 +437,9 @@ export default function ContentEditor({
                         version: doc.version,
                       });
                       setDirty(false);
+                      clearLocal();
                       window.location.assign(
-                        "/admin/" + (kind === "post" ? "posts" : "pages"),
+                        "/admin/" + editorSection(kind),
                       );
                     } catch (e) {
                       setError((e as Error).message);
@@ -347,13 +448,15 @@ export default function ContentEditor({
                   }}
                 >
                   <Trash2 size={16} />
-                  删除内容
+                  移入回收站
                 </button>
               </section>
             )}
           </aside>
         </fieldset>
       )}
+      {doc?.id && <ContentHistory doc={doc} disabled={busy || dirty || !!recovery} onBusyChange={setBusy} onChange={value => { setDoc(value); clearLocal(); setDirty(false); }} onError={setError} />}
+      {kind === "block" && doc?.id && <BlockUses id={doc.id} />}
     </>
   );
 }

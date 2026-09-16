@@ -18,14 +18,20 @@ import {
   X,
   LockKeyhole,
   Palette,
+  ChevronDown,
 } from "lucide-react";
 import { api, ApiError, resetCsrf } from "@/lib/client";
 import { confirmNavigation, discardChanges } from "./unsaved";
 import type { User } from "@/lib/types";
 import type { components } from "@/lib/api.generated";
 import { Heading, Loading, Notice, useLoad, LoadState } from "./shared";
+import InquiryFormManager from "./InquiryFormManager";
+import NotificationManager from "./NotificationManager";
 import ContentManager from "./ContentManager";
 import ContentEditor from "./ContentEditor";
+import LayoutPreview from "./LayoutPreview";
+import BusinessDetails from "../BusinessDetails";
+import MaintenanceManager, { OperationsReminder } from "./MaintenanceManager";
 import ThemeManager from "./ThemeManager";
 import MenuManager from "./MenuManager";
 import SettingsManager from "./SettingsManager";
@@ -40,25 +46,28 @@ import {
   PasswordManager,
 } from "./Management";
 
-const links = [
-  ["", "概览", LayoutDashboard],
-  ["posts", "文章", FileText],
-  ["pages", "独立页面", Files],
-  ["taxonomy", "分类与标签", Tags],
-  ["assets", "附件库", ImageIcon],
-  ["comments", "评论", MessageSquare],
-] as const;
-const adminLinks = [
-  ["traffic", "访问统计", LayoutDashboard],
-  ["visitors", "访客记录", Users],
-  ["leads", "客户咨询", MessageSquare],
-  ["menu", "导航菜单", List],
-  ["settings", "站点设置", Settings],
-  ["themes", "主题外观", Palette],
-  ["users", "成员与权限", Users],
-  ["access-tokens", "API 访问令牌", LockKeyhole],
-  ["audit", "操作记录", ShieldCheck],
-] as const;
+const navigationGroups: { label: string; items: [string, string, typeof FileText, boolean?][] }[] = [
+  { label: "内容管理", items: [
+    ["posts", "文章", FileText], ["pages", "独立页面", Files],
+    ["products", "产品", Files], ["cases", "案例", Files], ["taxonomy", "分类与标签", Tags],
+  ] },
+  { label: "设计与素材", items: [
+    ["templates", "页面模板", Files], ["blocks", "公共区块", Files], ["assets", "附件库", ImageIcon],
+    ["menu", "导航菜单", List, true], ["themes", "主题外观", Palette, true],
+  ] },
+  { label: "客户运营", items: [
+    ["comments", "评论", MessageSquare], ["leads", "客户咨询", MessageSquare, true],
+    ["inquiry-form", "咨询表单", FileText, true],
+  ] },
+  { label: "数据统计", items: [
+    ["traffic", "访问统计", LayoutDashboard, true], ["visitors", "访客记录", Users, true],
+  ] },
+  { label: "系统管理", items: [
+    ["settings", "站点设置", Settings, true], ["users", "成员与权限", Users, true],
+    ["access-tokens", "API 访问令牌", LockKeyhole, true], ["maintenance", "备份与维护", ShieldCheck, true],
+    ["notifications", "通知记录", MessageSquare, true], ["audit", "操作记录", ShieldCheck, true],
+  ] },
+];
 export default function AdminApp({ route }: { route: string[] }) {
   const [user, setUser] = useState<User>();
   const [loading, setLoading] = useState(true);
@@ -113,8 +122,8 @@ export default function AdminApp({ route }: { route: string[] }) {
       </main>
     );
   const section = route[0] || "";
-  const title =
-    [...links, ...adminLinks].find((l) => l[0] === section)?.[1] || "内容编辑";
+  const currentGroup = navigationGroups.find(group => group.items.some(item => item[0] === section));
+  const title = section === "" ? "概览" : currentGroup?.items.find(item => item[0] === section)?.[1] || "内容编辑";
   return (
     <div className="admin-layout">
       <a className="skip-link" href="#admin-main" inert={small && mobile}>
@@ -158,9 +167,9 @@ export default function AdminApp({ route }: { route: string[] }) {
           if (event.key === "Tab") {
             const items = Array.from(
               sidebar.current?.querySelectorAll<HTMLElement>(
-                "a[href], button:not(:disabled)",
+                "a[href], button:not(:disabled), summary",
               ) || [],
-            );
+            ).filter(item => item.getClientRects().length > 0);
             const first = items[0],
               last = items.at(-1);
             if (event.shiftKey && document.activeElement === first) {
@@ -190,33 +199,23 @@ export default function AdminApp({ route }: { route: string[] }) {
             内容工作台<small>CONTENT STUDIO</small>
           </span>
         </a>
-        <div className="nav-label">工作空间</div>
         <nav aria-label="内容管理导航">
-          {links.map(([href, label, Icon]) => (
-            <a
-              href={"/admin" + (href ? "/" + href : "")}
-              className={section === href ? "selected" : ""}
-              key={href}
-            >
-              <Icon size={19} />
-              {label}
-            </a>
-          ))}
-          {user.role === "Admin" && (
-            <>
-              <div className="nav-label">管理</div>
-              {adminLinks.map(([href, label, Icon]) => (
-                <a
-                  href={"/admin/" + href}
-                  className={section === href ? "selected" : ""}
-                  key={href}
-                >
-                  <Icon size={19} />
-                  {label}
+          <a href="/admin" className={section === "" ? "selected" : ""} aria-current={section === "" ? "page" : undefined}>
+            <LayoutDashboard size={19} aria-hidden="true" />概览
+          </a>
+          {navigationGroups.map(group => {
+            const items = group.items.filter(item => !item[3] || user.role === "Admin");
+            if (!items.length) return null;
+            return <details className="nav-group" key={group.label} open={currentGroup === group || (section === "" && group === navigationGroups[0])}>
+              <summary>{group.label}<ChevronDown size={16} aria-hidden="true" /></summary>
+              <div className="nav-group-links">{items.map(([href, label, Icon]) => (
+                <a href={"/admin/" + href} className={section === href ? "selected" : ""}
+                  aria-current={section === href ? "page" : undefined} key={href}>
+                  <Icon size={19} aria-hidden="true" />{label}
                 </a>
-              ))}
-            </>
-          )}
+              ))}</div>
+            </details>;
+          })}
         </nav>
         <div className="sidebar-bottom">
           <a href="/" target="_blank">
@@ -237,7 +236,7 @@ export default function AdminApp({ route }: { route: string[] }) {
       <div className="admin-workspace" inert={small && mobile}>
         <header className="admin-topbar">
           <span>
-            工作空间 <span className="breadcrumb-separator">/</span>{" "}
+            {currentGroup?.label || "工作空间"} <span className="breadcrumb-separator">/</span>{" "}
             <strong>{title}</strong>
           </span>
           <div>
@@ -266,17 +265,19 @@ export default function AdminApp({ route }: { route: string[] }) {
         </header>
         <main className="admin-main" id="admin-main">
           <Notice error={error} />
+          {user.role === "Admin" && <OperationsReminder />}
           {section === "" ? (
             <Dashboard user={user} />
-          ) : section === "posts" || section === "pages" ? (
+          ) : section === "posts" || section === "pages" || section === "templates" || section === "blocks" || section === "products" || section === "cases" ? (
             route.length > 1 ? (
               <ContentEditor
                 key={path}
-                kind={section === "posts" ? "post" : "page"}
+                userId={user.id}
+                kind={section === "posts" ? "post" : section === "templates" ? "template" : section === "blocks" ? "block" : section === "products" ? "product" : section === "cases" ? "case" : "page"}
                 id={route[1] === "new" ? undefined : route[1]}
               />
             ) : (
-              <ContentManager kind={section === "posts" ? "post" : "page"} />
+              <ContentManager kind={section === "posts" ? "post" : section === "templates" ? "template" : section === "blocks" ? "block" : section === "products" ? "product" : section === "cases" ? "case" : "page"} />
             )
           ) : section === "preview" ? (
             <Preview id={route[1]} />
@@ -289,7 +290,7 @@ export default function AdminApp({ route }: { route: string[] }) {
           ) : section === "password" ? (
             <PasswordManager />
           ) : user.role === "Admin" ? (
-            section === "traffic" ? <TrafficOverview /> : section === "visitors" ? <VisitorManager initialId={route[1]} /> : section === "leads" ? <LeadManager /> : section === "themes" ? (
+            section === "inquiry-form" ? <InquiryFormManager /> : section === "notifications" ? <NotificationManager /> : section === "maintenance" ? <MaintenanceManager /> : section === "traffic" ? <TrafficOverview /> : section === "visitors" ? <VisitorManager initialId={route[1]} /> : section === "leads" ? <LeadManager /> : section === "themes" ? (
               <ThemeManager />
             ) : section === "settings" ? (
               <SettingsManager />
@@ -551,10 +552,11 @@ function Preview({ id }: { id: string }) {
       />
       <Notice error={error} />
       <LoadState loading={loading} error={error} retry={reload} />
-      {data && (
+      {data?.layout ? <LayoutPreview layout={data.layout} title={data.title} fields={data.fields} /> : data && (
         <article className="panel reading">
           <h1>{data.title}</h1>
           <p className="reading-summary">{data.summary}</p>
+          <BusinessDetails fields={data.fields} />
           {data.coverId && (
             <img
               className="reading-cover"

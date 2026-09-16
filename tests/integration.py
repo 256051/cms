@@ -167,8 +167,8 @@ def suite(base, username, password, output=None):
     assert all(x["id"] != created["id"] for x in guest.call("public/sitemap"))
     editor.call(f'admin/contents/{created["id"]}/publish', "POST", dict(version=hidden["version"]))
     assert guest.call("public/contents/first-post")["title"] == update["title"]
-    admin.call("admin/assets/" + asset["id"], "DELETE")
-    passed("unpublish removes content, media and sitemap; republish updates references")
+    admin.call("admin/assets/" + asset["id"], "DELETE", expected=409)
+    passed("unpublish removes public visibility; history retains old attachment references")
 
     page_doc = admin.call("admin/contents", "POST", dict(draft, kind="page", slug="about", title="关于本站", html="<p>关于我们</p>", coverId="", tagIds=[], categoryId=""))
     admin.call(f'admin/contents/{page_doc["id"]}/publish', "POST", dict(version=page_doc["version"]))
@@ -198,7 +198,7 @@ def suite(base, username, password, output=None):
     admin.call(f'admin/contents/{created["id"]}/publish', "POST", dict(version=current["version"]))
     p1 = guest.call("public/contents?pageSize=2&page=1")
     p2 = guest.call("public/contents?pageSize=2&page=2")
-    assert p1["items"][0]["id"] == created["id"]
+    assert p2["items"][-1]["id"] == created["id"]
     assert p1["total"] == p2["total"] == 4
     assert len({x["id"] for x in p1["items"] + p2["items"]}) == 4
     assert admin.call("admin/audit")["total"] > 10
@@ -211,6 +211,8 @@ def suite(base, username, password, output=None):
     passed("disabled accounts revoke existing sessions")
 
     # Every supported write family retains a safe object identity, including deletion.
+    removed_asset = admin.upload("unused.png", png)
+    admin.call("admin/assets/" + removed_asset["id"], "DELETE")
     removed_term = admin.call("admin/taxonomy", "POST", dict(kind="tag", name="将删除的标签", slug="audit-delete"))
     admin.call("admin/taxonomy/" + removed_term["id"], "DELETE")
     removed_menu = admin.call("admin/menu", "POST", dict(label="将删除的菜单", url="/", sort=9))
@@ -225,7 +227,7 @@ def suite(base, username, password, output=None):
     current_records = [r for r in records if r["id"] != "11111111111111111111111111111111"]
     assert all(r["targetType"] and r["targetId"] and r["targetName"] for r in current_records)
     assert any(r["action"] == "content.delete" and r["targetId"] == removed_doc["id"] and r["targetName"] == "将删除的文章" for r in records)
-    assert any(r["action"] == "asset.delete" and r["targetId"] == asset["id"] and r["targetName"] == "cover.png" for r in records)
+    assert any(r["action"] == "asset.delete" and r["targetId"] == removed_asset["id"] and r["targetName"] == "unused.png" for r in records)
     assert any(r["action"] == "user.delete" and r["targetId"] == editor_user["id"] for r in records)
     serialized = json.dumps(records, ensure_ascii=False)
     assert password not in serialized and "private-body-do-not-audit" not in serialized and "passwordHash" not in serialized

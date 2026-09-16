@@ -21,6 +21,7 @@ export async function api<T>(
   method = "GET",
   body?: unknown,
   keepalive = false,
+  binary = false,
 ): Promise<T> {
   const headers: Record<string, string> = {};
   if (method !== "GET") {
@@ -52,8 +53,9 @@ export async function api<T>(
     credentials: "same-origin",
     keepalive,
   });
+  if (response.ok && binary) return await response.blob() as T;
   const result = await response.json().catch(() => ({
-    message: "服务暂时不可用，请稍后重试。",
+    message: response.status === 413 ? "文件超过服务器允许的大小，请分批导入。" : "服务暂时不可用，请稍后重试。",
     code: "NETWORK_ERROR",
   }));
   if (!response.ok) {

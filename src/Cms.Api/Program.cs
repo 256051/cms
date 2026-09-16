@@ -18,7 +18,7 @@ using IPNetwork = System.Net.IPNetwork;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
-    Args = args.Where(x => x is not ("--initialize" or "--migrate")).ToArray(),
+    Args = args.Where(x => x is not ("--initialize" or "--migrate") && !x.StartsWith("--restore=", StringComparison.Ordinal)).ToArray(),
     ContentRootPath = AppContext.BaseDirectory
 });
 await Configuration.AddConsulAsync(builder.Configuration);
@@ -38,8 +38,13 @@ builder.Host.ConfigureContainer<ContainerBuilder>(container =>
     container.RegisterType<AccessTokenService>().InstancePerLifetimeScope();
     container.RegisterType<IntegrationService>().InstancePerLifetimeScope();
     container.RegisterType<TrafficService>().InstancePerLifetimeScope();
+    container.RegisterType<IpLocationService>().SingleInstance();
     container.RegisterType<VisitorIdentity>().InstancePerLifetimeScope();
+    container.RegisterType<MaintenanceService>().InstancePerLifetimeScope();
+    container.RegisterType<NotificationService>().InstancePerLifetimeScope();
 });
+builder.Services.AddHostedService<MaintenanceWorker>();
+builder.Services.AddHostedService<NotificationWorker>();
 builder.Services.AddSingleton<IMapper>(new Mapper(MappingConfiguration.Create()));
 var keys = Path.GetFullPath(builder.Configuration["Security:KeyPath"] ?? "data/keys");
 Directory.CreateDirectory(keys);
@@ -185,13 +190,16 @@ builder.Services.AddRateLimiter(options =>
 });
 builder.Services.Configure<FormOptions>(x => x.MultipartBodyLengthLimit = 55_000_000);
 var app = builder.Build();
-var explicitDatabaseOperation = args.Contains("--initialize") || args.Contains("--migrate");
+var restore = args.FirstOrDefault(x => x.StartsWith("--restore=", StringComparison.Ordinal));
+var explicitDatabaseOperation = args.Contains("--initialize") || args.Contains("--migrate") || restore != null;
 using (var scope = app.Services.CreateScope())
 {
     var repo = scope.ServiceProvider.GetRequiredService<CmsRepository>();
     app.Logger.LogInformation("Checking and upgrading database schema before accepting requests.");
     await repo.InitializeSchemaAsync(allowCreate: explicitDatabaseOperation);
-    if (args.Contains("--initialize"))
+    if (restore != null)
+        await scope.ServiceProvider.GetRequiredService<MaintenanceService>().RestoreAsync(restore[10..]);
+    else if (args.Contains("--initialize"))
         await scope.ServiceProvider.GetRequiredService<AuthService>().InitializeAsync(
             builder.Configuration["Setup:Username"] ?? "", builder.Configuration["Setup:Password"] ?? "");
     app.Logger.LogInformation("Database schema is ready.");

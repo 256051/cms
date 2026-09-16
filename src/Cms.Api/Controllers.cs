@@ -132,9 +132,9 @@ public sealed class AdminController(
     /// <summary>List content drafts.</summary>
     [HttpGet("contents")]
     public async Task<ApiResponse<PageResult<ContentView>>> Contents(string kind = "post", string? q = null,
-        int page = 1, string sort = "recent")
+        int page = 1, string sort = "recent", string status = "", string? categoryId = null, string? tagId = null)
     {
-        return Result(await content.ListAsync(false, kind, q, null, null, page, 20, sort));
+        return Result(await content.ListAsync(false, kind, q, categoryId, tagId, page, 20, sort, status));
     }
 
     /// <summary>Get draft or authenticated preview data.</summary>
@@ -143,6 +143,22 @@ public sealed class AdminController(
     {
         return Result(await content.GetAsync(id));
     }
+
+    /// <summary>Read a published reusable layout through an authenticated editorial session.</summary>
+    [HttpGet("templates/{id}")]
+    public async Task<ApiResponse<ContentView>> Template(string id) => Result(await content.TemplateAsync(id));
+
+    /// <summary>Read a published reusable block for the page builder.</summary>
+    [HttpGet("blocks/{id}")]
+    public async Task<ApiResponse<ContentView>> Block(string id) => Result(await content.BlockAsync(id));
+
+    /// <summary>List retained uses of a synchronized block.</summary>
+    [HttpGet("blocks/{id}/references")]
+    public async Task<ApiResponse<IReadOnlyList<BlockReference>>> BlockReferences(string id) => Result(await content.BlockReferencesAsync(id));
+
+    /// <summary>Resolve an unsaved layout using only published reusable blocks.</summary>
+    [HttpPost("layout-preview")]
+    public async Task<ApiResponse<PageLayout>> LayoutPreview(PageLayout layout) => Result(await content.PreviewLayoutAsync(layout));
 
     /// <summary>Create a draft.</summary>
     [HttpPost("contents")]
@@ -209,18 +225,63 @@ public sealed class AdminController(
 
     /// <summary>Read uploaded file metadata.</summary>
     [HttpGet("assets")]
-    public async Task<ApiResponse<PageResult<AssetView>>> Assets(int page = 1)
+    public async Task<ApiResponse<PageResult<AssetView>>> Assets(int page = 1, string q = "", string type = "", string group = "")
     {
-        return Result(await assets.ListAsync(page));
+        return Result(await assets.ListAsync(page, q, type, group));
     }
+
+    /// <summary>List existing attachment groups for pickers.</summary>
+    [HttpGet("assets/groups")]
+    public async Task<ApiResponse<List<string>>> AssetGroups() => Result(await assets.GroupsAsync());
+
+    /// <summary>Rename or regroup an attachment without changing its media URL.</summary>
+    [HttpPut("assets/{id}")]
+    public async Task<ApiResponse<AssetView>> UpdateAsset(string id, AssetMetadataInput input) => Result(await assets.UpdateAsync(Actor, id, input));
+
+    /// <summary>Locate retained attachment references.</summary>
+    [HttpGet("assets/{id}/references")]
+    public async Task<ApiResponse<IReadOnlyList<AssetReference>>> AssetReferences(string id) => Result(await assets.ReferencesAsync(id));
+
+    /// <summary>Read content history.</summary>
+    [HttpGet("contents/{id}/revisions")]
+    public async Task<ApiResponse<PageResult<RevisionView>>> Revisions(string id, int page = 1) => Result(await content.RevisionsAsync(id, page));
+
+    /// <summary>Read a historical snapshot.</summary>
+    [HttpGet("contents/{id}/revisions/{revision}")]
+    public async Task<ApiResponse<ContentView>> Revision(string id, string revision) => Result(await content.RevisionAsync(id, revision));
+
+    /// <summary>Restore history to the current draft.</summary>
+    [HttpPost("contents/{id}/revisions/{revision}/restore")]
+    public async Task<ApiResponse<ContentView>> RestoreRevision(string id, string revision, VersionInput input) =>
+        Result(await content.RestoreRevisionAsync(Actor, id, revision, input.Version));
+
+    /// <summary>Recover a recycled item as a draft.</summary>
+    [HttpPost("contents/{id}/restore")]
+    public async Task<ApiResponse<bool>> Restore(string id, VersionInput input) => Result(await content.RecycleAsync(Actor, id, input.Version, false));
+
+    /// <summary>Permanently remove a recycled item and its comments and history.</summary>
+    [HttpDelete("contents/{id}/purge")]
+    public async Task<ApiResponse<bool>> Purge(string id, [FromBody] VersionInput input) => Result(await content.RecycleAsync(Actor, id, input.Version, true));
+
+    /// <summary>Duplicate editorial content as a new draft.</summary>
+    [HttpPost("contents/{id}/duplicate")]
+    public async Task<ApiResponse<ContentView>> Duplicate(string id) => Result(await content.DuplicateAsync(Actor, id));
+
+    /// <summary>Perform an atomic content batch operation.</summary>
+    [HttpPost("contents/batch")]
+    public async Task<ApiResponse<bool>> Batch(ContentBatchInput input) => Result(await content.BatchAsync(Actor, input));
+
+    /// <summary>Set or cancel publication and withdrawal schedules.</summary>
+    [HttpPut("contents/{id}/schedule")]
+    public async Task<ApiResponse<ContentView>> Schedule(string id, ContentScheduleInput input) => Result(await content.ScheduleAsync(Actor, id, input));
 
     /// <summary>Upload one verified file.</summary>
     [HttpPost("assets")]
     [RequestSizeLimit(55_000_000)]
-    public async Task<ApiResponse<AssetView>> Upload(IFormFile file, CancellationToken cancellation)
+    public async Task<ApiResponse<AssetView>> Upload(IFormFile file, CancellationToken cancellation, [FromForm] string group = "")
     {
         await using var stream = file.OpenReadStream();
-        return Result(await assets.UploadAsync(Actor, file.FileName, stream, cancellation));
+        return Result(await assets.UploadAsync(Actor, file.FileName, stream, cancellation, group));
     }
 
     /// <summary>Delete an unreferenced file.</summary>
@@ -352,6 +413,13 @@ public sealed class AdminController(
 [Route("api/v1/public")]
 public sealed class PublicController(ContentService content, SiteService site, ThemeService themes) : ApiController
 {
+    /// <summary>Read the selected published home page, or null for the built-in blog home.</summary>
+    [HttpGet("home")]
+    public async Task<ApiResponse<ContentView?>> Home() => Result(await content.HomeAsync());
+    /// <summary>Discover related content and chronological neighbors using published snapshots only.</summary>
+    [HttpGet("contents/{slug}/discovery")]
+    public async Task<ApiResponse<ContentDiscovery>> Discovery(string slug) => Result(await content.DiscoveryAsync(slug));
+
     /// <summary>Read only the current effective appearance.</summary>
     [HttpGet("theme")]
     public async Task<ApiResponse<ThemeView>> Theme()

@@ -1,17 +1,19 @@
 using System.Globalization;
+using System.Net;
 using System.Text.RegularExpressions;
+using System.Text.Json;
 using Cms.Data;
 
 namespace Cms.Services;
 
 /// <summary>Public telemetry and private customer inquiries through the repository boundary.</summary>
-public sealed class TrafficService(CmsRepository repository)
+public sealed partial class TrafficService(CmsRepository repository, IpLocationService ipLocations)
 {
     /// <summary>Calendar boundary used consistently by all public and administrative traffic counts.</summary>
     public static DateTime TodayUtc() => DateTime.UtcNow.AddHours(8).Date.AddHours(-8);
 
     /// <summary>Record a visible navigation once, excluding known crawlers and authenticated staff.</summary>
-    public async Task<PageVisitReceipt> VisitAsync(string visitor, VisitInput input, string userAgent, string host, bool staff)
+    public async Task<PageVisitReceipt> VisitAsync(string visitor, VisitInput input, string userAgent, string host, bool staff, IPAddress? address)
     {
         Id(input.Id);
         Text(input.Path, 500, true);
@@ -19,6 +21,7 @@ public sealed class TrafficService(CmsRepository repository)
         Text(input.Campaign, 100);
         if (staff || string.IsNullOrWhiteSpace(userAgent) || Regex.IsMatch(userAgent, "bot|spider|crawler|curl|wget", RegexOptions.IgnoreCase))
             return new PageVisitReceipt("", 0);
+        var location = ipLocations.Resolve(address);
         return await repository.RecordTrafficAsync(async repo =>
         {
             var prior = await repo.FindAsync<PageVisit>(input.Id);
@@ -40,16 +43,20 @@ public sealed class TrafficService(CmsRepository repository)
             profile.Views++;
             profile.LastSeenAt = now;
             profile.Device = device;
+            profile.IpAddress = location.IpAddress;
+            profile.Location = location.Location;
             if (fresh) await repo.InsertAsync(profile); else await repo.UpdateAsync(profile);
             await repo.InsertAsync(new PageVisit
             {
                 Id = input.Id, VisitorId = visitor, ContentId = page.Id, Path = input.Path, Title = page.Title,
                 CreatedAt = now, Day = now.AddHours(8).ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
-                Source = source, Device = device
+                Source = source, Device = device, IpAddress = location.IpAddress, Location = location.Location
             });
             long views = 0;
             if (page.Id != "")
             {
+                if (await repo.FirstAsync<ContentAudience>(x => x.ContentId == page.Id && x.VisitorId == visitor) == null)
+                    await repo.InsertAsync(new ContentAudience { ContentId = page.Id, VisitorId = visitor });
                 var counter = await repo.FindAsync<ContentTraffic>(page.Id);
                 if (counter == null) await repo.InsertAsync(new ContentTraffic { Id = page.Id, Views = 1 });
                 else { counter.Views++; await repo.UpdateAsync(counter); }
@@ -112,12 +119,13 @@ public sealed class TrafficService(CmsRepository repository)
             if (prior != null)
             {
                 if (prior.VisitorId != visitor || prior.Name != input.Name.Trim() || prior.Contact != input.Contact.Trim() ||
-                    prior.Need != input.Need.Trim() || prior.Organization != input.Organization.Trim() || prior.Path != input.Path)
+                    prior.Need != input.Need.Trim() || prior.Organization != input.Organization.Trim() || prior.Path != input.Path || !SameInquiryValues(prior.FieldsJson, input.Fields))
                     throw Conflict();
                 repo.SetAuditTarget("lead", prior.Id, "客户咨询");
                 return new VisitReceipt(prior.Id);
             }
             var page = await ResolvePageAsync(repo, input.Path);
+            var customFields = await ValidateInquiryValuesAsync(repo, input.Fields);
             var visit = input.VisitId == "" ? null : await OwnedVisitAsync(repo, visitor, input.VisitId);
             if (visit != null && visit.Path != input.Path) throw Invalid();
             var now = DateTime.UtcNow;
@@ -128,7 +136,7 @@ public sealed class TrafficService(CmsRepository repository)
                 Id = input.Id, VisitorId = visitor, VisitId = input.VisitId, ContentId = page.Id, Path = input.Path,
                 Source = visit?.Source ?? Source(input.Referrer, input.Campaign, host), Name = input.Name.Trim(),
                 Contact = input.Contact.Trim(), Organization = input.Organization.Trim(), Need = input.Need.Trim(),
-                CreatedAt = now, ConsentedAt = now, UpdatedAt = now
+                CreatedAt = now, ConsentedAt = now, UpdatedAt = now, FieldsJson = JsonSerializer.Serialize(customFields)
             };
             repo.SetAuditTarget("lead", row.Id, "客户咨询");
             await repo.InsertAsync(row);
@@ -137,10 +145,11 @@ public sealed class TrafficService(CmsRepository repository)
     }
 
     /// <summary>Return private inquiries filtered by state or supplied contact information.</summary>
-    public Task<PageResult<CustomerLead>> LeadsAsync(string status, string query, int page)
+    public Task<PageResult<CustomerLead>> LeadsAsync(string status, string query, int page, string owner = "", bool overdue = false)
     {
         Status(status, true); Text(query, 200);
-        return repository.LeadsAsync(status, query.Trim(), page);
+        if (owner != "") Id(owner);
+        return repository.LeadsAsync(status, query.Trim(), page, owner, overdue);
     }
 
     /// <summary>Update follow-up status and notes with an audit and revision check.</summary>
@@ -150,9 +159,21 @@ public sealed class TrafficService(CmsRepository repository)
         return repository.WriteAsync(actor, "lead.followup", async repo =>
         {
             var row = await repo.FindAsync<CustomerLead>(id) ?? throw Missing();
+            if (row.Version != input.Version) throw Conflict();
+            if (input.OwnerId != "" && await repo.FirstAsync<CmsUser>(x => x.Id == input.OwnerId && x.Enabled && x.Role == "Admin") == null)
+                throw new CmsException(400, "INVALID_OWNER", "请选择有效的管理员作为负责人。");
+            if (input.NextContactAt is { } next && next <= DateTime.UtcNow &&
+                (row.NextContactAt == null || Math.Abs((next - row.NextContactAt.Value).TotalSeconds) >= 60))
+                throw new CmsException(400, "INVALID_DATE", "新的联系计划须晚于当前时间；可清空时间以取消提醒。");
+            if (row.Notes != "" && await repo.CountAsync<LeadFollowUp>(x => x.LeadId == id) == 0)
+                await repo.InsertAsync(new LeadFollowUp { LeadId = id, Actor = "历史备注", Status = row.Status, Notes = row.Notes, CreatedAt = row.UpdatedAt });
             row.Status = input.Status; row.Notes = input.Notes.Trim();
+            row.OwnerId = input.OwnerId;
+            row.NextContactAt = input.NextContactAt;
             repo.SetAuditTarget("lead", row.Id, "客户咨询");
             await repo.SaveLeadAsync(row, input.Version);
+            await repo.InsertAsync(new LeadFollowUp { LeadId = id, Actor = (await repo.FindAsync<CmsUser>(actor))?.DisplayName ?? actor,
+                Status = row.Status, Notes = row.Notes, OwnerId = row.OwnerId, NextContactAt = row.NextContactAt });
             return row;
         });
     }
@@ -163,6 +184,7 @@ public sealed class TrafficService(CmsRepository repository)
         var row = await repo.FindAsync<CustomerLead>(id) ?? throw Missing();
         if (row.Version != version) throw Conflict();
         repo.SetAuditTarget("lead", row.Id, "客户咨询");
+        foreach (var followup in await repo.ListAsync<LeadFollowUp>(x => x.LeadId == id)) await repo.DeleteAsync<LeadFollowUp>(followup.Id);
         await repo.DeleteAsync<CustomerLead>(id);
         return true;
     });
@@ -185,6 +207,8 @@ public sealed class TrafficService(CmsRepository repository)
         var start = from == null ? today.AddDays(-6) : Day(from);
         var end = to == null ? today.AddDays(1) : Day(to).AddDays(1);
         if (end <= start || (end - start).TotalDays > 90 || end > today.AddDays(1)) throw Invalid();
+        var retained = (await repository.FindAsync<MaintenanceState>("site"))?.TrafficSince;
+        if (start < retained) throw new CmsException(400, "TRAFFIC_EXPIRED", $"访问明细仅保留自 {retained:yyyy-MM-dd HH:mm} UTC 起的数据，累计浏览量和累计访客数仍完整保留。");
         var daily = (await repository.TrafficBucketsAsync(start, end, x => x.Day)).ToDictionary(x => x.Name);
         var leads = (await repository.LeadDaysAsync(start, end))
             .ToDictionary(x => x.Day.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
@@ -195,7 +219,7 @@ public sealed class TrafficService(CmsRepository repository)
                 daily.GetValueOrDefault(name)?.Visitors ?? 0, leads.GetValueOrDefault(name)?.Leads ?? 0);
         }).ToList();
         return new TrafficReport(start, end, await repository.TrafficTotalsAsync(today, today.AddDays(1)),
-            await repository.TrafficTotalsAsync(start, end), await repository.CountAsync<PageVisit>(),
+            await repository.TrafficTotalsAsync(start, end), await repository.LifetimeViewsAsync(),
             await repository.CountAsync<VisitorProfile>(), await repository.CountAsync<CustomerLead>(x => x.CreatedAt >= today),
             await repository.CountAsync<CustomerLead>(x => x.CreatedAt >= start && x.CreatedAt < end),
             await repository.CountAsync<VisitEvent>(x => x.CreatedAt >= start && x.CreatedAt < end && x.Kind == "download"),
@@ -213,8 +237,15 @@ public sealed class TrafficService(CmsRepository repository)
 
     private static async Task<(string Id, string Title)> ResolvePageAsync(CmsRepository repo, string path)
     {
-        if (path is "/" or "/search") return ("", path == "/" ? "首页" : "站内搜索");
-        var match = Regex.Match(path, "^/(posts|pages|category|tag)/([^/?#]+)$");
+        if (path == "/")
+        {
+            var homeId = (await repo.FindAsync<SiteSettings>("site"))?.HomePageId ?? "";
+            var home = homeId == "" ? null : await repo.FirstAsync<Content>(x => x.Id == homeId && x.Kind == "page" && x.Published && x.DeletedAt == null);
+            return home == null ? ("", "首页") : (home.Id, home.PublishedTitle);
+        }
+        if (path == "/search") return ("", "站内搜索");
+        if (path is "/products" or "/cases") return ("", path == "/products" ? "产品" : "案例");
+        var match = Regex.Match(path, "^/(posts|pages|products|cases|category|tag)/([^/?#]+)$");
         if (!match.Success) throw Missing();
         var kind = match.Groups[1].Value;
         var slug = Uri.UnescapeDataString(match.Groups[2].Value);
@@ -223,8 +254,9 @@ public sealed class TrafficService(CmsRepository repository)
             var taxonomy = await repo.FirstAsync<Taxonomy>(x => x.Kind == kind && x.Slug == slug) ?? throw Missing();
             return ("", taxonomy.Name);
         }
-        var contentKind = kind == "posts" ? "post" : "page";
-        var row = await repo.FirstAsync<Content>(x => x.Kind == contentKind && x.Slug == slug && x.Published) ?? throw Missing();
+        var contentKind = kind switch { "posts" => "post", "products" => "product", "cases" => "case", _ => "page" };
+        var row = await ContentService.ResolveAddressAsync(repo, slug) ?? throw Missing();
+        if (row.Kind != contentKind) throw Missing();
         return (row.Id, row.PublishedTitle);
     }
 

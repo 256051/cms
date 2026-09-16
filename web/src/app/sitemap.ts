@@ -4,16 +4,18 @@ import { contentUrl, type Content, type Taxonomy, type Settings } from "@/lib/ty
 export const dynamic = "force-dynamic";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if ((await publicApi<Settings>("settings")).blockSearchEngines) return [];
-  const [posts, terms] = await Promise.all([
+  const [posts, terms, home] = await Promise.all([
     publicApi<Content[]>("sitemap"),
     publicApi<Taxonomy[]>("taxonomy"),
+    publicApi<Content | null>("home"),
   ]);
   return [
-    { url: siteUrl() },
+    ...(home?.seo?.noIndex ? [] : [{ url: siteUrl() }]),
+    ...(["product", "case"] as const).filter(kind => posts.some(x => x.kind === kind)).map(kind => ({ url: siteUrl() + (kind === "product" ? "/products" : "/cases") })),
     ...terms.map((t) => ({ url: `${siteUrl()}/${t.kind}/${t.slug}` })),
     ...posts.map((p) => ({
       url: siteUrl() + contentUrl(p),
-      lastModified: p.publishedAt || undefined,
+      lastModified: p.lastPublishedAt || p.publishedAt || undefined,
     })),
   ];
 }

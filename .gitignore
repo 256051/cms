@@ -2,6 +2,7 @@
 **/obj/
 web/node_modules/
 web/.next/
+web/.next-test-*/
 web/tsconfig.tsbuildinfo
 .env
 .env.*

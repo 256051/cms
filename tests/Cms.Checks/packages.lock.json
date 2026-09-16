@@ -102,6 +102,14 @@
           "AngleSharp.Css": "1.0.2"
         }
       },
+      "IP2Region.Net": {
+        "type": "Transitive",
+        "resolved": "3.0.2",
+        "contentHash": "YwBTQty+kZnsVzTW2mAsrx7EsDdZcTDmsNv1/giwyeu5qFq6OneygiNKoh5C9zPvpA3EQ6b+LdPiNJvdz7LH7w==",
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.3"
+        }
+      },
       "Mapster": {
         "type": "Transitive",
         "resolved": "10.0.12",
@@ -158,8 +166,8 @@
       },
       "Microsoft.Extensions.DependencyInjection.Abstractions": {
         "type": "Transitive",
-        "resolved": "10.0.0",
-        "contentHash": "L3AdmZ1WOK4XXT5YFPEwyt0ep6l8lGIPs7F5OOBZc77Zqeo01Of7XXICy47628sdVl0v/owxYJTe86DTgFwKCA=="
+        "resolved": "10.0.3",
+        "contentHash": "bwGMrRcAMWx2s/RDgja97p27rxSz2pEQW0+rX5cWAUWVETVJ/eyxGfjAl8vuG5a+lckWmPIE+vcuaZNVB5YDdw=="
       },
       "Microsoft.Extensions.Logging.Abstractions": {
         "type": "Transitive",
@@ -389,6 +397,7 @@
           "Cms.Data": "[1.0.0, )",
           "FluentValidation": "[12.1.1, )",
           "HtmlSanitizer": "[9.2.1039, )",
+          "IP2Region.Net": "[3.0.2, )",
           "Mapster": "[10.0.12, )",
           "Microsoft.IdentityModel.JsonWebTokens": "[8.14.0, )"
         }

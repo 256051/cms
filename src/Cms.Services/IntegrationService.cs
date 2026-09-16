@@ -18,13 +18,16 @@ public sealed class IntegrationService(
     /// <summary>List editorial content without full bodies.</summary>
     public Task<PageResult<ContentView>> ListAsync(string kind, string? query, int page)
     {
+        if (kind is "template" or "block") throw new CmsException(400, "INVALID_KIND", "模板和公共区块请通过后台管理。");
         return new ContentService(repository, validator).ListAsync(false, kind, query, null, null, page, 20);
     }
 
     /// <summary>Read one current draft and its version.</summary>
-    public Task<ContentView> GetAsync(string id)
+    public async Task<ContentView> GetAsync(string id)
     {
-        return new ContentService(repository, validator).GetAsync(id);
+        var content = await new ContentService(repository, validator).GetAsync(id);
+        if (content.Kind is "template" or "block") throw new CmsException(404, "NOT_FOUND", "内容不存在。");
+        return content;
     }
 
     /// <summary>Read selectable category and tag identifiers.</summary>
@@ -36,6 +39,7 @@ public sealed class IntegrationService(
     /// <summary>Create or update one draft, preserving the public snapshot.</summary>
     public Task<ContentView> SaveAsync(string tokenId, string key, string? id, ContentInput input)
     {
+        if (input.Kind is "template" or "block") throw new CmsException(400, "INVALID_KIND", "模板和公共区块请通过后台管理。");
         return OnceAsync(tokenId, key, IntegrationScopes.Write, new { operation = "save", id, input },
             (repo, token) => new ContentService(repo, validator).SaveAsync(token.UserId, id, input));
     }
@@ -46,10 +50,12 @@ public sealed class IntegrationService(
         return OnceAsync(tokenId, key, IntegrationScopes.Publish, new { operation = "publish", id, input },
             async (repo, token) =>
             {
+                if ((await repo.FindAsync<Content>(id))?.Kind is "template" or "block")
+                    throw new CmsException(404, "NOT_FOUND", "内容不存在。");
                 var content =
                     await new ContentService(repo, validator).PublishAsync(token.UserId, id, input.Version, true);
                 return new IntegrationPublication(content,
-                    $"/{(content.Kind == "page" ? "pages" : "posts")}/{content.Slug}");
+                    ContentService.PublicPath(content.Kind, content.Slug));
             });
     }
 

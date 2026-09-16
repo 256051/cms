@@ -12,14 +12,35 @@ import type {
 } from "@/lib/types";
 import { Heading, Notice, Pager, useLoad, LoadState } from "./shared";
 import { useUnsavedChanges } from "./unsaved";
+import type { components } from "@/lib/api.generated";
+import EditorDialog from "./EditorDialog";
+import ImageCropDialog from "./ImageCropDialog";
 
 export function AssetManager() {
   const [page, setPage] = useState(1);
+  const [q, setQ] = useState(""), [type, setType] = useState("");
+  const [group, setGroup] = useState(""), [editing, setEditing] = useState<Asset>(), [cropping, setCropping] = useState<Asset>();
+  const groups = useLoad<string[]>("admin/assets/groups");
+  const [failedFiles, setFailedFiles] = useState<File[]>([]), [progress, setProgress] = useState("");
+  const [references, setReferences] = useState<Required<components["schemas"]["AssetReference"]>[]>();
   const { data, error, setError, reload, loading } = useLoad<Page<Asset>>(
-    "admin/assets?page=" + page,
+    `admin/assets?page=${page}&q=${encodeURIComponent(q)}&type=${type}&group=${encodeURIComponent(group)}`,
   );
   const [busy, setBusy] = useState(false);
   const [success, setSuccess] = useState("");
+  async function uploadFiles(files: File[]) {
+    if (!files.length) return;
+    if (files.length > 50) { setError("每批最多上传 50 个文件。"); return; }
+    setBusy(true); setError(""); setSuccess("");
+    const failed: File[] = [], errors: string[] = [];
+    for (const [index, file] of files.entries()) {
+      setProgress(`正在上传 ${index + 1} / ${files.length}`);
+      try { const body = new FormData(); body.append("file", file); body.append("group", group); await api("admin/assets", "POST", body); }
+      catch (e) { failed.push(file); errors.push(`${file.name}：${(e as Error).message}`); }
+    }
+    setFailedFiles(failed); setProgress(""); setError(errors.join("；")); setSuccess(`已上传 ${files.length - failed.length} 个，失败 ${failed.length} 个。`);
+    await reload(); await groups.reload(); setBusy(false);
+  }
   return (
     <>
       <Heading
@@ -31,30 +52,32 @@ export function AssetManager() {
           {busy ? "上传中…" : "上传附件"}
           <input
             type="file"
+            multiple
             disabled={busy}
             accept=".png,.jpg,.jpeg,.gif,.webp,.pdf,.mp4,.webm,.mp3,.wav"
-            onChange={async (e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-              setBusy(true);
-              setError("");
-              try {
-                const body = new FormData();
-                body.append("file", file);
-                await api("admin/assets", "POST", body);
-                await reload();
-                setSuccess("附件已上传。");
-              } catch (e) {
-                setError((e as Error).message);
-              } finally {
-                setBusy(false);
-              }
-            }}
+            onChange={e => { const files = Array.from(e.target.files || []); e.target.value = ""; void uploadFiles(files); }}
           />
         </label>
       </Heading>
       <Notice error={error} success={success} />
+      {progress && <p role="status">{progress}</p>}{failedFiles.length > 0 && <button className="secondary" disabled={busy} onClick={() => void uploadFiles(failedFiles)}>重试失败的 {failedFiles.length} 个文件</button>}
       <LoadState loading={loading} error={error} retry={reload} />
+      <div className="table-toolbar editorial-filters"><form className="compact-search" onSubmit={e => { e.preventDefault(); setQ(String(new FormData(e.currentTarget).get("q") || "")); setPage(1); }}><input name="q" aria-label="搜索文件名" placeholder="搜索文件名" maxLength={200} /><button className="secondary">搜索</button></form>
+        <label>文件类型<select value={type} onChange={e => { setType(e.target.value); setPage(1); }}><option value="">全部类型</option><option value="image">图片</option><option value="video">视频</option><option value="audio">音频</option><option value="application">PDF 文档</option></select></label>
+        <label>附件分组<select value={group} disabled={busy} onChange={e => { setGroup(e.target.value); setPage(1); }}><option value="">全部分组</option>{groups.data?.map(name => <option key={name}>{name}</option>)}</select></label></div>
+      {editing && <EditorDialog title="附件名称与分组" close={() => { if (!busy) setEditing(undefined); }}><Notice error={error} />
+        <label>文件名<input value={editing.name} maxLength={200} disabled={busy} onChange={e => setEditing({ ...editing, name: e.target.value })} /></label>
+        <label>分组<input value={editing.group} list="asset-groups" maxLength={80} disabled={busy} placeholder="输入新分组或选择已有分组" onChange={e => setEditing({ ...editing, group: e.target.value })} /></label>
+        <datalist id="asset-groups">{groups.data?.map(name => <option key={name}>{name}</option>)}</datalist>
+        <button type="button" disabled={busy} onClick={async () => { setBusy(true); setError(""); try {
+          await api(`admin/assets/${editing.id}`, "PUT", { name: editing.name, group: editing.group, version: editing.version });
+          setEditing(undefined); await reload(); await groups.reload(); setSuccess("附件信息已保存，已有引用地址保持有效。");
+        } catch (e) { setError((e as Error).message); } finally { setBusy(false); } }}>保存附件信息</button>
+      </EditorDialog>}
+      {cropping && <ImageCropDialog asset={cropping} close={() => setCropping(undefined)} saved={asset => { setCropping(undefined); setSuccess(`已另存“${asset.name}”，原图片保留。`); void reload(); }} />}
+      {references && <section className="panel"><h2>附件引用位置</h2><p>历史版本和回收站也会保留附件引用。恢复内容前请勿删除文件。</p>
+        {references.length ? <ul className="reference-list">{references.map((ref, index) => <li key={index}><a href={ref.kind === "site" ? "/admin/settings" : `/admin/${ref.kind === "page" ? "pages" : ref.kind === "template" ? "templates" : ref.kind === "block" ? "blocks" : ref.kind === "product" ? "products" : ref.kind === "case" ? "cases" : "posts"}${ref.deleted ? "?status=trash" : "/" + ref.contentId}`}>{ref.title}</a> · {ref.source}{ref.deleted && "（回收站）"}{ref.version != null && ` · 版本 ${ref.version}`}</li>)}</ul> : <p>当前未被引用。</p>}
+        <button className="secondary" onClick={() => setReferences(undefined)}>关闭引用列表</button></section>}
       <p className="muted">
         支持 PNG、JPEG、GIF、WebP、PDF、MP4、WebM、MP3 和 WAV。默认单个文件不超过 10 MB。
       </p>
@@ -79,6 +102,9 @@ export function AssetManager() {
               {new Date(a.createdAt).toLocaleDateString("zh-CN")}
             </small>
             <div className="row-actions">
+              <button className="secondary" disabled={busy} onClick={() => { setError(""); setEditing(a); }}>名称与分组</button>
+              {a.contentType.startsWith("image/") && <button className="secondary" disabled={busy} onClick={() => setCropping(a)}>裁剪图片</button>}
+              <button className="secondary" onClick={async () => { try { setReferences(await api(`admin/assets/${a.id}/references`)); } catch (e) { setError((e as Error).message); } }}>引用位置</button>
               <button
                 className="secondary"
                 onClick={async () => {
@@ -621,6 +647,8 @@ export function AuditManager() {
   const labels: Record<string, string> = {
     initialize: "初始化站点",
     "content.save": "保存草稿",
+    "content.export": "导出内容包",
+    "content.import": "导入内容包",
     "content.publish": "发布内容",
     "content.unpublish": "下架内容",
     "content.delete": "删除内容",
@@ -687,7 +715,7 @@ export function AuditManager() {
                           · {a.targetId}
                         </small>
                       </>
-                    ) : (
+                    ) : a.targetName ? <strong>{a.targetName}</strong> : (
                       <span className="muted">旧版记录未保存操作对象</span>
                     )}
                   </td>

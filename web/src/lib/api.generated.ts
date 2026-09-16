@@ -70,6 +70,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/contents/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Download selected or filtered drafts and their required files as a ZIP package. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ContentExportInput"];
+                    "text/json": components["schemas"]["ContentExportInput"];
+                    "application/*+json": components["schemas"]["ContentExportInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/contents/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Import a matching content package into new drafts without replacing existing data. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        kind?: string;
+                    } & {
+                        file?: components["schemas"]["IFormFile"];
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfContentImportResult"];
+                        "application/json": components["schemas"]["ApiResponseOfContentImportResult"];
+                        "text/json": components["schemas"]["ApiResponseOfContentImportResult"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/auth/csrf": {
         parameters: {
             query?: never;
@@ -484,6 +570,9 @@ export interface paths {
                     q?: string;
                     page?: number;
                     sort?: string;
+                    status?: string;
+                    categoryId?: string;
+                    tagId?: string;
                 };
                 header?: never;
                 path?: never;
@@ -635,6 +724,170 @@ export interface paths {
                 };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/templates/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read a published reusable layout through an authenticated editorial session. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfContentView"];
+                        "application/json": components["schemas"]["ApiResponseOfContentView"];
+                        "text/json": components["schemas"]["ApiResponseOfContentView"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/blocks/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read a published reusable block for the page builder. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfContentView"];
+                        "application/json": components["schemas"]["ApiResponseOfContentView"];
+                        "text/json": components["schemas"]["ApiResponseOfContentView"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/blocks/{id}/references": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List retained uses of a synchronized block. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfIReadOnlyListOfBlockReference"];
+                        "application/json": components["schemas"]["ApiResponseOfIReadOnlyListOfBlockReference"];
+                        "text/json": components["schemas"]["ApiResponseOfIReadOnlyListOfBlockReference"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/layout-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resolve an unsaved layout using only published reusable blocks. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["PageLayout"];
+                    "text/json": components["schemas"]["PageLayout"];
+                    "application/*+json": components["schemas"]["PageLayout"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfPageLayout"];
+                        "application/json": components["schemas"]["ApiResponseOfPageLayout"];
+                        "text/json": components["schemas"]["ApiResponseOfPageLayout"];
+                    };
+                };
+            };
+        };
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -880,6 +1133,9 @@ export interface paths {
             parameters: {
                 query?: {
                     page?: number;
+                    q?: string;
+                    type?: string;
+                    group?: string;
                 };
                 header?: never;
                 path?: never;
@@ -913,6 +1169,9 @@ export interface paths {
                 content: {
                     "multipart/form-data": {
                         file?: components["schemas"]["IFormFile"];
+                    } & {
+                        /** @default  */
+                        group?: string;
                     };
                 };
             };
@@ -936,6 +1195,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/assets/groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List existing attachment groups for pickers. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfListOfstring"];
+                        "application/json": components["schemas"]["ApiResponseOfListOfstring"];
+                        "text/json": components["schemas"]["ApiResponseOfListOfstring"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/assets/{id}": {
         parameters: {
             query?: never;
@@ -944,7 +1241,37 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
-        put?: never;
+        /** Rename or regroup an attachment without changing its media URL. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AssetMetadataInput"];
+                    "text/json": components["schemas"]["AssetMetadataInput"];
+                    "application/*+json": components["schemas"]["AssetMetadataInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfAssetView"];
+                        "application/json": components["schemas"]["ApiResponseOfAssetView"];
+                        "text/json": components["schemas"]["ApiResponseOfAssetView"];
+                    };
+                };
+            };
+        };
         post?: never;
         /** Delete an unreferenced file. */
         delete: {
@@ -971,6 +1298,398 @@ export interface paths {
                 };
             };
         };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/assets/{id}/references": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Locate retained attachment references. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfIReadOnlyListOfAssetReference"];
+                        "application/json": components["schemas"]["ApiResponseOfIReadOnlyListOfAssetReference"];
+                        "text/json": components["schemas"]["ApiResponseOfIReadOnlyListOfAssetReference"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/contents/{id}/revisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read content history. */
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfPageResultOfRevisionView"];
+                        "application/json": components["schemas"]["ApiResponseOfPageResultOfRevisionView"];
+                        "text/json": components["schemas"]["ApiResponseOfPageResultOfRevisionView"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/contents/{id}/revisions/{revision}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read a historical snapshot. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    revision: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfContentView"];
+                        "application/json": components["schemas"]["ApiResponseOfContentView"];
+                        "text/json": components["schemas"]["ApiResponseOfContentView"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/contents/{id}/revisions/{revision}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Restore history to the current draft. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    revision: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["VersionInput"];
+                    "text/json": components["schemas"]["VersionInput"];
+                    "application/*+json": components["schemas"]["VersionInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfContentView"];
+                        "application/json": components["schemas"]["ApiResponseOfContentView"];
+                        "text/json": components["schemas"]["ApiResponseOfContentView"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/contents/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Recover a recycled item as a draft. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["VersionInput"];
+                    "text/json": components["schemas"]["VersionInput"];
+                    "application/*+json": components["schemas"]["VersionInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfboolean"];
+                        "application/json": components["schemas"]["ApiResponseOfboolean"];
+                        "text/json": components["schemas"]["ApiResponseOfboolean"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/contents/{id}/purge": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Permanently remove a recycled item and its comments and history. */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["VersionInput"];
+                    "text/json": components["schemas"]["VersionInput"];
+                    "application/*+json": components["schemas"]["VersionInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfboolean"];
+                        "application/json": components["schemas"]["ApiResponseOfboolean"];
+                        "text/json": components["schemas"]["ApiResponseOfboolean"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/contents/{id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Duplicate editorial content as a new draft. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfContentView"];
+                        "application/json": components["schemas"]["ApiResponseOfContentView"];
+                        "text/json": components["schemas"]["ApiResponseOfContentView"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/contents/batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Perform an atomic content batch operation. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ContentBatchInput"];
+                    "text/json": components["schemas"]["ContentBatchInput"];
+                    "application/*+json": components["schemas"]["ContentBatchInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfboolean"];
+                        "application/json": components["schemas"]["ApiResponseOfboolean"];
+                        "text/json": components["schemas"]["ApiResponseOfboolean"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/contents/{id}/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set or cancel publication and withdrawal schedules. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ContentScheduleInput"];
+                    "text/json": components["schemas"]["ContentScheduleInput"];
+                    "application/*+json": components["schemas"]["ContentScheduleInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfContentView"];
+                        "application/json": components["schemas"]["ApiResponseOfContentView"];
+                        "text/json": components["schemas"]["ApiResponseOfContentView"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -1497,6 +2216,84 @@ export interface paths {
                         "text/plain": components["schemas"]["ApiResponseOfPageResultOfAuditEntry"];
                         "application/json": components["schemas"]["ApiResponseOfPageResultOfAuditEntry"];
                         "text/json": components["schemas"]["ApiResponseOfPageResultOfAuditEntry"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/home": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read the selected published home page, or null for the built-in blog home. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfContentView"];
+                        "application/json": components["schemas"]["ApiResponseOfContentView"];
+                        "text/json": components["schemas"]["ApiResponseOfContentView"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/contents/{slug}/discovery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Discover related content and chronological neighbors using published snapshots only. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfContentDiscovery"];
+                        "application/json": components["schemas"]["ApiResponseOfContentDiscovery"];
+                        "text/json": components["schemas"]["ApiResponseOfContentDiscovery"];
                     };
                 };
             };
@@ -2483,6 +3280,272 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/maintenance": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read schedule settings and the latest backup result. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfMaintenanceView"];
+                        "application/json": components["schemas"]["ApiResponseOfMaintenanceView"];
+                        "text/json": components["schemas"]["ApiResponseOfMaintenanceView"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/maintenance/backup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create a complete portable backup. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfMaintenanceView"];
+                        "application/json": components["schemas"]["ApiResponseOfMaintenanceView"];
+                        "text/json": components["schemas"]["ApiResponseOfMaintenanceView"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/maintenance/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download the last successful archive. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/notifications/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read redacted deployment configuration status. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfNotificationSettings"];
+                        "application/json": components["schemas"]["ApiResponseOfNotificationSettings"];
+                        "text/json": components["schemas"]["ApiResponseOfNotificationSettings"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/notifications": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read delivery outcomes. */
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfPageResultOfNotificationDelivery"];
+                        "application/json": components["schemas"]["ApiResponseOfPageResultOfNotificationDelivery"];
+                        "text/json": components["schemas"]["ApiResponseOfPageResultOfNotificationDelivery"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/notifications/{id}/retry": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Requeue one failed event without sending successful events again. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfboolean"];
+                        "application/json": components["schemas"]["ApiResponseOfboolean"];
+                        "text/json": components["schemas"]["ApiResponseOfboolean"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/inquiry-form": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read additional inquiry field definitions without any customer data. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfInquiryFormView"];
+                        "application/json": components["schemas"]["ApiResponseOfInquiryFormView"];
+                        "text/json": components["schemas"]["ApiResponseOfInquiryFormView"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/public/visits": {
         parameters: {
             query?: never;
@@ -2663,6 +3726,72 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/inquiry-form": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read current inquiry configuration. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfInquiryFormView"];
+                        "application/json": components["schemas"]["ApiResponseOfInquiryFormView"];
+                        "text/json": components["schemas"]["ApiResponseOfInquiryFormView"];
+                    };
+                };
+            };
+        };
+        /** Save a validated form definition at an expected revision. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["InquiryFormView"];
+                    "text/json": components["schemas"]["InquiryFormView"];
+                    "application/*+json": components["schemas"]["InquiryFormView"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfInquiryFormView"];
+                        "application/json": components["schemas"]["ApiResponseOfInquiryFormView"];
+                        "text/json": components["schemas"]["ApiResponseOfInquiryFormView"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/traffic": {
         parameters: {
             query?: never;
@@ -2800,6 +3929,8 @@ export interface paths {
                     status?: string;
                     q?: string;
                     page?: number;
+                    owner?: string;
+                    overdue?: boolean;
                 };
                 header?: never;
                 path?: never;
@@ -2817,6 +3948,125 @@ export interface paths {
                         "application/json": components["schemas"]["ApiResponseOfPageResultOfCustomerLead"];
                         "text/json": components["schemas"]["ApiResponseOfPageResultOfCustomerLead"];
                     };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/leads/{id}/followups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read append-only contact history. */
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfPageResultOfLeadFollowUp"];
+                        "application/json": components["schemas"]["ApiResponseOfPageResultOfLeadFollowUp"];
+                        "text/json": components["schemas"]["ApiResponseOfPageResultOfLeadFollowUp"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/leads/overdue-count": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read the overdue contact reminder count. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOflong"];
+                        "application/json": components["schemas"]["ApiResponseOflong"];
+                        "text/json": components["schemas"]["ApiResponseOflong"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/leads/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Download a private filtered CSV export. */
+        get: {
+            parameters: {
+                query?: {
+                    status?: string;
+                    q?: string;
+                    owner?: string;
+                    overdue?: boolean;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
                 };
             };
         };
@@ -2958,6 +4208,20 @@ export interface components {
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
+        ApiResponseOfContentDiscovery: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["ContentDiscovery"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfContentImportResult: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["ContentImportResult"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
         ApiResponseOfContentView: {
             code: string;
             message: string;
@@ -2972,10 +4236,31 @@ export interface components {
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
+        ApiResponseOfInquiryFormView: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["InquiryFormView"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
         ApiResponseOfIntegrationPublication: {
             code: string;
             message: string;
             data: null | components["schemas"]["IntegrationPublication"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfIReadOnlyListOfAssetReference: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["AssetReference"][];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfIReadOnlyListOfBlockReference: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["BlockReference"][];
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
@@ -3007,6 +4292,13 @@ export interface components {
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
+        ApiResponseOfListOfstring: {
+            code: string;
+            message: string;
+            data: null | string[];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
         ApiResponseOfListOfTaxonomy: {
             code: string;
             message: string;
@@ -3014,10 +4306,39 @@ export interface components {
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
+        ApiResponseOflong: {
+            code: string;
+            message: string;
+            /** Format: int64 */
+            data: number;
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfMaintenanceView: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["MaintenanceView"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
         ApiResponseOfMenuView: {
             code: string;
             message: string;
             data: null | components["schemas"]["MenuView"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfNotificationSettings: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["NotificationSettings"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfPageLayout: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["PageLayout"];
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
@@ -3063,6 +4384,13 @@ export interface components {
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
+        ApiResponseOfPageResultOfLeadFollowUp: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["PageResultOfLeadFollowUp"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
         ApiResponseOfPageResultOfMenuTarget: {
             code: string;
             message: string;
@@ -3070,10 +4398,24 @@ export interface components {
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
+        ApiResponseOfPageResultOfNotificationDelivery: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["PageResultOfNotificationDelivery"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
         ApiResponseOfPageResultOfPageVisit: {
             code: string;
             message: string;
             data: null | components["schemas"]["PageResultOfPageVisit"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfPageResultOfRevisionView: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["PageResultOfRevisionView"];
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
@@ -3146,6 +4488,24 @@ export interface components {
             data: null | components["schemas"]["VisitReceipt"];
             traceId: string;
         };
+        /** @description Rename or regroup metadata without changing attachment content. */
+        AssetMetadataInput: {
+            name: string;
+            group: string;
+            /** Format: int32 */
+            version: number;
+        };
+        /** @description Human-readable attachment reference location. */
+        AssetReference: {
+            contentId: string;
+            kind: string;
+            title: string;
+            source: string;
+            /** Format: int32 */
+            version: null | number;
+            /** @default false */
+            deleted: boolean;
+        };
         /** @description Browser-visible file metadata. */
         AssetView: {
             id: string;
@@ -3156,6 +4516,13 @@ export interface components {
             /** Format: date-time */
             createdAt: string;
             url: string;
+            /** @default  */
+            group: string;
+            /**
+             * Format: int32
+             * @default 1
+             */
+            version: number;
         };
         /** @description Successful write audit; never stores passwords or content. */
         AuditEntry: {
@@ -3180,6 +4547,14 @@ export interface components {
              * @description UTC creation timestamp.
              */
             createdAt?: string;
+        };
+        /** @description A retained page or template that uses a synchronized block. */
+        BlockReference: {
+            contentId: string;
+            kind: string;
+            title: string;
+            source: string;
+            deleted: boolean;
         };
         /** @description Single-use login challenge, image and validity period; never includes its answer. */
         CaptchaView: {
@@ -3212,6 +4587,46 @@ export interface components {
             author: string;
             body: string;
         };
+        /** @description Atomic category change or withdrawal of at most one hundred items. */
+        ContentBatchInput: {
+            action: string;
+            items: components["schemas"]["ContentSelection"][];
+            /** @default  */
+            categoryId: string;
+        };
+        /** @description Public navigation around one published article. */
+        ContentDiscovery: {
+            previous: null | components["schemas"]["ContentView"];
+            next: null | components["schemas"]["ContentView"];
+            related: components["schemas"]["ContentView"][];
+        };
+        /** @description Export explicit selections or all matching nondeleted drafts, independently of pagination. */
+        ContentExportInput: {
+            kind: string;
+            ids?: null | string[];
+            /** @default  */
+            q: string;
+            /** @default  */
+            status: string;
+            /** @default  */
+            categoryId: string;
+            /** @default  */
+            tagId: string;
+        };
+        /** @description Ordered plain-text business attribute, with a stable key and historical display label. */
+        ContentField: {
+            key: string;
+            label: string;
+            value: string;
+        };
+        /** @description Committed import result, including newly stored attachments. */
+        ContentImportResult: {
+            items: components["schemas"]["ImportedContent"][];
+            /** Format: int32 */
+            assets: number;
+            /** Format: int32 */
+            renamed: number;
+        };
         /** @description Editorial input with optimistic version. */
         ContentInput: {
             kind: string;
@@ -3224,6 +4639,35 @@ export interface components {
             tagIds: string[];
             /** Format: int32 */
             version: number;
+            layout?: null | components["schemas"]["PageLayout"];
+            seo?: null | components["schemas"]["ContentSeo"];
+            fields?: null | components["schemas"]["ContentField"][];
+        };
+        /** @description Frozen publication and withdrawal times; null cancels the corresponding schedule. */
+        ContentScheduleInput: {
+            /** Format: int32 */
+            version: number;
+            /** Format: date-time */
+            publishAt: null | string;
+            /** Format: date-time */
+            unpublishAt: null | string;
+        };
+        /** @description One selected expected revision in a batch. */
+        ContentSelection: {
+            id: string;
+            /** Format: int32 */
+            version: number;
+        };
+        /** @description Optional page metadata; empty values fall back to visible title, summary and cover. */
+        ContentSeo: {
+            /** @default  */
+            title: string;
+            /** @default  */
+            description: string;
+            /** @default  */
+            imageId: string;
+            /** @default false */
+            noIndex: boolean;
         };
         /** @description Immutable sanitized content snapshot. */
         ContentView: {
@@ -3256,9 +4700,33 @@ export interface components {
              * @default 0
              */
             visitors: number;
+            /** Format: date-time */
+            updatedAt?: null | string;
+            /** Format: date-time */
+            lastPublishedAt?: null | string;
+            /** Format: date-time */
+            deletedAt?: null | string;
+            /** Format: date-time */
+            scheduledPublishAt?: null | string;
+            /** Format: date-time */
+            scheduledUnpublishAt?: null | string;
+            layout?: null | components["schemas"]["PageLayout"];
+            seo?: null | components["schemas"]["ContentSeo"];
+            fields?: null | components["schemas"]["ContentField"][];
+            /** @default  */
+            publicSlug: string;
         };
         /** @description Private customer inquiry with optimistic follow-up state. */
         CustomerLead: {
+            /** @description Submitted additional fields with their labels at submission time. */
+            fieldsJson?: string;
+            /** @description Assigned enabled administrator. */
+            ownerId?: string;
+            /**
+             * Format: date-time
+             * @description Next planned contact, in UTC.
+             */
+            nextContactAt?: null | string;
             /** @description Browser identity for retry ownership; not a verified person. */
             visitorId?: string;
             /** @description Optional originating view. */
@@ -3306,6 +4774,32 @@ export interface components {
         };
         /** Format: binary */
         IFormFile: string;
+        /** @description One newly imported draft and any changed reading address. */
+        ImportedContent: {
+            id: string;
+            title: string;
+            sourceSlug: string;
+            slug: string;
+        };
+        /** @description A bounded additional inquiry field; types are native controls and cannot contain executable content. */
+        InquiryField: {
+            key: string;
+            label: string;
+            /** @default text */
+            type: string;
+            /** @default false */
+            required: boolean;
+            options?: null | string[];
+        };
+        /** @description Versioned public form definition. */
+        InquiryFormView: {
+            fields: components["schemas"]["InquiryField"][];
+            /**
+             * Format: int32
+             * @default 0
+             */
+            version: number;
+        };
         /** @description Published state and its site-relative reading address. */
         IntegrationPublication: {
             content: components["schemas"]["ContentView"];
@@ -3315,6 +4809,31 @@ export interface components {
         IssuedAccessToken: {
             token: components["schemas"]["AccessTokenView"];
             secret: string;
+        };
+        /** @description Append-only private inquiry follow-up. */
+        LeadFollowUp: {
+            /** @description Parent inquiry. */
+            leadId?: string;
+            /** @description Operator display name. */
+            actor?: string;
+            /** @description State at this follow-up. */
+            status?: string;
+            /** @description Recorded notes. */
+            notes?: string;
+            /** @description Assigned administrator. */
+            ownerId?: string;
+            /**
+             * Format: date-time
+             * @description Planned next contact.
+             */
+            nextContactAt?: null | string;
+            /** @description Opaque portable identifier. */
+            id?: string;
+            /**
+             * Format: date-time
+             * @description UTC creation timestamp.
+             */
+            createdAt?: string;
         };
         /** @description Customer-supplied inquiry; contact data never appears in its receipt. */
         LeadInput: {
@@ -3333,6 +4852,9 @@ export interface components {
             campaign: string;
             /** @default  */
             website: string;
+            fields?: null | {
+                [key: string]: string;
+            };
         };
         /** @description Private follow-up changes with optimistic concurrency. */
         LeadUpdateInput: {
@@ -3340,6 +4862,10 @@ export interface components {
             notes: string;
             /** Format: int32 */
             version: number;
+            /** @default  */
+            ownerId: string;
+            /** Format: date-time */
+            nextContactAt?: null | string;
         };
         /** @description Login credentials. */
         LoginInput: {
@@ -3347,6 +4873,43 @@ export interface components {
             password: string;
             captchaId: string;
             captchaCode: string;
+        };
+        /** @description Backup attempts and retention boundary for the administration panel. */
+        MaintenanceState: {
+            /**
+             * Format: date-time
+             * @description Last backup attempt.
+             */
+            lastAttemptAt?: null | string;
+            /**
+             * Format: date-time
+             * @description Last fully written archive.
+             */
+            lastSuccessAt?: null | string;
+            /** @description Failure summary without secrets. */
+            error?: string;
+            /** @description Archive basename. */
+            fileName?: string;
+            /**
+             * Format: date-time
+             * @description Oldest retained traffic detail time.
+             */
+            trafficSince?: null | string;
+            /** @description Opaque portable identifier. */
+            id?: string;
+            /**
+             * Format: date-time
+             * @description UTC creation timestamp.
+             */
+            createdAt?: string;
+        };
+        /** @description Backup status plus deployment-managed schedules. */
+        MaintenanceView: {
+            state: components["schemas"]["MaintenanceState"];
+            /** Format: int32 */
+            backupIntervalHours: number;
+            /** Format: int32 */
+            trafficRetentionDays: number;
         };
         /** @description Menu input. */
         MenuInput: {
@@ -3392,6 +4955,163 @@ export interface components {
         /** @description Comment moderation input. */
         ModerateInput: {
             approved: boolean;
+        };
+        /** @description Durable per-channel delivery with bounded retries and event deduplication. */
+        NotificationDelivery: {
+            /** @description Stable source event identity, without credentials or customer contact details. */
+            eventKey?: string;
+            /** @description Delivery transport. */
+            channel?: string;
+            /** @description Event classification. */
+            kind?: string;
+            /** @description Source object. */
+            targetId?: string;
+            /** @description Safe event heading. */
+            title?: string;
+            /** @description Relative administrator destination; never an arbitrary external URL. */
+            path?: string;
+            /**
+             * Format: date-time
+             * @description Original source occurrence used to detect resolved or superseded alerts.
+             */
+            occurredAt?: string;
+            /**
+             * Format: int32
+             * @description Lifetime delivery attempts.
+             */
+            attempts?: number;
+            /**
+             * Format: int32
+             * @description Remaining attempts in the current retry round.
+             */
+            remainingAttempts?: number;
+            /**
+             * Format: date-time
+             * @description Next retry, or null when completed or exhausted.
+             */
+            nextAttemptAt?: null | string;
+            /**
+             * Format: date-time
+             * @description Latest transport attempt.
+             */
+            lastAttemptAt?: null | string;
+            /**
+             * Format: date-time
+             * @description Confirmed successful delivery.
+             */
+            sentAt?: null | string;
+            /** @description Queued, sent, failed or cancelled. */
+            status?: string;
+            /** @description Redacted error safe for the administrative UI. */
+            error?: string;
+            /** @description Opaque portable identifier. */
+            id?: string;
+            /**
+             * Format: date-time
+             * @description UTC creation timestamp.
+             */
+            createdAt?: string;
+        };
+        /** @description Credential-free notification configuration status. */
+        NotificationSettings: {
+            enabled: boolean;
+            emailEnabled: boolean;
+            weComEnabled: boolean;
+            siteUrl: string;
+            errors: string[];
+        };
+        /** @description One bounded page section; presentation choices are named tokens rather than CSS or code. */
+        PageBlock: {
+            id: string;
+            type: string;
+            /** @default  */
+            title: string;
+            /** @default  */
+            text: string;
+            /** @default  */
+            imageId: string;
+            /** @default  */
+            imageAlt: string;
+            /** @default  */
+            linkText: string;
+            /** @default  */
+            linkUrl: string;
+            items?: null | components["schemas"]["PageBlockItem"][];
+            /** @default  */
+            categoryId: string;
+            /**
+             * Format: int32
+             * @default 6
+             */
+            limit: number;
+            /**
+             * Format: int32
+             * @default 3
+             */
+            columns: number;
+            /** @default plain */
+            tone: string;
+            /** @default left */
+            align: string;
+            /** @default normal */
+            spacing: string;
+            /** @default false */
+            hidden: boolean;
+            /** @default  */
+            html: string;
+            mobile?: null | components["schemas"]["PageBlockMobile"];
+            /** @default  */
+            sharedId: string;
+            /** @default post */
+            contentKind: string;
+        };
+        /** @description A card or frequently asked question in a page section. */
+        PageBlockItem: {
+            /** @default  */
+            title: string;
+            /** @default  */
+            text: string;
+            /** @default  */
+            imageId: string;
+            /** @default  */
+            imageAlt: string;
+            /** @default  */
+            linkText: string;
+            /** @default  */
+            linkUrl: string;
+        };
+        /** @description Optional narrow-screen overrides; empty tokens inherit the desktop presentation. */
+        PageBlockMobile: {
+            /** @default  */
+            align: string;
+            /** @default  */
+            spacing: string;
+            /**
+             * Format: int32
+             * @default 1
+             */
+            columns: number;
+            /** @default  */
+            textSize: string;
+            /** @default false */
+            hidden: boolean;
+        };
+        /** @description A versioned, non-executable page composition stored with the content snapshot. */
+        PageLayout: {
+            blocks: components["schemas"]["PageBlock"][];
+            /**
+             * Format: int32
+             * @default 1
+             */
+            version: number;
+            /** @default wide */
+            width: string;
+            /** @default false */
+            showTitle: boolean;
+            /** @default true */
+            showHeader: boolean;
+            /** @default true */
+            showFooter: boolean;
         };
         /** @description Server-side paginated result. */
         PageResultOfAccessTokenView: {
@@ -3454,6 +5174,16 @@ export interface components {
             pageSize: number;
         };
         /** @description Server-side paginated result. */
+        PageResultOfLeadFollowUp: {
+            items: components["schemas"]["LeadFollowUp"][];
+            /** Format: int64 */
+            total: number;
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
+        /** @description Server-side paginated result. */
         PageResultOfMenuTarget: {
             items: components["schemas"]["MenuTarget"][];
             /** Format: int64 */
@@ -3464,8 +5194,28 @@ export interface components {
             pageSize: number;
         };
         /** @description Server-side paginated result. */
+        PageResultOfNotificationDelivery: {
+            items: components["schemas"]["NotificationDelivery"][];
+            /** Format: int64 */
+            total: number;
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
+        /** @description Server-side paginated result. */
         PageResultOfPageVisit: {
             items: components["schemas"]["PageVisit"][];
+            /** Format: int64 */
+            total: number;
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
+        /** @description Server-side paginated result. */
+        PageResultOfRevisionView: {
+            items: components["schemas"]["RevisionView"][];
             /** Format: int64 */
             total: number;
             /** Format: int32 */
@@ -3499,6 +5249,10 @@ export interface components {
             source?: string;
             /** @description Coarse device category. */
             device?: string;
+            /** @description Normalized server-observed IP at the time of this visit; empty for historical records. */
+            ipAddress?: string;
+            /** @description Approximate region resolved when the visit was recorded; never backfilled from a later visit. */
+            location?: string;
             /**
              * Format: int32
              * @description Cumulative visible seconds, bounded by elapsed server time and four hours.
@@ -3549,6 +5303,17 @@ export interface components {
             /** Format: int32 */
             depth: number;
         };
+        /** @description Compact history entry without transferring the full body. */
+        RevisionView: {
+            id: string;
+            /** Format: int32 */
+            version: number;
+            action: string;
+            actor: string;
+            title: string;
+            /** Format: date-time */
+            createdAt: string;
+        };
         /** @description Public site settings input. */
         SettingsInput: {
             title: string;
@@ -3596,6 +5361,8 @@ export interface components {
              * @default 0
              */
             version: number;
+            /** @default  */
+            homePageId: string;
         };
         /** @description Site metadata stored in the selected database. */
         SiteSettings: {
@@ -3618,6 +5385,8 @@ export interface components {
              * @description Home page list size.
              */
             homePageSize?: number;
+            /** @description Optional published standalone page displayed at the site root. */
+            homePageId?: string;
             /**
              * Format: int32
              * @description Category archive list size.
@@ -3817,7 +5586,7 @@ export interface components {
             /** @default  */
             campaign: string;
         };
-        /** @description First-party pseudonymous browser profile; contains no IP or contact details. */
+        /** @description First-party browser profile and latest observed network; administrator access only. */
         VisitorProfile: {
             /**
              * Format: date-time
@@ -3833,6 +5602,10 @@ export interface components {
             source?: string;
             /** @description Most recent coarse device category. */
             device?: string;
+            /** @description Normalized IP of the most recent accepted visit; empty for historical records. */
+            ipAddress?: string;
+            /** @description Approximate country, province and city, or a local/unknown address label. */
+            location?: string;
             /** @description Opaque portable identifier. */
             id?: string;
             /**

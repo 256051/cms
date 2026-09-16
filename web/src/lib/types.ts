@@ -5,9 +5,13 @@ type Schema<K extends keyof components["schemas"]> = Required<
   components["schemas"][K]
 >;
 export type User = Schema<"UserView"> & { role: "Admin" | "Editor" };
-export type Content = Schema<"ContentView"> & {
-  kind: "post" | "page";
+export type PageBlockItem = Required<components["schemas"]["PageBlockItem"]>;
+export type PageBlock = Omit<Required<components["schemas"]["PageBlock"]>, "items" | "mobile"> & { items: PageBlockItem[]; mobile: Required<components["schemas"]["PageBlockMobile"]> | null };
+export type PageLayout = Omit<Required<components["schemas"]["PageLayout"]>, "blocks"> & { blocks: PageBlock[] };
+export type Content = Omit<Schema<"ContentView">, "layout"> & {
+  kind: "post" | "page" | "template" | "block" | "product" | "case";
   version: number;
+  layout: PageLayout | null;
 };
 export type Taxonomy = Schema<"Taxonomy"> & { kind: "category" | "tag" };
 export type Asset = Schema<"AssetView"> & { size: number };
@@ -30,4 +34,5 @@ export type Envelope<T> = Omit<Schema<"ApiResponseOfContentView">, "data"> & {
   data: T;
 };
 export const contentUrl = (content: Pick<Content, "kind" | "slug">) =>
-  `/${content.kind === "page" ? "pages" : "posts"}/${content.slug}`;
+  `/${editorSection(content.kind)}/${content.slug}`;
+export const editorSection = (kind: Content["kind"]) => kind === "post" ? "posts" : kind === "template" ? "templates" : kind === "block" ? "blocks" : kind === "product" ? "products" : kind === "case" ? "cases" : "pages";

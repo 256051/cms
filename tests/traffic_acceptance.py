@@ -48,7 +48,7 @@ def main():
                     lead = persistent["lead"]
                     admin.call(f"admin/leads/{lead['id']}?version={lead['version']}", "DELETE")
                     assert admin.call("admin/leads")["total"] == 0
-                    checks.append("automatic startup upgrades v6 to v7 before readiness; repeated migration preserves editorial state; visitor, traffic and inquiry survive restart; private lead deletion")
+                    checks.append("automatic startup upgrades v6 to current schema before readiness; repeated migration preserves editorial state; visitor, traffic and inquiry survive restart; private lead deletion")
                 finally:
                     matrix.stop(process)
             results[kind] = checks

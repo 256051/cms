@@ -2,7 +2,7 @@ using FreeSql.DataAnnotations;
 
 namespace Cms.Data;
 
-/// <summary>First-party pseudonymous browser profile; contains no IP or contact details.</summary>
+/// <summary>First-party browser profile and latest observed network; administrator access only.</summary>
 [Table(Name = "cms_visitors")]
 [Index("ix_visitor_seen", nameof(LastSeenAt), false)]
 public class VisitorProfile : Entity
@@ -17,6 +17,12 @@ public class VisitorProfile : Entity
     /// <summary>Most recent coarse device category.</summary>
     [Column(StringLength = 16)]
     public string Device { get; set; } = "";
+    /// <summary>Normalized IP of the most recent accepted visit; empty for historical records.</summary>
+    [Column(StringLength = 45)]
+    public string IpAddress { get; set; } = "";
+    /// <summary>Approximate country, province and city, or a local/unknown address label.</summary>
+    [Column(StringLength = 200)]
+    public string Location { get; set; } = "";
 }
 
 /// <summary>One visible page lifecycle; its primary key also deduplicates retries.</summary>
@@ -47,6 +53,12 @@ public class PageVisit : Entity
     /// <summary>Coarse device category.</summary>
     [Column(StringLength = 16)]
     public string Device { get; set; } = "";
+    /// <summary>Normalized server-observed IP at the time of this visit; empty for historical records.</summary>
+    [Column(StringLength = 45)]
+    public string IpAddress { get; set; } = "";
+    /// <summary>Approximate region resolved when the visit was recorded; never backfilled from a later visit.</summary>
+    [Column(StringLength = 200)]
+    public string Location { get; set; } = "";
     /// <summary>Cumulative visible seconds, bounded by elapsed server time and four hours.</summary>
     public int ActiveSeconds { get; set; }
     /// <summary>Maximum visible article depth, between zero and one hundred.</summary>
@@ -84,6 +96,13 @@ public class VisitEvent : Entity
 [Index("ix_lead_status", "Status,CreatedAt", false)]
 public class CustomerLead : Entity
 {
+    /// <summary>Submitted additional fields with their labels at submission time.</summary>
+    [Column(StringLength = -2)] public string FieldsJson { get; set; } = "[]";
+    /// <summary>Assigned enabled administrator.</summary>
+    [Column(StringLength = 32)]
+    public string OwnerId { get; set; } = "";
+    /// <summary>Next planned contact, in UTC.</summary>
+    public DateTime? NextContactAt { get; set; }
     /// <summary>Browser identity for retry ownership; not a verified person.</summary>
     [Column(StringLength = 32)]
     public string VisitorId { get; set; } = "";

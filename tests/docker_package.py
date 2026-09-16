@@ -3,6 +3,7 @@ import argparse
 import base64
 import datetime
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -14,6 +15,7 @@ import tarfile
 import time
 import urllib.request
 import uuid
+import zipfile
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -139,8 +141,6 @@ def main():
         admin.call("admin/themes/active", "PUT", dict(themeId="cactus", options=cactus["defaults"], version=themes["version"]))
         for theme in themes["themes"]:
             assert admin.call(theme["thumbnail"]).startswith(b"\x89PNG")
-        assert "SQLite 离线发布正文" in admin.call("/posts/package-proof").decode()
-        assert base in admin.call("/sitemap.xml").decode()
         if args.upgrade_from:
             command(compose + ["stop", "api", "web", "gateway"])
             command(compose + ["up", "-d", "--no-build", "api", "web", "gateway"])
@@ -152,10 +152,27 @@ def main():
         assert admin.call("public/theme")["themeId"] == "cactus"
         assert admin.call("/media/" + asset["id"]) == png
         assert "SQLite 离线发布正文" in admin.call("/posts/package-proof").decode()
+        assert base in admin.call("/sitemap.xml").decode()
         checks = ["Archive and all bundled file checksums", "Three loaded Linux images match manifest IDs", "Compiled API and media rewrites target the Compose API service", "Direct Next.js API and media proxy requests", "SQLite initialization and repeat initialization", "Blanked setup credentials and three-service startup", "HTTPS captcha login, Secure cookies and CSRF", "Image upload and publication with server-rendered body", "Fifteen theme thumbnails and Cactus activation", "Configured domain in sitemap", "Restart preserves SQLite content, attachments, theme and authenticated session"]
         if args.upgrade_from:
             assert admin.call("admin/traffic")["totalViews"] == 0
             checks.append(f"Replacing the schema {previous['schema']} API image automatically upgrades to schema {manifest['schema']} and preserves the existing site without --migrate")
+        assert not admin.call("admin/notifications/settings")["enabled"]
+        assert len(admin.call("public/inquiry-form")["fields"]) == 3
+        current_asset = admin.call("admin/assets")["items"][0]
+        admin.call("admin/assets/" + current_asset["id"], "PUT", dict(name="package-group.png", group="验收分组", version=current_asset["version"]))
+        assert "验收分组" in admin.call("admin/assets/groups")
+        product = admin.call("admin/contents", "POST", dict(kind="product", title="部署产品", slug="package-product", summary="", html="<p>产品正文</p>",
+            coverId=asset["id"], categoryId="", tagIds=[], version=0, fields=[dict(key="model", label="型号", value="Docker 验收")],
+            seo=dict(title="部署 SEO", description="发布包验证", imageId=asset["id"], noIndex=True)))
+        admin.call("admin/contents/" + product["id"] + "/publish", "POST", dict(version=product["version"]))
+        rendered = admin.call("/products/package-product").decode()
+        assert "Docker 验收" in rendered and "部署 SEO" in rendered and "noindex" in rendered
+        admin.call("admin/maintenance/backup", "POST")
+        with zipfile.ZipFile(io.BytesIO(admin.call("admin/maintenance/download"))) as backup:
+            assert json.loads(backup.read("manifest.json"))["Schema"] == manifest["schema"]
+            assert json.loads(backup.read("database/SchemaVersion.json"))[0]["Version"] == manifest["schema"]
+        checks.append("Packaged schema matches actual database and backup; product SEO/fields, asset groups, inquiry definitions and disabled notifications work")
         if args.browser:
             credentials = local / "browser-credentials.json"
             credentials.write_text(json.dumps({"username": "cmsadmin", "password": password}))

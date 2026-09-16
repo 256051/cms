@@ -1,8 +1,11 @@
 import type { NextConfig } from "next";
 
 const config: NextConfig = {
+  // Test runs may build beside the daily output while targeting an isolated API port.
+  distDir: process.env.CMS_TEST_DIST_DIR || ".next",
   output: "standalone",
   poweredByHeader: false,
+  experimental: { proxyClientMaxBodySize: 55_000_000 },
   async rewrites() {
     const api = process.env.API_INTERNAL_URL || "http://127.0.0.1:5080";
     return [

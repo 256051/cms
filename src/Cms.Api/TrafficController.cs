@@ -38,14 +38,18 @@ public sealed class VisitorIdentity(IDataProtectionProvider protection, IWebHost
 
 /// <summary>CSRF-protected anonymous page observations and private inquiry submission.</summary>
 [Route("api/v1/public")]
-[RequestSizeLimit(16384)]
+[RequestSizeLimit(131072)]
 public sealed class PublicTrafficController(TrafficService traffic, VisitorIdentity identity) : ApiController
 {
+    /// <summary>Read additional inquiry field definitions without any customer data.</summary>
+    [HttpGet("inquiry-form")]
+    public async Task<ApiResponse<InquiryFormView>> InquiryForm() => Result(await traffic.InquiryFormAsync());
     /// <summary>Accept one visible public page navigation.</summary>
     [HttpPost("visits")]
     [EnableRateLimiting("traffic")]
     public async Task<ApiResponse<PageVisitReceipt>> Visit(VisitInput input) => Result(await traffic.VisitAsync(
-        identity.Get(HttpContext), input, Request.Headers.UserAgent.ToString(), Request.Host.Host, User.Identity?.IsAuthenticated == true));
+        identity.Get(HttpContext), input, Request.Headers.UserAgent.ToString(), Request.Host.Host,
+        User.Identity?.IsAuthenticated == true, HttpContext.Connection.RemoteIpAddress));
 
     /// <summary>Update cumulative reading observations without incrementing page views.</summary>
     [HttpPost("visits/{id}/reading")]
@@ -71,6 +75,12 @@ public sealed class PublicTrafficController(TrafficService traffic, VisitorIdent
 [Authorize(Roles = "Admin")]
 public sealed class TrafficController(TrafficService traffic) : ApiController
 {
+    /// <summary>Read current inquiry configuration.</summary>
+    [HttpGet("inquiry-form")]
+    public async Task<ApiResponse<InquiryFormView>> InquiryForm() => Result(await traffic.InquiryFormAsync());
+    /// <summary>Save a validated form definition at an expected revision.</summary>
+    [HttpPut("inquiry-form")]
+    public async Task<ApiResponse<InquiryFormView>> SaveInquiryForm(InquiryFormView input) => Result(await traffic.SaveInquiryFormAsync(Actor, input));
     /// <summary>Aggregate public traffic and customer inquiries over a bounded date range.</summary>
     [HttpGet("traffic")]
     public async Task<ApiResponse<TrafficReport>> Report(string? from = null, string? to = null) =>
@@ -86,8 +96,21 @@ public sealed class TrafficController(TrafficService traffic) : ApiController
 
     /// <summary>Page private customer inquiries.</summary>
     [HttpGet("leads")]
-    public async Task<ApiResponse<PageResult<CustomerLead>>> Leads(string status = "", string q = "", int page = 1) =>
-        Result(await traffic.LeadsAsync(status, q, page));
+    public async Task<ApiResponse<PageResult<CustomerLead>>> Leads(string status = "", string q = "", int page = 1, string owner = "", bool overdue = false) =>
+        Result(await traffic.LeadsAsync(status, q, page, owner, overdue));
+
+    /// <summary>Read append-only contact history.</summary>
+    [HttpGet("leads/{id}/followups")]
+    public async Task<ApiResponse<PageResult<LeadFollowUp>>> FollowUps(string id, int page = 1) => Result(await traffic.FollowUpsAsync(id, page));
+
+    /// <summary>Read the overdue contact reminder count.</summary>
+    [HttpGet("leads/overdue-count")]
+    public async Task<ApiResponse<long>> OverdueCount() => Result(await traffic.OverdueLeadsAsync());
+
+    /// <summary>Download a private filtered CSV export.</summary>
+    [HttpGet("leads/export")]
+    public async Task<FileContentResult> Export(string status = "", string q = "", string owner = "", bool overdue = false) =>
+        File(await traffic.ExportLeadsAsync(status, q, owner, overdue), "text/csv; charset=utf-8", "客户咨询.csv");
 
     /// <summary>Save follow-up state and notes at an expected revision.</summary>
     [HttpPut("leads/{id}")]

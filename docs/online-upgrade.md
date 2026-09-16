@@ -1,6 +1,6 @@
 # 线上验证版升级步骤
 
-适用于现有 Linux amd64 Docker 站点。默认 SQLite，API 仍支持其他已配置的数据库。本版包含访问统计、客户咨询、跟进管理和启动时自动升级，数据库版本为 7。
+适用于现有 Linux amd64 Docker 站点。默认 SQLite，API 仍支持其他已配置的数据库。当前包含页面搭建、公共区块、SEO、附件整理、产品／案例及自定义咨询表单等，数据库版本为 14；完整功能和通知配置见 [页面搭建与业务工具](next-enhancements.md)。
 
 ## 1. 准备与备份
 
@@ -11,7 +11,18 @@
 
 ## 2. 导入并启动
 
-以下在新包目录执行，适用于原来由同机宿主 Nginx 处理 HTTPS 的站点：
+**如果原站使用 `docker-compose.yml`、`./cms-data:/data` 和宿主 Nginx（如前端端口 8090），继续使用原部署目录和原文件。** 导入新包的 `images.tar`，把 `compose.upgrade.yaml` 复制到原部署目录，仅覆盖镜像：
+
+```sh
+docker compose -f docker-compose.yml -f compose.upgrade.yaml config --quiet
+docker compose -f docker-compose.yml -f compose.upgrade.yaml up -d --no-build api web
+docker compose -f docker-compose.yml -f compose.upgrade.yaml logs --tail 100 api web
+curl --fail http://127.0.0.1:5080/health/ready
+```
+
+原站如果有更多 Compose 覆盖文件，保留它们，将 `compose.upgrade.yaml` 放最后；后续重启等操作保持同样参数。相对数据路径始终由原 Compose 所在目录解析，避免误连空库。
+
+以下方案只适用于原站本来就使用包内 `compose.yaml` 和命名卷，在新包目录执行：
 
 ```sh
 docker load -i images.tar
@@ -31,6 +42,8 @@ curl --fail http://127.0.0.1:5080/health/ready
 3. 查看“访问统计”和“访客记录”，检查浏览量、独立访客、来源及浏览轨迹。
 4. 前台提交一条测试咨询，后台“客户咨询”应收到记录；保存跟进状态和备注，刷新后检查回显。
 5. 重启 API，确认文章计数、客户咨询和跟进内容仍保留。验证完可删除测试咨询。
+6. 检查附件选择预览、分组与裁剪另存；新建产品／案例，配置咨询附加字段并核对后台详情。
+7. 检查页面搭建、公共区块和 SEO；修改测试页面地址后发布，验证旧链接跳转。通知默认关闭，需配置邮件／企业微信后才会发送。
 
 历史浏览量不会自动补齐。本功能从启用后开始统计；仅刷新旧镜像不会获得新功能，必须加载新包并使用其中的新镜像版本。
 

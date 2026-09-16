@@ -59,7 +59,8 @@ test("editorial lifecycle, server HTML, mobile layout and keyboard navigation", 
   await page
     .getByRole("button", { name: "从附件库插入图片", exact: true })
     .click();
-  await page.getByLabel("选择已有图片插入正文").selectOption({ index: 1 });
+  await page.getByRole("dialog", { name: "插入图片", exact: true }).getByRole("radio", { name: "browser.png", exact: true }).check();
+  await page.getByRole("button", { name: /插入所选/ }).click();
   await expect(page.locator(".tiptap img")).toHaveCount(2);
   await page.getByRole("button", { name: "保存草稿", exact: true }).click();
   await expect(page).toHaveURL(/\/admin\/posts\/[a-f0-9]{32}$/);

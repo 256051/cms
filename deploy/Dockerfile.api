@@ -5,8 +5,8 @@ RUN dotnet restore src/Cms.Api/Cms.Api.csproj --locked-mode && dotnet publish sr
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 COPY --from=build /out .
-RUN mkdir -p /data/uploads /data/keys && chown -R app:app /data
-ENV Urls=http://0.0.0.0:8080 Storage__Path=/data/uploads Security__KeyPath=/data/keys
+RUN mkdir -p /data/uploads /data/keys /data/backups && chown -R app:app /data
+ENV Urls=http://0.0.0.0:8080 Storage__Path=/data/uploads Security__KeyPath=/data/keys Maintenance__BackupPath=/data/backups
 USER app
 EXPOSE 8080
 ENTRYPOINT ["dotnet", "Cms.Api.dll"]

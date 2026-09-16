@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "http://127.0.0.1:62452/"
+      "url": "http://127.0.0.1:58613/"
     }
   ],
   "paths": {
@@ -30,6 +30,97 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/contents/export": {
+      "post": {
+        "tags": [
+          "ContentTransfer"
+        ],
+        "summary": "Download selected or filtered drafts and their required files as a ZIP package.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentExportInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentExportInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentExportInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/contents/import": {
+      "post": {
+        "tags": [
+          "ContentTransfer"
+        ],
+        "summary": "Import a matching content package into new drafts without replacing existing data.",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "file": {
+                        "$ref": "#/components/schemas/IFormFile"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentImportResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentImportResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentImportResult"
+                }
+              }
+            }
           }
         }
       }
@@ -445,6 +536,28 @@
               "type": "string",
               "default": "recent"
             }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tagId",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -668,6 +781,176 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/templates/{id}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Read a published reusable layout through an authenticated editorial session.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/blocks/{id}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Read a published reusable block for the page builder.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/blocks/{id}/references": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List retained uses of a synchronized block.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfBlockReference"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfBlockReference"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfBlockReference"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/layout-preview": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Resolve an unsaved layout using only published reusable blocks.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageLayout"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageLayout"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/PageLayout"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageLayout"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageLayout"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageLayout"
                 }
               }
             }
@@ -986,6 +1269,30 @@
               "format": "int32",
               "default": 1
             }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "group",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
           }
         ],
         "responses": {
@@ -1021,11 +1328,25 @@
             "multipart/form-data": {
               "schema": {
                 "type": "object",
-                "properties": {
-                  "file": {
-                    "$ref": "#/components/schemas/IFormFile"
+                "allOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "file": {
+                        "$ref": "#/components/schemas/IFormFile"
+                      }
+                    }
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "group": {
+                        "type": "string",
+                        "default": ""
+                      }
+                    }
                   }
-                }
+                ]
               }
             }
           },
@@ -1055,7 +1376,95 @@
         }
       }
     },
+    "/api/v1/admin/assets/groups": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "List existing attachment groups for pickers.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfstring"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfstring"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfListOfstring"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/assets/{id}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Rename or regroup an attachment without changing its media URL.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssetMetadataInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssetMetadataInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssetMetadataInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAssetView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAssetView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAssetView"
+                }
+              }
+            }
+          }
+        }
+      },
       "delete": {
         "tags": [
           "Admin"
@@ -1088,6 +1497,481 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/assets/{id}/references": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Locate retained attachment references.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfAssetReference"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfAssetReference"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfAssetReference"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/contents/{id}/revisions": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Read content history.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfRevisionView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfRevisionView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfRevisionView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/contents/{id}/revisions/{revision}": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Read a historical snapshot.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "revision",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/contents/{id}/revisions/{revision}/restore": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Restore history to the current draft.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "revision",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/contents/{id}/restore": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Recover a recycled item as a draft.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/contents/{id}/purge": {
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Permanently remove a recycled item and its comments and history.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/contents/{id}/duplicate": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Duplicate editorial content as a new draft.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/contents/batch": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Perform an atomic content batch operation.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentBatchInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentBatchInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentBatchInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/contents/{id}/schedule": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Set or cancel publication and withdrawal schedules.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentScheduleInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentScheduleInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContentScheduleInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
                 }
               }
             }
@@ -1769,6 +2653,76 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfPageResultOfAuditEntry"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/home": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Read the selected published home page, or null for the built-in blog home.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/contents/{slug}/discovery": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Discover related content and chronological neighbors using published snapshots only.",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentDiscovery"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentDiscovery"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfContentDiscovery"
                 }
               }
             }
@@ -2790,6 +3744,220 @@
         }
       }
     },
+    "/api/v1/admin/maintenance": {
+      "get": {
+        "tags": [
+          "Maintenance"
+        ],
+        "summary": "Read schedule settings and the latest backup result.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfMaintenanceView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfMaintenanceView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfMaintenanceView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/maintenance/backup": {
+      "post": {
+        "tags": [
+          "Maintenance"
+        ],
+        "summary": "Create a complete portable backup.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfMaintenanceView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfMaintenanceView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfMaintenanceView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/maintenance/download": {
+      "get": {
+        "tags": [
+          "Maintenance"
+        ],
+        "summary": "Download the last successful archive.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/notifications/settings": {
+      "get": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Read redacted deployment configuration status.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfNotificationSettings"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfNotificationSettings"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfNotificationSettings"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/notifications": {
+      "get": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Read delivery outcomes.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfNotificationDelivery"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfNotificationDelivery"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfNotificationDelivery"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/notifications/{id}/retry": {
+      "post": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Requeue one failed event without sending successful events again.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/inquiry-form": {
+      "get": {
+        "tags": [
+          "PublicTraffic"
+        ],
+        "summary": "Read additional inquiry field definitions without any customer data.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfInquiryFormView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfInquiryFormView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfInquiryFormView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/public/visits": {
       "post": {
         "tags": [
@@ -3010,6 +4178,84 @@
         }
       }
     },
+    "/api/v1/admin/inquiry-form": {
+      "get": {
+        "tags": [
+          "Traffic"
+        ],
+        "summary": "Read current inquiry configuration.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfInquiryFormView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfInquiryFormView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfInquiryFormView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Traffic"
+        ],
+        "summary": "Save a validated form definition at an expected revision.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InquiryFormView"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InquiryFormView"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/InquiryFormView"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfInquiryFormView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfInquiryFormView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfInquiryFormView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/traffic": {
       "get": {
         "tags": [
@@ -3177,6 +4423,22 @@
               "format": "int32",
               "default": 1
             }
+          },
+          {
+            "name": "owner",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "overdue",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           }
         ],
         "responses": {
@@ -3199,6 +4461,132 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/leads/{id}/followups": {
+      "get": {
+        "tags": [
+          "Traffic"
+        ],
+        "summary": "Read append-only contact history.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfLeadFollowUp"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfLeadFollowUp"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfLeadFollowUp"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/leads/overdue-count": {
+      "get": {
+        "tags": [
+          "Traffic"
+        ],
+        "summary": "Read the overdue contact reminder count.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOflong"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOflong"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOflong"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/leads/export": {
+      "get": {
+        "tags": [
+          "Traffic"
+        ],
+        "summary": "Download a private filtered CSV export.",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "owner",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "overdue",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -3518,6 +4906,68 @@
         },
         "description": "Consistent HTTP response envelope."
       },
+      "ApiResponseOfContentDiscovery": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContentDiscovery"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfContentImportResult": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContentImportResult"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
       "ApiResponseOfContentView": {
         "required": [
           "code",
@@ -3580,6 +5030,37 @@
         },
         "description": "Consistent HTTP response envelope."
       },
+      "ApiResponseOfInquiryFormView": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/InquiryFormView"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
       "ApiResponseOfIntegrationPublication": {
         "required": [
           "code",
@@ -3604,6 +5085,66 @@
                 "$ref": "#/components/schemas/IntegrationPublication"
               }
             ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfIReadOnlyListOfAssetReference": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/AssetReference"
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfIReadOnlyListOfBlockReference": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/BlockReference"
+            }
           },
           "traceId": {
             "type": "string"
@@ -3732,6 +5273,36 @@
         },
         "description": "Consistent HTTP response envelope."
       },
+      "ApiResponseOfListOfstring": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
       "ApiResponseOfListOfTaxonomy": {
         "required": [
           "code",
@@ -3762,6 +5333,62 @@
         },
         "description": "Consistent HTTP response envelope."
       },
+      "ApiResponseOflong": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfMaintenanceView": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/MaintenanceView"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
       "ApiResponseOfMenuView": {
         "required": [
           "code",
@@ -3784,6 +5411,68 @@
               },
               {
                 "$ref": "#/components/schemas/MenuView"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfNotificationSettings": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/NotificationSettings"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfPageLayout": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageLayout"
               }
             ]
           },
@@ -3979,6 +5668,37 @@
         },
         "description": "Consistent HTTP response envelope."
       },
+      "ApiResponseOfPageResultOfLeadFollowUp": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageResultOfLeadFollowUp"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
       "ApiResponseOfPageResultOfMenuTarget": {
         "required": [
           "code",
@@ -4010,6 +5730,37 @@
         },
         "description": "Consistent HTTP response envelope."
       },
+      "ApiResponseOfPageResultOfNotificationDelivery": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageResultOfNotificationDelivery"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
       "ApiResponseOfPageResultOfPageVisit": {
         "required": [
           "code",
@@ -4032,6 +5783,37 @@
               },
               {
                 "$ref": "#/components/schemas/PageResultOfPageVisit"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfPageResultOfRevisionView": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageResultOfRevisionView"
               }
             ]
           },
@@ -4351,6 +6133,63 @@
         },
         "description": "Consistent HTTP response envelope."
       },
+      "AssetMetadataInput": {
+        "required": [
+          "name",
+          "group",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "group": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Rename or regroup metadata without changing attachment content."
+      },
+      "AssetReference": {
+        "required": [
+          "contentId",
+          "kind",
+          "title",
+          "source",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "contentId": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "version": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int32"
+          },
+          "deleted": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "description": "Human-readable attachment reference location."
+      },
       "AssetView": {
         "required": [
           "id",
@@ -4381,6 +6220,15 @@
           },
           "url": {
             "type": "string"
+          },
+          "group": {
+            "type": "string",
+            "default": ""
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
           }
         },
         "description": "Browser-visible file metadata."
@@ -4427,6 +6275,34 @@
           }
         },
         "description": "Successful write audit; never stores passwords or content."
+      },
+      "BlockReference": {
+        "required": [
+          "contentId",
+          "kind",
+          "title",
+          "source",
+          "deleted"
+        ],
+        "type": "object",
+        "properties": {
+          "contentId": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "deleted": {
+            "type": "boolean"
+          }
+        },
+        "description": "A retained page or template that uses a synchronized block."
       },
       "CaptchaView": {
         "required": [
@@ -4500,6 +6376,148 @@
         },
         "description": "Public comment input."
       },
+      "ContentBatchInput": {
+        "required": [
+          "action",
+          "items"
+        ],
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentSelection"
+            }
+          },
+          "categoryId": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        "description": "Atomic category change or withdrawal of at most one hundred items."
+      },
+      "ContentDiscovery": {
+        "required": [
+          "previous",
+          "next",
+          "related"
+        ],
+        "type": "object",
+        "properties": {
+          "previous": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContentView"
+              }
+            ]
+          },
+          "next": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContentView"
+              }
+            ]
+          },
+          "related": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ContentView"
+            }
+          }
+        },
+        "description": "Public navigation around one published article."
+      },
+      "ContentExportInput": {
+        "required": [
+          "kind"
+        ],
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "ids": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          },
+          "q": {
+            "type": "string",
+            "default": ""
+          },
+          "status": {
+            "type": "string",
+            "default": ""
+          },
+          "categoryId": {
+            "type": "string",
+            "default": ""
+          },
+          "tagId": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        "description": "Export explicit selections or all matching nondeleted drafts, independently of pagination."
+      },
+      "ContentField": {
+        "required": [
+          "key",
+          "label",
+          "value"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "description": "Ordered plain-text business attribute, with a stable key and historical display label."
+      },
+      "ContentImportResult": {
+        "required": [
+          "items",
+          "assets",
+          "renamed"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ImportedContent"
+            }
+          },
+          "assets": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "renamed": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Committed import result, including newly stored attachments."
+      },
       "ContentInput": {
         "required": [
           "kind",
@@ -4544,9 +6562,106 @@
           "version": {
             "type": "integer",
             "format": "int32"
+          },
+          "layout": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageLayout"
+              }
+            ]
+          },
+          "seo": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContentSeo"
+              }
+            ]
+          },
+          "fields": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/ContentField"
+            }
           }
         },
         "description": "Editorial input with optimistic version."
+      },
+      "ContentScheduleInput": {
+        "required": [
+          "version",
+          "publishAt",
+          "unpublishAt"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "publishAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "unpublishAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          }
+        },
+        "description": "Frozen publication and withdrawal times; null cancels the corresponding schedule."
+      },
+      "ContentSelection": {
+        "required": [
+          "id",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "One selected expected revision in a batch."
+      },
+      "ContentSeo": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "default": ""
+          },
+          "description": {
+            "type": "string",
+            "default": ""
+          },
+          "imageId": {
+            "type": "string",
+            "default": ""
+          },
+          "noIndex": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "description": "Optional page metadata; empty values fall back to visible title, summary and cover."
       },
       "ContentView": {
         "required": [
@@ -4623,6 +6738,74 @@
             "type": "integer",
             "format": "int64",
             "default": 0
+          },
+          "updatedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "lastPublishedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "deletedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "scheduledPublishAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "scheduledUnpublishAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "layout": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageLayout"
+              }
+            ]
+          },
+          "seo": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ContentSeo"
+              }
+            ]
+          },
+          "fields": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/ContentField"
+            }
+          },
+          "publicSlug": {
+            "type": "string",
+            "default": ""
           }
         },
         "description": "Immutable sanitized content snapshot."
@@ -4630,6 +6813,22 @@
       "CustomerLead": {
         "type": "object",
         "properties": {
+          "fieldsJson": {
+            "type": "string",
+            "description": "Submitted additional fields with their labels at submission time."
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Assigned enabled administrator."
+          },
+          "nextContactAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Next planned contact, in UTC.",
+            "format": "date-time"
+          },
           "visitorId": {
             "type": "string",
             "description": "Browser identity for retry ownership; not a verified person."
@@ -4705,6 +6904,83 @@
         "type": "string",
         "format": "binary"
       },
+      "ImportedContent": {
+        "required": [
+          "id",
+          "title",
+          "sourceSlug",
+          "slug"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "sourceSlug": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          }
+        },
+        "description": "One newly imported draft and any changed reading address."
+      },
+      "InquiryField": {
+        "required": [
+          "key",
+          "label"
+        ],
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "default": "text"
+          },
+          "required": {
+            "type": "boolean",
+            "default": false
+          },
+          "options": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "A bounded additional inquiry field; types are native controls and cannot contain executable content."
+      },
+      "InquiryFormView": {
+        "required": [
+          "fields"
+        ],
+        "type": "object",
+        "properties": {
+          "fields": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InquiryField"
+            }
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          }
+        },
+        "description": "Versioned public form definition."
+      },
       "IntegrationPublication": {
         "required": [
           "content",
@@ -4736,6 +7012,49 @@
           }
         },
         "description": "The secret is returned only in this issuance response."
+      },
+      "LeadFollowUp": {
+        "type": "object",
+        "properties": {
+          "leadId": {
+            "type": "string",
+            "description": "Parent inquiry."
+          },
+          "actor": {
+            "type": "string",
+            "description": "Operator display name."
+          },
+          "status": {
+            "type": "string",
+            "description": "State at this follow-up."
+          },
+          "notes": {
+            "type": "string",
+            "description": "Recorded notes."
+          },
+          "ownerId": {
+            "type": "string",
+            "description": "Assigned administrator."
+          },
+          "nextContactAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Planned next contact.",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "description": "Opaque portable identifier."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "UTC creation timestamp.",
+            "format": "date-time"
+          }
+        },
+        "description": "Append-only private inquiry follow-up."
       },
       "LeadInput": {
         "required": [
@@ -4785,6 +7104,15 @@
           "website": {
             "type": "string",
             "default": ""
+          },
+          "fields": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "additionalProperties": {
+              "type": "string"
+            }
           }
         },
         "description": "Customer-supplied inquiry; contact data never appears in its receipt."
@@ -4806,6 +7134,17 @@
           "version": {
             "type": "integer",
             "format": "int32"
+          },
+          "ownerId": {
+            "type": "string",
+            "default": ""
+          },
+          "nextContactAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
           }
         },
         "description": "Private follow-up changes with optimistic concurrency."
@@ -4833,6 +7172,75 @@
           }
         },
         "description": "Login credentials."
+      },
+      "MaintenanceState": {
+        "type": "object",
+        "properties": {
+          "lastAttemptAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Last backup attempt.",
+            "format": "date-time"
+          },
+          "lastSuccessAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Last fully written archive.",
+            "format": "date-time"
+          },
+          "error": {
+            "type": "string",
+            "description": "Failure summary without secrets."
+          },
+          "fileName": {
+            "type": "string",
+            "description": "Archive basename."
+          },
+          "trafficSince": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Oldest retained traffic detail time.",
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string",
+            "description": "Opaque portable identifier."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "UTC creation timestamp.",
+            "format": "date-time"
+          }
+        },
+        "description": "Backup attempts and retention boundary for the administration panel."
+      },
+      "MaintenanceView": {
+        "required": [
+          "state",
+          "backupIntervalHours",
+          "trafficRetentionDays"
+        ],
+        "type": "object",
+        "properties": {
+          "state": {
+            "$ref": "#/components/schemas/MaintenanceState"
+          },
+          "backupIntervalHours": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "trafficRetentionDays": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Backup status plus deployment-managed schedules."
       },
       "MenuInput": {
         "required": [
@@ -4957,6 +7365,317 @@
           }
         },
         "description": "Comment moderation input."
+      },
+      "NotificationDelivery": {
+        "type": "object",
+        "properties": {
+          "eventKey": {
+            "type": "string",
+            "description": "Stable source event identity, without credentials or customer contact details."
+          },
+          "channel": {
+            "type": "string",
+            "description": "Delivery transport."
+          },
+          "kind": {
+            "type": "string",
+            "description": "Event classification."
+          },
+          "targetId": {
+            "type": "string",
+            "description": "Source object."
+          },
+          "title": {
+            "type": "string",
+            "description": "Safe event heading."
+          },
+          "path": {
+            "type": "string",
+            "description": "Relative administrator destination; never an arbitrary external URL."
+          },
+          "occurredAt": {
+            "type": "string",
+            "description": "Original source occurrence used to detect resolved or superseded alerts.",
+            "format": "date-time"
+          },
+          "attempts": {
+            "type": "integer",
+            "description": "Lifetime delivery attempts.",
+            "format": "int32"
+          },
+          "remainingAttempts": {
+            "type": "integer",
+            "description": "Remaining attempts in the current retry round.",
+            "format": "int32"
+          },
+          "nextAttemptAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Next retry, or null when completed or exhausted.",
+            "format": "date-time"
+          },
+          "lastAttemptAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Latest transport attempt.",
+            "format": "date-time"
+          },
+          "sentAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Confirmed successful delivery.",
+            "format": "date-time"
+          },
+          "status": {
+            "type": "string",
+            "description": "Queued, sent, failed or cancelled."
+          },
+          "error": {
+            "type": "string",
+            "description": "Redacted error safe for the administrative UI."
+          },
+          "id": {
+            "type": "string",
+            "description": "Opaque portable identifier."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "UTC creation timestamp.",
+            "format": "date-time"
+          }
+        },
+        "description": "Durable per-channel delivery with bounded retries and event deduplication."
+      },
+      "NotificationSettings": {
+        "required": [
+          "enabled",
+          "emailEnabled",
+          "weComEnabled",
+          "siteUrl",
+          "errors"
+        ],
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "emailEnabled": {
+            "type": "boolean"
+          },
+          "weComEnabled": {
+            "type": "boolean"
+          },
+          "siteUrl": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "Credential-free notification configuration status."
+      },
+      "PageBlock": {
+        "required": [
+          "id",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "default": ""
+          },
+          "text": {
+            "type": "string",
+            "default": ""
+          },
+          "imageId": {
+            "type": "string",
+            "default": ""
+          },
+          "imageAlt": {
+            "type": "string",
+            "default": ""
+          },
+          "linkText": {
+            "type": "string",
+            "default": ""
+          },
+          "linkUrl": {
+            "type": "string",
+            "default": ""
+          },
+          "items": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/PageBlockItem"
+            }
+          },
+          "categoryId": {
+            "type": "string",
+            "default": ""
+          },
+          "limit": {
+            "type": "integer",
+            "format": "int32",
+            "default": 6
+          },
+          "columns": {
+            "type": "integer",
+            "format": "int32",
+            "default": 3
+          },
+          "tone": {
+            "type": "string",
+            "default": "plain"
+          },
+          "align": {
+            "type": "string",
+            "default": "left"
+          },
+          "spacing": {
+            "type": "string",
+            "default": "normal"
+          },
+          "hidden": {
+            "type": "boolean",
+            "default": false
+          },
+          "html": {
+            "type": "string",
+            "default": ""
+          },
+          "mobile": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageBlockMobile"
+              }
+            ]
+          },
+          "sharedId": {
+            "type": "string",
+            "default": ""
+          },
+          "contentKind": {
+            "type": "string",
+            "default": "post"
+          }
+        },
+        "description": "One bounded page section; presentation choices are named tokens rather than CSS or code."
+      },
+      "PageBlockItem": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "default": ""
+          },
+          "text": {
+            "type": "string",
+            "default": ""
+          },
+          "imageId": {
+            "type": "string",
+            "default": ""
+          },
+          "imageAlt": {
+            "type": "string",
+            "default": ""
+          },
+          "linkText": {
+            "type": "string",
+            "default": ""
+          },
+          "linkUrl": {
+            "type": "string",
+            "default": ""
+          }
+        },
+        "description": "A card or frequently asked question in a page section."
+      },
+      "PageBlockMobile": {
+        "type": "object",
+        "properties": {
+          "align": {
+            "type": "string",
+            "default": ""
+          },
+          "spacing": {
+            "type": "string",
+            "default": ""
+          },
+          "columns": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          },
+          "textSize": {
+            "type": "string",
+            "default": ""
+          },
+          "hidden": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "description": "Optional narrow-screen overrides; empty tokens inherit the desktop presentation."
+      },
+      "PageLayout": {
+        "required": [
+          "blocks"
+        ],
+        "type": "object",
+        "properties": {
+          "blocks": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PageBlock"
+            }
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "default": 1
+          },
+          "width": {
+            "type": "string",
+            "default": "wide"
+          },
+          "showTitle": {
+            "type": "boolean",
+            "default": false
+          },
+          "showHeader": {
+            "type": "boolean",
+            "default": true
+          },
+          "showFooter": {
+            "type": "boolean",
+            "default": true
+          }
+        },
+        "description": "A versioned, non-executable page composition stored with the content snapshot."
       },
       "PageResultOfAccessTokenView": {
         "required": [
@@ -5138,6 +7857,36 @@
         },
         "description": "Server-side paginated result."
       },
+      "PageResultOfLeadFollowUp": {
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LeadFollowUp"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Server-side paginated result."
+      },
       "PageResultOfMenuTarget": {
         "required": [
           "items",
@@ -5168,6 +7917,36 @@
         },
         "description": "Server-side paginated result."
       },
+      "PageResultOfNotificationDelivery": {
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationDelivery"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Server-side paginated result."
+      },
       "PageResultOfPageVisit": {
         "required": [
           "items",
@@ -5181,6 +7960,36 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PageVisit"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Server-side paginated result."
+      },
+      "PageResultOfRevisionView": {
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RevisionView"
             }
           },
           "total": {
@@ -5258,6 +8067,14 @@
           "device": {
             "type": "string",
             "description": "Coarse device category."
+          },
+          "ipAddress": {
+            "type": "string",
+            "description": "Normalized server-observed IP at the time of this visit; empty for historical records."
+          },
+          "location": {
+            "type": "string",
+            "description": "Approximate region resolved when the visit was recorded; never backfilled from a later visit."
           },
           "activeSeconds": {
             "type": "integer",
@@ -5372,6 +8189,40 @@
         },
         "description": "Absolute, monotonic reading observations for one page lifecycle."
       },
+      "RevisionView": {
+        "required": [
+          "id",
+          "version",
+          "action",
+          "actor",
+          "title",
+          "createdAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "action": {
+            "type": "string"
+          },
+          "actor": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "description": "Compact history entry without transferring the full body."
+      },
       "SettingsInput": {
         "required": [
           "title",
@@ -5449,6 +8300,10 @@
             "type": "integer",
             "format": "int32",
             "default": 0
+          },
+          "homePageId": {
+            "type": "string",
+            "default": ""
           }
         },
         "description": "Public site settings input."
@@ -5488,6 +8343,10 @@
             "type": "integer",
             "description": "Home page list size.",
             "format": "int32"
+          },
+          "homePageId": {
+            "type": "string",
+            "description": "Optional published standalone page displayed at the site root."
           },
           "categoryPageSize": {
             "type": "integer",
@@ -6036,6 +8895,14 @@
             "type": "string",
             "description": "Most recent coarse device category."
           },
+          "ipAddress": {
+            "type": "string",
+            "description": "Normalized IP of the most recent accepted visit; empty for historical records."
+          },
+          "location": {
+            "type": "string",
+            "description": "Approximate country, province and city, or a local/unknown address label."
+          },
           "id": {
             "type": "string",
             "description": "Opaque portable identifier."
@@ -6046,7 +8913,7 @@
             "format": "date-time"
           }
         },
-        "description": "First-party pseudonymous browser profile; contains no IP or contact details."
+        "description": "First-party browser profile and latest observed network; administrator access only."
       },
       "VisitReceipt": {
         "required": [
@@ -6074,6 +8941,9 @@
       "name": "Cms.Api"
     },
     {
+      "name": "ContentTransfer"
+    },
+    {
       "name": "Auth"
     },
     {
@@ -6087,6 +8957,12 @@
     },
     {
       "name": "AccessTokens"
+    },
+    {
+      "name": "Maintenance"
+    },
+    {
+      "name": "Notification"
     },
     {
       "name": "PublicTraffic"

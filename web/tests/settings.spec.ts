@@ -38,7 +38,9 @@ test("site settings groups, protected saves, public metadata, pagination and com
   await page.getByLabel("站点名称", { exact: true }).fill("慢读 · 内容站");
   await page.getByLabel("站点副标题", { exact: true }).fill("记录思考，分享日常");
   await page.getByRole("textbox", { name: "站点介绍", exact: true }).fill("站点设置验收介绍。");
-  await page.getByLabel("浏览器图标 Favicon", { exact: true }).selectOption(icon.id);
+  await page.getByRole("button", { name: "浏览器图标 Favicon", exact: true }).click();
+  await page.getByRole("dialog").getByRole("radio", { name: "favicon-settings.png", exact: true }).check();
+  await page.getByRole("button", { name: /使用所选图片/ }).click();
   await page.getByLabel("内容语言", { exact: true }).selectOption("en");
   for (const [label, size] of [["首页文章条数", 2], ["分类页文章条数", 3], ["标签页文章条数", 4], ["搜索结果条数", 5]] as const)
     await page.getByLabel(label, { exact: true }).fill(String(size));

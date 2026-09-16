@@ -88,6 +88,7 @@ export function Pager({
         共 {data.total} 条 · 第 {data.page} 页
       </span>
       <button
+        type="button"
         className="secondary"
         disabled={data.page <= 1}
         onClick={() => setPage(data.page - 1)}
@@ -95,6 +96,7 @@ export function Pager({
         上一页
       </button>
       <button
+        type="button"
         className="secondary"
         disabled={data.page * data.pageSize >= data.total}
         onClick={() => setPage(data.page + 1)}

@@ -124,6 +124,11 @@
           "AngleSharp.Css": "1.0.2"
         }
       },
+      "IP2Region.Net": {
+        "type": "Transitive",
+        "resolved": "3.0.2",
+        "contentHash": "YwBTQty+kZnsVzTW2mAsrx7EsDdZcTDmsNv1/giwyeu5qFq6OneygiNKoh5C9zPvpA3EQ6b+LdPiNJvdz7LH7w=="
+      },
       "Mapster": {
         "type": "Transitive",
         "resolved": "10.0.12",
@@ -384,6 +389,7 @@
           "Cms.Data": "[1.0.0, )",
           "FluentValidation": "[12.1.1, )",
           "HtmlSanitizer": "[9.2.1039, )",
+          "IP2Region.Net": "[3.0.2, )",
           "Mapster": "[10.0.12, )",
           "Microsoft.IdentityModel.JsonWebTokens": "[8.14.0, )"
         }

@@ -18,6 +18,12 @@
           "AngleSharp.Css": "1.0.2"
         }
       },
+      "IP2Region.Net": {
+        "type": "Direct",
+        "requested": "[3.0.2, )",
+        "resolved": "3.0.2",
+        "contentHash": "YwBTQty+kZnsVzTW2mAsrx7EsDdZcTDmsNv1/giwyeu5qFq6OneygiNKoh5C9zPvpA3EQ6b+LdPiNJvdz7LH7w=="
+      },
       "Mapster": {
         "type": "Direct",
         "requested": "[10.0.12, )",

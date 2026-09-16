@@ -14,9 +14,9 @@ public record VisitReceipt(string Id);
 public record PageVisitReceipt(string Id, long Views);
 /// <summary>Customer-supplied inquiry; contact data never appears in its receipt.</summary>
 public record LeadInput(string Id, string Path, string Name, string Contact, string Organization, string Need,
-    bool Consent, string VisitId = "", string Referrer = "", string Campaign = "", string Website = "");
+    bool Consent, string VisitId = "", string Referrer = "", string Campaign = "", string Website = "", Dictionary<string, string>? Fields = null);
 /// <summary>Private follow-up changes with optimistic concurrency.</summary>
-public record LeadUpdateInput(string Status, string Notes, int Version);
+public record LeadUpdateInput(string Status, string Notes, int Version, string OwnerId = "", DateTime? NextContactAt = null);
 /// <summary>Daily traffic and successful inquiries.</summary>
 public record TrafficDay(string Day, long Views, long Visitors, long Leads);
 /// <summary>Period and lifetime metrics plus database-aggregated chart series.</summary>

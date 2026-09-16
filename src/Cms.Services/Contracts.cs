@@ -23,7 +23,8 @@ public record ContentInput(
     string CoverId,
     string CategoryId,
     string[] TagIds,
-    int Version);
+    int Version,
+    PageLayout? Layout = null, ContentSeo? Seo = null, ContentField[]? Fields = null);
 
 /// <summary>Immutable sanitized content snapshot.</summary>
 public record ContentView(
@@ -41,10 +42,36 @@ public record ContentView(
     DateTime? PublishedAt,
     long Views = 0,
     long TodayViews = 0,
-    long Visitors = 0);
+    long Visitors = 0,
+    DateTime? UpdatedAt = null,
+    DateTime? LastPublishedAt = null,
+    DateTime? DeletedAt = null,
+    DateTime? ScheduledPublishAt = null,
+    DateTime? ScheduledUnpublishAt = null,
+    PageLayout? Layout = null, ContentSeo? Seo = null, ContentField[]? Fields = null, string PublicSlug = "");
+
+/// <summary>Ordered plain-text business attribute, with a stable key and historical display label.</summary>
+public record ContentField(string Key, string Label, string Value);
+
+/// <summary>Optional page metadata; empty values fall back to visible title, summary and cover.</summary>
+public record ContentSeo(string Title = "", string Description = "", string ImageId = "", bool NoIndex = false);
+
+/// <summary>Frozen publication and withdrawal times; null cancels the corresponding schedule.</summary>
+public record ContentScheduleInput(int Version, DateTime? PublishAt, DateTime? UnpublishAt);
+/// <summary>One selected expected revision in a batch.</summary>
+public record ContentSelection(string Id, int Version);
+/// <summary>Atomic category change or withdrawal of at most one hundred items.</summary>
+public record ContentBatchInput(string Action, ContentSelection[] Items, string CategoryId = "");
+/// <summary>Compact history entry without transferring the full body.</summary>
+public record RevisionView(string Id, int Version, string Action, string Actor, string Title, DateTime CreatedAt);
+/// <summary>Public navigation around one published article.</summary>
+public record ContentDiscovery(ContentView? Previous, ContentView? Next, IReadOnlyList<ContentView> Related);
 
 /// <summary>Version required for publish, unpublish and delete.</summary>
 public record VersionInput(int Version);
+
+/// <summary>Human-readable attachment reference location.</summary>
+public record AssetReference(string ContentId, string Kind, string Title, string Source, int? Version, bool Deleted = false);
 
 /// <summary>Category/tag input.</summary>
 public record TaxonomyInput(string Kind, string Name, string Slug);
@@ -106,7 +133,8 @@ public record SettingsInput(
     bool RequireCommentApproval = true,
     bool CommentsRequireLogin = false,
     string FooterText = "",
-    int Version = 0);
+    int Version = 0,
+    string HomePageId = "");
 
 /// <summary>Validate bounded, non-executable site settings.</summary>
 public sealed class SettingsValidator : AbstractValidator<SettingsInput>
@@ -121,6 +149,7 @@ public sealed class SettingsValidator : AbstractValidator<SettingsInput>
         RuleFor(x => x.FooterText).NotNull().MaximumLength(500).Must(Plain);
         RuleFor(x => x.LogoId).NotNull().MaximumLength(32);
         RuleFor(x => x.FaviconId).NotNull().MaximumLength(32);
+        RuleFor(x => x.HomePageId).NotNull().Must(x => x == "" || System.Text.RegularExpressions.Regex.IsMatch(x, "^[a-f0-9]{32}$"));
         RuleFor(x => x.Language).Must(x => x is "zh-CN" or "zh-TW" or "en");
         RuleFor(x => x.HomePageSize).InclusiveBetween(1, 50);
         RuleFor(x => x.CategoryPageSize).InclusiveBetween(1, 50);
@@ -140,7 +169,10 @@ public sealed class SettingsValidator : AbstractValidator<SettingsInput>
 public record FileView(string Path, string ContentType, string Name);
 
 /// <summary>Browser-visible file metadata.</summary>
-public record AssetView(string Id, string Name, string ContentType, long Size, DateTime CreatedAt, string Url);
+public record AssetView(string Id, string Name, string ContentType, long Size, DateTime CreatedAt, string Url, string Group = "", int Version = 1);
+
+/// <summary>Rename or regroup metadata without changing attachment content.</summary>
+public record AssetMetadataInput(string Name, string Group, int Version);
 
 /// <summary>Live overview counts.</summary>
 public record StatsView(long Posts, long Published, long Pages, long PendingComments, long Assets);
@@ -164,7 +196,9 @@ public class ContentValidator : AbstractValidator<ContentInput>
     /// <summary>Define portable content constraints.</summary>
     public ContentValidator()
     {
-        RuleFor(x => x.Kind).Must(x => x is "post" or "page");
+        RuleFor(x => x.Kind).Must(x => x is "post" or "page" or "template" or "block" or "product" or "case");
+        RuleFor(x => x.Layout).Null().When(x => x.Kind == "post");
+        RuleFor(x => x.Layout).NotNull().When(x => x.Kind is "template" or "block");
         RuleFor(x => x.Slug).NotEmpty().MaximumLength(160).Matches("^[a-z0-9]+(?:-[a-z0-9]+)*$");
         RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
         RuleFor(x => x.Summary).NotNull().MaximumLength(500);

@@ -43,8 +43,8 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
     public async Task<PageResult<MenuTarget>> MenuTargetsAsync(string type, string? query, int page)
     {
         var q = (query ?? "").Trim();
-        if (q.Length > 200 || type is not ("post" or "page" or "category" or "tag")) throw Bad("菜单类型或搜索条件无效。");
-        if (type is "post" or "page")
+        if (q.Length > 200 || type is not ("post" or "page" or "product" or "case" or "category" or "tag")) throw Bad("菜单类型或搜索条件无效。");
+        if (type is "post" or "page" or "product" or "case")
         {
             var result = await repository.MenuTargetsAsync(type, q, page);
             return new PageResult<MenuTarget>(
@@ -61,12 +61,12 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
 
     private static string ContentUrl(Content row)
     {
-        return $"/{(row.Kind == "post" ? "posts" : "pages")}/{row.Slug}";
+        return ContentService.PublicPath(row.Kind, row.Slug);
     }
 
     private static async Task<List<MenuView>> ResolveMenuAsync(CmsRepository repo, List<MenuItem> rows)
     {
-        var contentIds = rows.Where(x => x.Type is "post" or "page").Select(x => x.TargetId).Distinct().ToArray();
+        var contentIds = rows.Where(x => x.Type is "post" or "page" or "product" or "case").Select(x => x.TargetId).Distinct().ToArray();
         var contents = contentIds.Length == 0 ? [] : await repo.MenuContentsAsync(contentIds);
         var termIds = rows.Where(x => x.Type is "category" or "tag").Select(x => x.TargetId).Distinct().ToArray();
         var terms = termIds.Length == 0 ? [] : await repo.ListAsync<Taxonomy>(x => termIds.Contains(x.Id));
@@ -90,9 +90,9 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
     /// <summary>Obtain real dashboard counts.</summary>
     public async Task<StatsView> StatsAsync()
     {
-        return new StatsView(await repository.CountAsync<Content>(x => x.Kind == "post"),
-            await repository.CountAsync<Content>(x => x.Published),
-            await repository.CountAsync<Content>(x => x.Kind == "page"),
+        return new StatsView(await repository.CountAsync<Content>(x => x.Kind == "post" && x.DeletedAt == null),
+            await repository.CountAsync<Content>(x => x.Published && x.Kind != "template" && x.Kind != "block"),
+            await repository.CountAsync<Content>(x => x.Kind == "page" && x.DeletedAt == null),
             await repository.CountAsync<Comment>(x => !x.Approved), await repository.CountAsync<Asset>());
     }
 
@@ -111,6 +111,10 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
             }
 
             var row = await repo.FindAsync<SiteSettings>("site") ?? throw Bad("请先初始化站点。");
+            if (input.HomePageId != "" && input.HomePageId != row.HomePageId &&
+                await repo.FirstAsync<Content>(x => x.Id == input.HomePageId && x.Kind == "page" && x.Published && x.DeletedAt == null) == null)
+                throw Bad("首页请选择已发布的独立页面。");
+            row.HomePageId = input.HomePageId;
             row.Title = input.Title.Trim();
             row.Description = input.Description;
             row.Keywords = input.Keywords;
@@ -138,9 +142,7 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
     {
         return repository.WriteAsync(actor, "taxonomy.save", async repo =>
         {
-            Text(input.Name, 100);
-            if (input.Kind is not ("category" or "tag") || input.Slug is not { Length: > 0 and <= 100 } ||
-                !Regex.IsMatch(input.Slug, "^[a-z0-9]+(?:-[a-z0-9]+)*$")) throw Bad("分类类型或地址无效。");
+            ValidateTaxonomy(input);
             var row = id == null ? new Taxonomy() : await repo.FindAsync<Taxonomy>(id) ?? throw Missing();
             if (id != null && row.Kind != input.Kind) throw Bad("分类类型不能修改。");
             if (await repo.FirstAsync<Taxonomy>(x => x.Kind == input.Kind && x.Slug == input.Slug && x.Id != row.Id) !=
@@ -155,6 +157,13 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
         });
     }
 
+    internal static void ValidateTaxonomy(TaxonomyInput input)
+    {
+        Text(input.Name, 100);
+        if (input.Kind is not ("category" or "tag") || input.Slug is not { Length: > 0 and <= 100 } ||
+            !Regex.IsMatch(input.Slug, "^[a-z0-9]+(?:-[a-z0-9]+)*$")) throw Bad("分类类型或地址无效。");
+    }
+
     /// <summary>Reject deletion of taxonomy referenced by drafts or published snapshots.</summary>
     public Task<bool> DeleteTaxonomyAsync(string actor, string id)
     {
@@ -167,7 +176,8 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
                 throw new CmsException(409, "MENU_IN_USE", "导航菜单引用了此分类或标签，请先修改或删除对应菜单项。");
             if (await repo.CountAsync<Content>(x =>
                     x.CategoryId == id || x.PublishedCategoryId == id || x.TagIds.Contains(marker) ||
-                    x.PublishedTagIds.Contains(marker)) > 0)
+                    x.PublishedTagIds.Contains(marker) || x.ScheduledJson.Contains(id) || x.LayoutJson.Contains(id) || x.PublishedJson.Contains(id)) > 0 ||
+                await repo.CountAsync<ContentRevision>(x => x.SnapshotJson.Contains(id)) > 0)
                 throw new CmsException(409, "IN_USE", "已有内容引用此分类或标签，请先移除引用。");
             await repo.DeleteAsync<Taxonomy>(id);
             return true;
@@ -179,7 +189,7 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
     {
         return repository.WriteAsync(actor, "menu.save", async repo =>
         {
-            if (input.Type is not ("custom" or "post" or "page" or "category" or "tag") || input.Version < 0 ||
+            if (input.Type is not ("custom" or "post" or "page" or "product" or "case" or "category" or "tag") || input.Version < 0 ||
                 input.Version == int.MaxValue) throw Bad("菜单类型或版本号无效。");
             var row = id == null ? new MenuItem() : await repo.FindAsync<MenuItem>(id) ?? throw Missing();
             row.ParentId = input.ParentId ?? "";
@@ -264,7 +274,7 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
                 : input.Author;
             Text(author, 60);
             Text(input.Body, 2000);
-            if (await repo.FirstAsync<Content>(x => x.Id == input.ContentId && x.Published) == null) throw Missing();
+            if (await repo.FirstAsync<Content>(x => x.Id == input.ContentId && x.Published && x.Kind != "template" && x.Kind != "block") == null) throw Missing();
             var row = new Comment
             {
                 ContentId = input.ContentId, Author = author.Trim(), Body = input.Body.Trim(),
@@ -279,7 +289,7 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
     /// <summary>Read only approved comments for a currently published article.</summary>
     public async Task<PageResult<Comment>> PublicCommentsAsync(string contentId, int page)
     {
-        if (await repository.FirstAsync<Content>(x => x.Id == contentId && x.Published) == null) throw Missing();
+        if (await repository.FirstAsync<Content>(x => x.Id == contentId && x.Published && x.Kind != "template" && x.Kind != "block") == null) throw Missing();
         if (!(await SettingsAsync()).CommentsEnabled) return new PageResult<Comment>([], 0, Math.Max(1, page), 30);
         return await repository.PageAsync<Comment>(x => x.ContentId == contentId && x.Approved, page, 30);
     }

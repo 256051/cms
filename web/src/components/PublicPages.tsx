@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import SiteShell from "./SiteShell";
 import ContentList from "./ContentList";
@@ -9,14 +9,31 @@ import { contentUrl, type Content, type Page, type Settings, type Taxonomy, type
 import { siteHref, themeSource, type ThemeContext } from "@/lib/theme";
 import ArticleToc from "./ArticleToc";
 import { ArticleViewCount } from "./PublicTraffic";
+import PageLayoutContent from "./PageLayoutContent";
+import BusinessDetails from "./BusinessDetails";
+
+export async function BusinessArchive({ params, searchParams }: { params: Promise<{ archive: string }>; searchParams: Promise<{ page?: string }> }) {
+  const { archive } = await params;
+  if (archive !== "products" && archive !== "cases") notFound();
+  const page = Number((await searchParams).page) || 1;
+  const [data, taxonomy, theme] = await Promise.all([publicApi<Page<Content>>(`contents?kind=${archive === "products" ? "product" : "case"}&page=${page}`),
+    publicApi<Taxonomy[]>("taxonomy"), publicApi<ThemeView>("theme")]);
+  return <SiteShell><section className="site-section"><h1>{archive === "products" ? "产品" : "案例"}</h1>
+    <ContentList data={data} taxonomy={taxonomy} themeId={theme.themeId} base={`/${archive}`} />
+  </section></SiteShell>;
+}
 
 export async function homeMetadata() {
-  const s = await publicApi<Settings>("settings");
+  const [s, home] = await Promise.all([publicApi<Settings>("settings"), publicApi<Content | null>("home")]);
+  const image = home?.seo?.imageId || home?.coverId;
   return {
-    title: { absolute: s.title },
-    description: s.description,
+    title: { absolute: home?.seo?.title || s.title },
+    description: home?.seo?.description || s.description,
     keywords: s.keywords,
     alternates: { canonical: siteUrl() },
+    robots: s.blockSearchEngines || home?.seo?.noIndex ? { index: false } : undefined,
+    openGraph: home ? { title: home.seo?.title || home.title, description: home.seo?.description || home.summary,
+      url: siteUrl(), images: image ? [`${siteUrl()}/media/${image}`] : [] } : undefined,
   };
 }
 export async function HomePage({
@@ -27,6 +44,12 @@ export async function HomePage({
   context?: ThemeContext;
 }) {
   const params = await searchParams;
+  const home = await publicApi<Content | null>("home");
+  if (home) return <SiteShell context={context} layout={home.layout}>
+    <article id="article-body"><h1 className={!home.layout || home.layout.showTitle ? "page-layout-title" : "sr-only"}>{home.title}</h1>
+      {home.layout ? <PageLayoutContent layout={home.layout} context={context} /> : <div className="page-layout prose" dangerouslySetInnerHTML={{ __html: home.html }} />}
+    </article>
+  </SiteShell>;
   const [posts, taxonomy, theme] = await Promise.all([
     publicApi<Page<Content>>(`contents?page=${Number(params.page) || 1}`),
     publicApi<Taxonomy[]>("taxonomy"),
@@ -86,7 +109,7 @@ export async function HomePage({
 
 type Params = { archive: string; slug: string };
 export async function resolveContent({ archive, slug }: Params) {
-  if (!["posts", "pages", "category", "tag"].includes(archive)) notFound();
+  if (!["posts", "pages", "products", "cases", "category", "tag"].includes(archive)) notFound();
   if (archive === "category" || archive === "tag") {
     const taxonomy = await publicApi<Taxonomy[]>("taxonomy");
     const term = taxonomy.find((t) => t.kind === archive && t.slug === slug);
@@ -97,7 +120,8 @@ export async function resolveContent({ archive, slug }: Params) {
     const post = await publicApi<Content>(
       `contents/${encodeURIComponent(slug)}`,
     );
-    if ((archive === "posts" ? "post" : "page") !== post.kind) notFound();
+    if (({ posts: "post", pages: "page", products: "product", cases: "case" }[archive]) !== post.kind) notFound();
+    if (post.slug !== slug) permanentRedirect(contentUrl(post));
     return {
       post,
       term: null,
@@ -117,22 +141,23 @@ export async function detailMetadata({
   const data = await resolveContent(p);
   const site = await publicApi<Settings>("settings");
   const description =
-    data.post?.summary ||
+    data.post?.seo?.description || data.post?.summary ||
     (data.term
       ? `${data.term.name}的文章归档。${site.description}`
       : site.description);
   return {
-    title: data.post?.title || data.term?.name,
+    title: data.post?.seo?.title || data.post?.title || data.term?.name,
     description,
-    alternates: { canonical: `${siteUrl()}/${p.archive}/${p.slug}` },
+    robots: site.blockSearchEngines || data.post?.seo?.noIndex ? { index: false } : undefined,
+    alternates: { canonical: data.post?.id === site.homePageId ? siteUrl() : `${siteUrl()}/${p.archive}/${p.slug}` },
     openGraph: data.post
       ? {
-          title: data.post.title,
+          title: data.post.seo?.title || data.post.title,
           description,
           type: "article",
           url: siteUrl() + contentUrl(data.post),
-          images: data.post.coverId
-            ? [`${siteUrl()}/media/${data.post.coverId}`]
+          images: data.post.seo?.imageId || data.post.coverId
+            ? [`${siteUrl()}/media/${data.post.seo?.imageId || data.post.coverId}`]
             : [],
         }
       : undefined,
@@ -175,18 +200,25 @@ export async function DetailPage({
     );
   }
   const post = data.post!;
+  if (post.layout) return <SiteShell context={resolvedContext} layout={post.layout}>
+    <article id="article-body"><h1 className={post.layout.showTitle ? "page-layout-title" : "sr-only"}>{post.title}</h1>
+      <BusinessDetails fields={post.fields} />
+      <PageLayoutContent layout={post.layout} context={resolvedContext} />
+    </article>
+  </SiteShell>;
+  const discovery = await publicApi<{ previous: Content | null; next: Content | null; related: Content[] }>(`contents/${encodeURIComponent(post.slug)}/discovery`);
   const settings = await publicApi<Settings>("settings");
   return (
     <SiteShell context={resolvedContext}>
       <article className="reading">
-        <Link href={siteHref("/", context?.preview)} className="back-link">
-          ← 返回文章列表
+        <Link href={siteHref(post.kind === "product" ? "/products" : post.kind === "case" ? "/cases" : "/", context?.preview)} className="back-link">
+          ← 返回{post.kind === "product" ? "产品" : post.kind === "case" ? "案例" : "文章"}列表
         </Link>
         <header>
           <div className="article-meta">
             <span>
               {data.taxonomy.find((t) => t.id === post.categoryId)?.name ||
-                (post.kind === "page" ? "独立页面" : "随笔")}
+                (post.kind === "page" ? "独立页面" : post.kind === "product" ? "产品" : post.kind === "case" ? "案例" : "随笔")}
             </span>
             <time dateTime={post.publishedAt || undefined}>
               {post.publishedAt &&
@@ -206,6 +238,7 @@ export async function DetailPage({
             alt="文章封面"
           />
         )}
+        <BusinessDetails fields={post.fields} />
         <div className="reading-layout">
         {themeSource(theme.themeId) && <ArticleToc key={`${post.id}:${post.version}`} contentId={post.id} />}
         <div
@@ -224,6 +257,11 @@ export async function DetailPage({
               </Link>
             ))}
         </div>
+        <nav className="content-discovery" aria-label="继续阅读">
+          {discovery.previous && <Link href={siteHref(contentUrl(discovery.previous), context?.preview)}>上一篇：{discovery.previous.title}</Link>}
+          {discovery.next && <Link href={siteHref(contentUrl(discovery.next), context?.preview)}>下一篇：{discovery.next.title}</Link>}
+        </nav>
+        {discovery.related.length > 0 && <section className="content-discovery"><h2>相关文章</h2>{discovery.related.map(item => <Link key={item.id} href={siteHref(contentUrl(item), context?.preview)}>{item.title}</Link>)}</section>}
         {settings.commentsEnabled && <CommentSection contentId={post.id} preview={!!context?.preview} requireApproval={settings.requireCommentApproval} requireLogin={settings.commentsRequireLogin} />}
       </article>
     </SiteShell>
@@ -253,12 +291,12 @@ export async function SearchPage({
         <form className="search-form" action={siteHref("/search", context?.preview).split("?")[0]}>
           {context?.preview && Array.from(new URLSearchParams(context.preview)).map(([key, value]) => <input key={key} type="hidden" name={key} value={value} />)}
           <label className="sr-only" htmlFor="search">
-            搜索文章标题和摘要
+            搜索文章标题、摘要和正文
           </label>
           <input
             id="search"
             name="q"
-            placeholder="搜索文章标题或摘要…"
+            placeholder="搜索文章标题、摘要或正文…"
             defaultValue={q}
             maxLength={200}
           />

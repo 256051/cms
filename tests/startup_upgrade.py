@@ -32,10 +32,10 @@ def main():
         assert not db.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
     matrix.command(["dotnet", str(matrix.API), "--initialize"], env)
     with sqlite3.connect(path) as db:
-        db.execute("UPDATE cms_schema SET Version=8")
+        db.execute("UPDATE cms_schema SET Version=999")
     rejected("newer-database", "InvalidOperationException")
     with sqlite3.connect(path) as db:
-        assert db.execute("SELECT Version FROM cms_schema").fetchone()[0] == 8
+        assert db.execute("SELECT Version FROM cms_schema").fetchone()[0] == 999
         db.execute("DELETE FROM cms_schema")
     rejected("missing-version-record", "InvalidOperationException")
     with sqlite3.connect(path) as db:
@@ -50,7 +50,7 @@ def main():
         process = matrix.start(env, log)
         matrix.stop(process)
     with sqlite3.connect(path) as db:
-        assert db.execute("SELECT Version FROM cms_schema").fetchone()[0] == 7
+        assert db.execute("SELECT Version FROM cms_schema").fetchone()[0] == 14
         assert db.execute("SELECT COUNT(*) FROM cms_users").fetchone()[0] == 1
     checks.append("repair-and-restart-resumes-migration-without-recreating-admin")
     for version in range(1, 6):

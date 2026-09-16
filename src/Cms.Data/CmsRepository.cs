@@ -23,6 +23,8 @@ public record PageResult<T>(IReadOnlyList<T> Items, long Total, int Page, int Pa
 /// <summary>FreeSql persistence boundary with atomic audited writes.</summary>
 public sealed partial class CmsRepository(IFreeSql database)
 {
+    /// <summary>Latest explicitly numbered database schema understood by this build.</summary>
+    public const int CurrentSchemaVersion = 14;
     // ponytail: one writer per API process; single API instance only. Use database locks before scaling out.
     private static readonly SemaphoreSlim Writes = new(1, 1);
     private readonly IFreeSql db = database;
@@ -251,8 +253,8 @@ public sealed partial class CmsRepository(IFreeSql database)
             if (version < 1) throw new InvalidOperationException("数据库版本无效，请检查备份与初始化记录。");
         }
 
-        if (version > 7 || version < 0) throw new InvalidOperationException("数据库版本与程序不兼容，拒绝降级。");
-        if (version == 7) return;
+        if (version > CurrentSchemaVersion || version < 0) throw new InvalidOperationException("数据库版本与程序不兼容，拒绝降级。");
+        if (version == CurrentSchemaVersion) return;
         if (version == 0)
         {
             if (!allowCreate) throw new InvalidOperationException("数据库尚未初始化，请先执行 --initialize 创建站点。");
@@ -312,14 +314,82 @@ public sealed partial class CmsRepository(IFreeSql database)
         }
 
         // v6 -> v7: independent traffic and private inquiry tables; editorial tables remain untouched.
-        db.CodeFirst.SyncStructure(typeof(VisitorProfile), typeof(PageVisit), typeof(ContentTraffic),
-            typeof(VisitEvent), typeof(CustomerLead));
-        await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 7).ExecuteAffrowsAsync();
+        if (version < 7)
+        {
+            db.CodeFirst.SyncStructure(typeof(VisitorProfile), typeof(PageVisit), typeof(ContentTraffic),
+                typeof(VisitEvent), typeof(CustomerLead));
+            await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 7).ExecuteAffrowsAsync();
+        }
+
+        // v7 -> v8: additive visit IP and region snapshots; historical addresses remain unknown.
+        if (version < 8)
+        {
+            db.CodeFirst.SyncStructure(typeof(VisitorProfile), typeof(PageVisit));
+            await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 8).ExecuteAffrowsAsync();
+        }
+        // v8 -> v9: additive editorial recovery, follow-up and maintenance records.
+        if (version < 9)
+        {
+        db.CodeFirst.SyncStructure(typeof(Content), typeof(ContentRevision), typeof(CustomerLead),
+            typeof(LeadFollowUp), typeof(MaintenanceState), typeof(ContentAudience));
+        foreach (var content in await ListAsync<Content>())
+        {
+            if (content.PublishedJson != "")
+            {
+                using var snapshot = JsonDocument.Parse(content.PublishedJson);
+                content.PublishedText = ContentText.Plain(snapshot.RootElement.GetProperty("Html").GetString() ?? "");
+                content.LastPublishedAt ??= content.PublishedAt;
+                await UpdateAsync(content);
+            }
+        }
+        var audience = await db.Select<PageVisit>().Where(x => x.ContentId != "")
+            .GroupBy(x => new { x.ContentId, x.VisitorId })
+            .ToListAsync(x => new ContentAudience { ContentId = x.Key.ContentId, VisitorId = x.Key.VisitorId });
+        foreach (var row in audience)
+            if (await FirstAsync<ContentAudience>(x => x.ContentId == row.ContentId && x.VisitorId == row.VisitorId) == null)
+                await InsertAsync(row);
+        await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 9).ExecuteAffrowsAsync();
+        }
+        // v9 -> v10: page layouts and an optional home page; existing HTML and theme selection remain intact.
+        if (version < 10)
+        {
+        db.CodeFirst.SyncStructure(typeof(Content), typeof(SiteSettings));
+        await db.Update<Content>().Where(x => x.LayoutJson == null).Set(x => x.LayoutJson, "").ExecuteAffrowsAsync();
+        await db.Update<SiteSettings>().Where(x => x.HomePageId == null).Set(x => x.HomePageId, "").ExecuteAffrowsAsync();
+        await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 10).ExecuteAffrowsAsync();
+        }
+        // v10 -> v11: durable notification results and the activation boundary.
+        if (version < 11)
+        {
+        db.CodeFirst.SyncStructure(typeof(NotificationDelivery), typeof(NotificationState));
+        await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 11).ExecuteAffrowsAsync();
+        }
+        // v11 -> v12: draft SEO and addresses, with direct old-address redirects.
+        if (version < 12)
+        {
+        db.CodeFirst.SyncStructure(typeof(Content), typeof(ContentRedirect));
+        await db.Update<Content>().Where(x => x.DraftSlug == null).Set(x => x.DraftSlug, "").ExecuteAffrowsAsync();
+        await db.Update<Content>().Where(x => x.SeoJson == null).Set(x => x.SeoJson, "").ExecuteAffrowsAsync();
+        await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 12).ExecuteAffrowsAsync();
+        }
+        // v12 -> v13: attachment metadata only; the storage name and file bytes are unchanged.
+        if (version < 13)
+        {
+        db.CodeFirst.SyncStructure(typeof(Asset));
+        await db.Update<Asset>().Where(x => x.Group == null).Set(x => x.Group, "").ExecuteAffrowsAsync();
+        await db.Update<Asset>().Where(x => x.Version < 1).Set(x => x.Version, 1).ExecuteAffrowsAsync();
+        await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 13).ExecuteAffrowsAsync();
+        }
+        // v13 -> v14: business attributes and configurable inquiry fields; original content and leads remain intact.
+        db.CodeFirst.SyncStructure(typeof(Content), typeof(CustomerLead), typeof(InquiryFormSettings));
+        await db.Update<Content>().Where(x => x.FieldsJson == null).Set(x => x.FieldsJson, "").ExecuteAffrowsAsync();
+        await db.Update<CustomerLead>().Where(x => x.FieldsJson == null).Set(x => x.FieldsJson, "[]").ExecuteAffrowsAsync();
+        await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 14).ExecuteAffrowsAsync();
     }
 
     /// <summary>Check database connectivity and expected schema without modifying it.</summary>
     public async Task<bool> ReadyAsync()
     {
-        return (await FindAsync<SchemaVersion>("schema"))?.Version == 7;
+        return (await FindAsync<SchemaVersion>("schema"))?.Version == CurrentSchemaVersion;
     }
 }

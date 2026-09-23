@@ -31,6 +31,7 @@ test("builder undo, rich text, mobile overrides and real site chrome remain isol
   await page.locator(".block-inserter").getByRole("button", { name: "文字介绍", exact: true }).click();
   await page.getByLabel("模块标题", { exact: true }).fill("草稿模块");
   await page.getByLabel("模块说明", { exact: true }).fill("待排版文字");
+  await page.getByText("整页预览（含页头、页脚与动态内容）", { exact: true }).click();
   const frame = page.frameLocator('iframe[title="页面实时预览"]').first();
   await expect(frame.locator(".site-header")).toContainText("页面设计验收站");
   await expect(frame.getByRole("navigation", { name: "网站导航" })).toContainText("服务介绍");
@@ -44,11 +45,12 @@ test("builder undo, rich text, mobile overrides and real site chrome remain isol
   await rich.press("Control+A");
   await page.locator(".builder-rich-editor").getByRole("button", { name: "粗体", exact: true }).click();
   await expect(frame.locator(".page-block-rich strong")).toHaveText("富文本说明");
+  await page.getByText("外观与手机样式", { exact: true }).click();
   await page.getByText("手机独立样式", { exact: true }).click();
   await page.getByLabel("手机文字对齐", { exact: true }).selectOption("center");
   await page.getByLabel("手机上下留白", { exact: true }).selectOption("large");
   await page.getByLabel("手机文字大小", { exact: true }).selectOption("large");
-  await page.getByRole("button", { name: "手机", exact: true }).first().click();
+  await page.locator(".layout-preview").getByRole("button", { name: "手机", exact: true }).click();
   await expect.poll(() => frame.locator(".page-block").evaluate(el => getComputedStyle(el).textAlign)).toBe("center");
   expect(await frame.locator(".page-block").evaluate(el => getComputedStyle(el).paddingTop)).toBe("48px");
   expect(await frame.locator(".page-block-rich p").evaluate(el => getComputedStyle(el).fontSize)).toBe("20px");
@@ -74,7 +76,7 @@ test("builder undo, rich text, mobile overrides and real site chrome remain isol
   const publicContent = await call(`public/contents/${original.slug}`);
   expect(publicContent.layout.blocks[0].title).toBe("草稿模块");
   expect(publicContent.layout.blocks[0].html).toContain("<strong>富文本说明</strong>");
-  await page.getByRole("button", { name: "手机", exact: true }).first().click();
+  await page.locator(".layout-preview").getByRole("button", { name: "手机", exact: true }).click();
   await page.screenshot({ path: `${process.env.CMS_TEST_ARTIFACTS}/builder-enhancements.png`, fullPage: true });
   expect(errors).toEqual([]);
 });

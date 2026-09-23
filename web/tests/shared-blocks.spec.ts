@@ -22,9 +22,11 @@ test("reuse a published block, preview it and detach a copy", async ({ page }) =
   const errors: string[] = []; page.on("pageerror", e => errors.push(e.message));
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto(`/admin/pages/${content.id}`);
+  await page.getByText("模板、公共区块与页面设置", { exact: true }).click();
   await page.getByText("从公共区块库插入", { exact: true }).click();
   await page.getByRole("button", { name: "同步引用", exact: true }).click();
   await expect(page.locator(".block-outline-list li")).toHaveCount(1);
+  await page.getByText("整页预览（含页头、页脚与动态内容）", { exact: true }).click();
   const frame = page.frameLocator('iframe[title="页面实时预览"]').first();
   await expect(frame.locator(".page-block")).toContainText("全天支持");
   await expect(frame.locator(".page-block")).toContainText("已发布说明");
@@ -37,6 +39,7 @@ test("reuse a published block, preview it and detach a copy", async ({ page }) =
   await page.getByRole("button", { name: "发布公共区块", exact: true }).click();
   await expect.poll(async () => (await call("public/contents/browser-shared-page")).html).toContain("新发布说明");
   await page.goto(`/admin/pages/${content.id}`);
+  await page.getByText("整页预览（含页头、页脚与动态内容）", { exact: true }).click();
   await expect(frame.locator(".page-block")).toContainText("新发布说明");
   await page.getByRole("button", { name: "转为独立副本", exact: true }).click();
   await expect(page.getByLabel("模块说明", { exact: true })).toHaveValue("新发布说明");

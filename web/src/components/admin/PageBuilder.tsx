@@ -1,12 +1,13 @@
 "use client";
 import { useRef, useState } from "react";
-import { ArrowDown, ArrowUp, Copy, GripVertical, Plus, Trash2, Undo2, Redo2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Copy, GripVertical, Plus, Trash2, Undo2, Redo2, Maximize2, Minimize2 } from "lucide-react";
 import { api } from "@/lib/client";
 import { blockLabels, newBlock, newItem, starterLabels, starterLayout } from "@/lib/page-layout";
 import type { Asset, Content, Page, PageBlock, PageBlockItem, PageLayout, Taxonomy } from "@/lib/types";
 import AssetSelector from "./AssetSelector";
 import LayoutPreview from "./LayoutPreview";
 import RichEditor from "./RichEditor";
+import GrapesCanvas, { type CanvasHandle } from "./GrapesCanvas";
 import { Notice, Pager, useLoad } from "./shared";
 
 export default function PageBuilder({ layout, title, disabled, onChange: commitLayout, onBusyChange, allowReferences = true, fields = [] }: {
@@ -16,7 +17,8 @@ export default function PageBuilder({ layout, title, disabled, onChange: commitL
   const [templatePage, setTemplatePage] = useState(1), [templateSearch, setTemplateSearch] = useState("");
   const [blockPage, setBlockPage] = useState(1), [blockSearch, setBlockSearch] = useState("");
   const library = useLoad<Page<Content>>(`admin/contents?kind=block&status=published&page=${blockPage}&q=${encodeURIComponent(blockSearch)}`);
-  const [dragged, setDragged] = useState("");
+  const canvas = useRef<CanvasHandle>(null);
+  const [expanded, setExpanded] = useState(false);
   const [richWide, setRichWide] = useState(false);
   const history = useRef({ past: [] as PageLayout[], future: [] as PageLayout[] });
   function onChange(next: PageLayout) {
@@ -87,15 +89,17 @@ export default function PageBuilder({ layout, title, disabled, onChange: commitL
     return <div className="form-grid"><label>按钮文字<input value={item.linkText} maxLength={100} onChange={e => change({ linkText: e.target.value })} /></label>
       <label>按钮链接<input value={item.linkUrl} maxLength={1000} placeholder="/pages/about 或 https://…" onChange={e => change({ linkUrl: e.target.value })} /></label></div>;
   }
-  return <div className="page-builder" onKeyDown={event => {
+  return <div className={`page-builder${expanded ? " builder-expanded" : ""}`} onKeyDown={event => {
     if (!(event.ctrlKey || event.metaKey) || (event.target as Element).closest("input, textarea, [contenteditable=true], dialog")) return;
     const key = event.key.toLowerCase();
     if (key === "z" || key === "y") { event.preventDefault(); travel(key === "y" || event.shiftKey); }
   }}><Notice error={error || terms.error} />
-    <div className="builder-toolbar"><strong>页面设计</strong><div className="row-actions">
+    <div className="builder-toolbar"><strong>拖拽设计</strong><div className="row-actions">
+      <button type="button" className="secondary" onClick={() => setExpanded(!expanded)}>{expanded ? <Minimize2 size={16} /> : <Maximize2 size={16} />}{expanded ? "退出全屏" : "展开设计器"}</button>
       <button type="button" className="secondary" disabled={disabled || !history.current.past.length} onClick={() => travel(false)}><Undo2 size={16} />撤销操作</button>
       <button type="button" className="secondary" disabled={disabled || !history.current.future.length} onClick={() => travel(true)}><Redo2 size={16} />重做操作</button>
     </div></div>
+    <details className="builder-library"><summary>模板、公共区块与页面设置</summary>
     <details className="builder-templates"><summary>选择起始模板或已发布模板</summary><div className="starter-grid">
       {Object.entries(starterLabels).map(([key, label]) => <button type="button" disabled={disabled} className="secondary" key={key} onClick={() => replace(starterLayout(key as keyof typeof starterLabels))}>{label}</button>)}</div>
       <label>搜索已发布模板<input value={templateSearch} onChange={e => { setTemplateSearch(e.target.value); setTemplatePage(1); }} maxLength={200} placeholder="输入模板名称" /></label>
@@ -119,14 +123,15 @@ export default function PageBuilder({ layout, title, disabled, onChange: commitL
       <option value="wide">宽版</option><option value="normal">标准</option><option value="narrow">阅读窄版</option></select></label>
       {([["showTitle", "显示页面标题"], ["showHeader", "显示站点页头"], ["showFooter", "显示站点页脚"]] as const).map(([key, label]) => <label className="checkbox-label" key={key}><input type="checkbox" checked={layout[key]} onChange={e => onChange({ ...layout, [key]: e.target.checked })} />{label}</label>)}
     </fieldset>
-    <div className="builder-workspace"><aside className="builder-outline"><h3>页面模块 <small>{layout.blocks.length} / 40</small></h3>
-      <div className="block-inserter">{Object.entries(blockLabels).filter(([type]) => type !== "shared").map(([type, label]) => <button type="button" key={type} className="secondary" disabled={disabled || layout.blocks.length >= 40 || type === "contact" && layout.blocks.some(x => x.type === type)} onClick={() => {
+    </details>
+    <div className="builder-workspace grapes-workspace"><aside className="builder-outline"><h3>页面模块 <small>{layout.blocks.length} / 40</small></h3>
+      <div className="block-inserter">{Object.entries(blockLabels).filter(([type]) => type !== "shared").map(([type, label]) => <button type="button" key={type} className="secondary" draggable={!disabled && layout.blocks.length < 40 && !(type === "contact" && layout.blocks.some(x => x.type === type))} onDragStart={event => { event.dataTransfer.setData("text/plain", type); canvas.current?.startDrag(type); }} onDragEnd={() => canvas.current?.endDrag()} disabled={disabled || layout.blocks.length >= 40 || type === "contact" && layout.blocks.some(x => x.type === type)} onClick={() => {
         const block = newBlock(type); onChange({ ...layout, blocks: [...layout.blocks, block] }); setSelected(block.id);
       }}><Plus size={14} />{label}</button>)}</div>
-      <ol className="block-outline-list" aria-label="模块顺序">{layout.blocks.map((block, n) => <li key={block.id} draggable={!disabled} onDragStart={() => setDragged(block.id)} onDragEnd={() => setDragged("")}
-        onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); move(dragged, n); setDragged(""); }}>
+      <details className="builder-structure"><summary>页面结构</summary><ol className="block-outline-list" aria-label="模块顺序">{layout.blocks.map(block => <li key={block.id}>
         <button type="button" className="secondary" aria-pressed={selected === block.id} onClick={() => setSelected(block.id)}><GripVertical size={14} aria-hidden="true" /><span>{block.title || blockLabels[block.type]}{block.hidden && <small>已隐藏</small>}</span></button>
-      </li>)}</ol><small className="muted">拖动调整顺序，也可使用模块设置中的上移、下移按钮。</small></aside>
+      </li>)}</ol></details><small className="muted">可拖入画布，也可点击添加。排序支持上移、下移按钮。</small></aside>
+      <GrapesCanvas ref={canvas} layout={layout} selected={selected} disabled={disabled} onChange={onChange} onSelect={setSelected} onError={setError} onTravel={travel} />
       <section className="builder-properties" aria-label="模块设置">{current ? <fieldset disabled={disabled} className="form-fields" key={current.id}>
         <legend>{blockLabels[current.type]}设置</legend><div className="row-actions">
           <button type="button" className="secondary" disabled={index === 0} onClick={() => move(current.id, index - 1)}><ArrowUp size={15} />上移</button>
@@ -154,7 +159,7 @@ export default function PageBuilder({ layout, title, disabled, onChange: commitL
             update({ html: "", text: new DOMParser().parseFromString(current.html, "text/html").body.textContent || "" });
           }}>转为纯文本</button></div> : <><textarea id={`block-text-${current.id}`} value={current.text} rows={3} maxLength={10000} onChange={e => update({ text: e.target.value })} />
           <button type="button" className="secondary" onClick={() => { const node = document.createElement("p"); node.textContent = current.text; update({ html: node.outerHTML }); }}>使用富文本排版</button></>}
-        <div className="form-grid"><label>背景风格<select value={current.tone} onChange={e => update({ tone: e.target.value })}><option value="plain">页面底色</option><option value="soft">柔和底色</option><option value="accent">主题强调色</option></select></label>
+        <details className="builder-appearance"><summary>外观与手机样式</summary><div className="form-grid"><label>背景风格<select value={current.tone} onChange={e => update({ tone: e.target.value })}><option value="plain">页面底色</option><option value="soft">柔和底色</option><option value="accent">主题强调色</option></select></label>
           <label>文字对齐<select value={current.align} onChange={e => update({ align: e.target.value })}><option value="left">左对齐</option><option value="center">居中</option></select></label>
           <label>上下留白<select value={current.spacing} onChange={e => update({ spacing: e.target.value })}><option value="small">紧凑</option><option value="normal">标准</option><option value="large">宽松</option></select></label></div>
         <details className="builder-mobile-options"><summary>手机独立样式</summary>
@@ -167,6 +172,7 @@ export default function PageBuilder({ layout, title, disabled, onChange: commitL
           {["cards", "posts"].includes(current.type) && <label>手机列数<select aria-label="手机列数" value={current.mobile?.columns || 1} onChange={e => mobileChange({ columns: Number(e.target.value) })}>
             <option value={1}>1 列</option><option value={2}>2 列</option></select></label>}
           <label className="checkbox-label"><input type="checkbox" checked={current.mobile?.hidden || false} onChange={e => mobileChange({ hidden: e.target.checked })} />仅在手机隐藏</label>
+        </details>
         </details>
         {["hero", "image"].includes(current.type) && imageFields(current, update, "模块")}
         {["hero", "text", "cta"].includes(current.type) && linkFields(current, update)}
@@ -183,6 +189,6 @@ export default function PageBuilder({ layout, title, disabled, onChange: commitL
         {current.type === "contact" && <p className="muted">复用现有咨询表单，提交后进入客户咨询跟进。此页最多放置一个咨询模块。</p>}
         </>}
       </fieldset> : <p className="empty-state">从左侧添加模块，开始设计页面。</p>}</section>
-    </div><LayoutPreview layout={layout} title={title} fields={fields} />
+    </div><details className="builder-library builder-preview"><summary>整页预览（含页头、页脚与动态内容）</summary><LayoutPreview layout={layout} title={title} fields={fields} /></details>
   </div>;
 }

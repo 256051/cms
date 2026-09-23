@@ -1,5 +1,7 @@
 # 第三方主题来源与许可
 
+页面与模板设计器使用 [GrapesJS 0.23.6](https://github.com/GrapesJS/grapesjs)（BSD-3-Clause），完整版权及许可声明见 [licenses/grapesjs.txt](licenses/grapesjs.txt)。编辑器随本项目构建，无需外部 CDN 或 GrapesJS 账号。
+
 访客地区解析另使用 [IP2Region.Net 3.0.2](https://www.nuget.org/packages/IP2Region.Net/3.0.2)（Apache-2.0）及 [ip2region 离线数据](https://github.com/lionsoul2014/ip2region)。固定来源、文件哈希和完整上游许可证随 [GeoData](src/Cms.Services/GeoData/README.md) 一起发布。
 
 CMS 的 Fuwari、Retypeset、Cactus 内置主题采用以下原作的布局和视觉规则，重新编写 React 组件与普通 CSS，并接入本项目的内容、导航、搜索、评论与主题管理。没有复制原作的 JavaScript 运行时。它们不是原作官方发行版本，也不提供 Halo 主题安装包或插件的兼容运行时。

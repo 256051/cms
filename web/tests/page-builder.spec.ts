@@ -26,10 +26,12 @@ test("build, publish, reuse and restore page layouts with responsive public rend
   await page.getByLabel("标题", { exact: true }).fill("企业首页模板验收");
   await page.getByRole("button", { name: "保存草稿", exact: true }).click();
   await expect(page).toHaveURL(/\/admin\/templates\/[a-f0-9]{32}$/);
+  await page.getByText("模板、公共区块与页面设置", { exact: true }).click();
   await page.getByText("选择起始模板或已发布模板", { exact: true }).click();
   await page.getByRole("button", { name: "企业首页", exact: true }).click();
   await page.getByLabel("模块标题", { exact: true }).fill("让产品价值被看见");
   await page.getByLabel("模块说明", { exact: true }).fill("自由组合内容模块，呈现品牌、产品与客户案例。");
+  await page.getByText("外观与手机样式", { exact: true }).click();
   await page.getByRole("combobox", { name: "背景风格", exact: true }).selectOption("accent");
   await page.getByRole("button", { name: "常见问题", exact: true }).click();
   await page.getByLabel("项目标题", { exact: true }).fill("页面发布后可以继续修改吗？");
@@ -52,10 +54,11 @@ test("build, publish, reuse and restore page layouts with responsive public rend
   await expect.poll(async () => (await call(`admin/contents/${templateId}`)).published).toBeTruthy();
   const template = await call(`admin/contents/${templateId}`);
   expect(template.layout.blocks.map((x: { type: string }) => x.type)).toEqual(["hero", "cards", "posts", "faq", "contact", "text", "image", "cta"]);
+  await page.getByText("整页预览（含页头、页脚与动态内容）", { exact: true }).click();
   const frame = page.frameLocator('iframe[title="页面实时预览"]').first();
   await expect(frame.getByRole("heading", { name: "让产品价值被看见" })).toBeVisible();
   await expect(frame.getByRole("link", { name: "动态文章验收" })).toBeVisible();
-  await page.getByRole("button", { name: "手机", exact: true }).first().click();
+  await page.locator(".layout-preview").getByRole("button", { name: "手机", exact: true }).click();
   await expect.poll(async () => await frame.locator("body").evaluate(() => innerWidth)).toBe(375);
   expect(await frame.locator(".page-card-grid").first().evaluate(el => getComputedStyle(el).gridTemplateColumns.split(" ").length)).toBe(1);
   await page.screenshot({ path: `${process.env.CMS_TEST_ARTIFACTS}/builder-desktop.png`, fullPage: true });
@@ -64,10 +67,12 @@ test("build, publish, reuse and restore page layouts with responsive public rend
   await page.getByRole("button", { name: "保存草稿", exact: true }).click();
   await expect(page).toHaveURL(/\/admin\/pages\/[a-f0-9]{32}$/);
   await page.getByRole("button", { name: "使用页面搭建", exact: true }).click();
+  await page.getByText("模板、公共区块与页面设置", { exact: true }).click();
   await page.getByText("选择起始模板或已发布模板", { exact: true }).click();
   await page.getByRole("button", { name: "企业首页模板验收", exact: true }).click();
   await page.getByRole("button", { name: "保存并发布", exact: true }).click();
   await expect(page).toHaveURL(/\/admin\/pages\/[a-f0-9]{32}$/);
+  await expect(page.getByText("已发布，网站内容已更新。", { exact: true })).toBeVisible();
   const pageId = page.url().split("/").pop()!;
   const originalPage = await call(`admin/contents/${pageId}`);
   await page.goto("/admin/settings");
@@ -114,7 +119,7 @@ test("build, publish, reuse and restore page layouts with responsive public rend
     }
   }
   await page.goto(`/admin/pages/${pageId}`);
-  await page.getByRole("button", { name: "让产品价值被看见", exact: true }).click();
+  await page.frameLocator('iframe[title="拖拽设计画布"]').getByRole("heading", { name: "让产品价值被看见" }).click();
   await page.route(`**/api/v1/admin/contents/${pageId}`, route => route.request().method() === "PUT" ? route.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ code: "TEST_FAILURE", message: "模拟布局保存失败" }) }) : route.continue());
   await page.getByLabel("模块标题", { exact: true }).fill("尚未发布的改动");
   await page.getByRole("button", { name: "保存草稿", exact: true }).click();

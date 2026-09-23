@@ -20,11 +20,12 @@ export default function ContentTransfer({ kind, ids, filters, canExport, disable
   const [file, setFile] = useState<File | null>(null), [error, setError] = useState("");
   const [result, setResult] = useState<ImportResult | null>(null);
   const pending = useUnsavedChanges("正在导入内容，离开可能无法确认导入结果，确定离开吗？");
-  const label = kind === "product" ? "产品" : kind === "case" ? "案例" : "独立页面";
+  const label = kind === "post" ? "文章" : kind === "product" ? "产品" : kind === "case" ? "案例" : "独立页面";
   async function download() {
     setBusy(true); onError("");
     try {
       const blob = await api<Blob>("admin/contents/export", "POST", { kind, ids, ...filters }, false, true);
+      if (!blob.size) throw new Error("未收到导出文件，请检查浏览器下载拦截后重试。");
       const url = URL.createObjectURL(blob), link = document.createElement("a");
       link.href = url; link.download = `cms-${kind}-${new Date().toISOString().slice(0, 10)}.zip`;
       document.body.appendChild(link); link.click(); link.remove();

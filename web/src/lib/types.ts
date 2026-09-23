@@ -4,7 +4,7 @@ import type { components } from "./api.generated";
 type Schema<K extends keyof components["schemas"]> = Required<
   components["schemas"][K]
 >;
-export type User = Schema<"UserView"> & { role: "Admin" | "Editor" };
+export type User = Schema<"UserView"> & { role: "Admin" | "Editor" | "Support" };
 export type PageBlockItem = Required<components["schemas"]["PageBlockItem"]>;
 export type PageBlock = Omit<Required<components["schemas"]["PageBlock"]>, "items" | "mobile"> & { items: PageBlockItem[]; mobile: Required<components["schemas"]["PageBlockMobile"]> | null };
 export type PageLayout = Omit<Required<components["schemas"]["PageLayout"]>, "blocks"> & { blocks: PageBlock[] };
@@ -19,7 +19,7 @@ export type Comment = Schema<"Comment">;
 export type Menu = Schema<"MenuView"> & { sort: number; version: number };
 export type MenuTarget = Schema<"MenuTarget">;
 export type Settings = Schema<"SettingsInput"> & { version: number; homePageSize: number; categoryPageSize: number; tagPageSize: number; searchPageSize: number };
-export type AuditEntry = Schema<"AuditEntry">;
+export type AuditEntry = Schema<"AuditView">;
 export type ThemeOptions = Schema<"ThemeOptions">;
 export type ThemeView = Omit<Schema<"ThemeView">, "options"> & { options: ThemeOptions };
 export type ThemeDefinition = Omit<Schema<"ThemeDefinition">, "options" | "defaults"> & { options: ThemeOptions; defaults: ThemeOptions };

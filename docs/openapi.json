@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "http://127.0.0.1:58613/"
+      "url": "http://127.0.0.1:61940/"
     }
   ],
   "paths": {
@@ -2002,6 +2002,22 @@
               "type": "boolean",
               "default": false
             }
+          },
+          {
+            "name": "contentId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "q",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
           }
         ],
         "responses": {
@@ -2010,17 +2026,127 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfComment"
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfManagedComment"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfComment"
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfManagedComment"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfComment"
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfManagedComment"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/comments/{id}/reply": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Save or clear an administrator reply.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentReplyInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentReplyInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentReplyInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfComment"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfComment"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfComment"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/comments/batch": {
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Moderate an explicit comment selection atomically.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentBatchInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentBatchInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommentBatchInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
                 }
               }
             }
@@ -2365,6 +2491,190 @@
         }
       }
     },
+    "/api/v1/admin/friend-links": {
+      "get": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Read footer friend links.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfMenuView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfMenuView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfMenuView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Create a footer friend link.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MenuInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MenuInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MenuInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfMenuView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfMenuView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfMenuView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/friend-links/{id}": {
+      "put": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Update a footer friend link.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MenuInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MenuInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/MenuInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfMenuView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfMenuView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfMenuView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Admin"
+        ],
+        "summary": "Delete a footer friend link.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "version",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/settings": {
       "get": {
         "tags": [
@@ -2634,6 +2944,46 @@
               "format": "int32",
               "default": 1
             }
+          },
+          {
+            "name": "actor",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "target",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
           }
         ],
         "responses": {
@@ -2642,17 +2992,17 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfAuditEntry"
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfAuditView"
                 }
               },
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfAuditEntry"
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfAuditView"
                 }
               },
               "text/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfAuditEntry"
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfAuditView"
                 }
               }
             }
@@ -2952,6 +3302,36 @@
           "Public"
         ],
         "summary": "Read public navigation.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfMenuView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfMenuView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfMenuView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/public/friend-links": {
+      "get": {
+        "tags": [
+          "Public"
+        ],
+        "summary": "Read public footer friend links in display order.",
         "responses": {
           "200": {
             "description": "OK",
@@ -3804,12 +4184,51 @@
         }
       }
     },
+    "/api/v1/admin/maintenance/files": {
+      "get": {
+        "tags": [
+          "Maintenance"
+        ],
+        "summary": "List retained private backup archives.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfBackupFile"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfBackupFile"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfBackupFile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/maintenance/download": {
       "get": {
         "tags": [
           "Maintenance"
         ],
         "summary": "Download the last successful archive.",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -3881,6 +4300,46 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfPageResultOfNotificationDelivery"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/notifications/test/{channel}": {
+      "post": {
+        "tags": [
+          "Notification"
+        ],
+        "summary": "Queue a test notification without accepting arbitrary recipients or content.",
+        "parameters": [
+          {
+            "name": "channel",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfNotificationDelivery"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfNotificationDelivery"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfNotificationDelivery"
                 }
               }
             }
@@ -4439,6 +4898,14 @@
               "type": "boolean",
               "default": false
             }
+          },
+          {
+            "name": "mine",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
           }
         ],
         "responses": {
@@ -4458,6 +4925,36 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfPageResultOfCustomerLead"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/leads/owners": {
+      "get": {
+        "tags": [
+          "Traffic"
+        ],
+        "summary": "Read the owner choices permitted for this account.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfLeadOwner"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfLeadOwner"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfLeadOwner"
                 }
               }
             }
@@ -4520,6 +5017,16 @@
           "Traffic"
         ],
         "summary": "Read the overdue contact reminder count.",
+        "parameters": [
+          {
+            "name": "mine",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -4577,6 +5084,14 @@
           },
           {
             "name": "overdue",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "mine",
             "in": "query",
             "schema": {
               "type": "boolean",
@@ -4690,220 +5205,6 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ApiResponseOfboolean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/friend-links": {
-      "get": {
-        "tags": [
-          "Admin"
-        ],
-        "summary": "Read footer friend links.",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfMenuView"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfMenuView"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfMenuView"
-                }
-              }
-            }
-          }
-        }
-      },
-      "post": {
-        "tags": [
-          "Admin"
-        ],
-        "summary": "Create a footer friend link.",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MenuInput"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MenuInput"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/MenuInput"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfMenuView"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfMenuView"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfMenuView"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/friend-links/{id}": {
-      "put": {
-        "tags": [
-          "Admin"
-        ],
-        "summary": "Update a footer friend link.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MenuInput"
-              }
-            },
-            "text/json": {
-              "schema": {
-                "$ref": "#/components/schemas/MenuInput"
-              }
-            },
-            "application/*+json": {
-              "schema": {
-                "$ref": "#/components/schemas/MenuInput"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfMenuView"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfMenuView"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfMenuView"
-                }
-              }
-            }
-          }
-        }
-      },
-      "delete": {
-        "tags": [
-          "Admin"
-        ],
-        "summary": "Delete a footer friend link.",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "version",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfboolean"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfboolean"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfboolean"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/public/friend-links": {
-      "get": {
-        "tags": [
-          "Public"
-        ],
-        "summary": "Read public footer friend links in display order.",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfMenuView"
-                }
-              },
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfMenuView"
-                }
-              },
-              "text/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfMenuView"
                 }
               }
             }
@@ -5336,6 +5637,36 @@
         },
         "description": "Consistent HTTP response envelope."
       },
+      "ApiResponseOfIReadOnlyListOfBackupFile": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/BackupFile"
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
       "ApiResponseOfIReadOnlyListOfBlockReference": {
         "required": [
           "code",
@@ -5388,6 +5719,36 @@
             ],
             "items": {
               "$ref": "#/components/schemas/ContentView"
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfIReadOnlyListOfLeadOwner": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/LeadOwner"
             }
           },
           "traceId": {
@@ -5634,6 +5995,37 @@
         },
         "description": "Consistent HTTP response envelope."
       },
+      "ApiResponseOfNotificationDelivery": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/NotificationDelivery"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
       "ApiResponseOfNotificationSettings": {
         "required": [
           "code",
@@ -5758,7 +6150,7 @@
         },
         "description": "Consistent HTTP response envelope."
       },
-      "ApiResponseOfPageResultOfAuditEntry": {
+      "ApiResponseOfPageResultOfAuditView": {
         "required": [
           "code",
           "message",
@@ -5779,7 +6171,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/PageResultOfAuditEntry"
+                "$ref": "#/components/schemas/PageResultOfAuditView"
               }
             ]
           },
@@ -5904,6 +6296,37 @@
               },
               {
                 "$ref": "#/components/schemas/PageResultOfLeadFollowUp"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfPageResultOfManagedComment": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageResultOfManagedComment"
               }
             ]
           },
@@ -6447,48 +6870,80 @@
         },
         "description": "Browser-visible file metadata."
       },
-      "AuditEntry": {
+      "AuditView": {
+        "required": [
+          "id",
+          "createdAt",
+          "actor",
+          "actorName",
+          "action",
+          "targetType",
+          "targetId",
+          "targetName",
+          "tokenId",
+          "tokenName"
+        ],
         "type": "object",
         "properties": {
-          "tokenId": {
-            "type": "string",
-            "description": "Integration credential identifier, never its secret."
-          },
-          "tokenName": {
-            "type": "string",
-            "description": "Integration name retained after revocation."
-          },
-          "actor": {
-            "type": "string",
-            "description": "Actor identity."
-          },
-          "action": {
-            "type": "string",
-            "description": "Business action."
-          },
-          "targetType": {
-            "type": "string",
-            "description": "Stable kind of the affected business object; blank on historical v1 entries."
-          },
-          "targetId": {
-            "type": "string",
-            "description": "Identifier retained even after the target is deleted."
-          },
-          "targetName": {
-            "type": "string",
-            "description": "Safe object name at the time of the operation; never credentials or body text."
-          },
           "id": {
-            "type": "string",
-            "description": "Opaque portable identifier."
+            "type": "string"
           },
           "createdAt": {
             "type": "string",
-            "description": "UTC creation timestamp.",
             "format": "date-time"
+          },
+          "actor": {
+            "type": "string"
+          },
+          "actorName": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "targetType": {
+            "type": "string"
+          },
+          "targetId": {
+            "type": "string"
+          },
+          "targetName": {
+            "type": "string"
+          },
+          "tokenId": {
+            "type": "string"
+          },
+          "tokenName": {
+            "type": "string"
           }
         },
-        "description": "Successful write audit; never stores passwords or content."
+        "description": "Audit record with a resolved display name, preserving the original identity."
+      },
+      "BackupFile": {
+        "required": [
+          "name",
+          "size",
+          "createdAt",
+          "latest"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "latest": {
+            "type": "boolean"
+          }
+        },
+        "description": "One private backup archive; no filesystem path is exposed."
       },
       "BlockReference": {
         "required": [
@@ -6558,6 +7013,22 @@
             "type": "boolean",
             "description": "Moderator approval."
           },
+          "reply": {
+            "type": "string",
+            "description": "Plain-text official response; empty when unanswered."
+          },
+          "replyBy": {
+            "type": "string",
+            "description": "Administrator display name at response time."
+          },
+          "repliedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "Most recent official response time.",
+            "format": "date-time"
+          },
           "id": {
             "type": "string",
             "description": "Opaque portable identifier."
@@ -6569,6 +7040,25 @@
           }
         },
         "description": "Moderated plain-text visitor comment."
+      },
+      "CommentBatchInput": {
+        "required": [
+          "ids",
+          "action"
+        ],
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "action": {
+            "type": "string"
+          }
+        },
+        "description": "Atomic moderation of at most one hundred comments."
       },
       "CommentInput": {
         "required": [
@@ -6589,6 +7079,18 @@
           }
         },
         "description": "Public comment input."
+      },
+      "CommentReplyInput": {
+        "required": [
+          "reply"
+        ],
+        "type": "object",
+        "properties": {
+          "reply": {
+            "type": "string"
+          }
+        },
+        "description": "One official plain-text reply."
       },
       "ContentBatchInput": {
         "required": [
@@ -7331,6 +7833,30 @@
         },
         "description": "Customer-supplied inquiry; contact data never appears in its receipt."
       },
+      "LeadOwner": {
+        "required": [
+          "id",
+          "displayName",
+          "role",
+          "enabled"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "displayName": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        },
+        "description": "Minimal staff identity for assigning and displaying inquiry owners."
+      },
       "LeadUpdateInput": {
         "required": [
           "status",
@@ -7438,7 +7964,12 @@
         "required": [
           "state",
           "backupIntervalHours",
-          "trafficRetentionDays"
+          "trafficRetentionDays",
+          "backupKeepCount",
+          "backupRetentionDays",
+          "diskFreeBytes",
+          "diskTotalBytes",
+          "storageWarning"
         ],
         "type": "object",
         "properties": {
@@ -7452,9 +7983,95 @@
           "trafficRetentionDays": {
             "type": "integer",
             "format": "int32"
+          },
+          "backupKeepCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "backupRetentionDays": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "diskFreeBytes": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int64"
+          },
+          "diskTotalBytes": {
+            "type": [
+              "null",
+              "integer"
+            ],
+            "format": "int64"
+          },
+          "storageWarning": {
+            "type": "string"
           }
         },
         "description": "Backup status plus deployment-managed schedules."
+      },
+      "ManagedComment": {
+        "required": [
+          "id",
+          "contentId",
+          "author",
+          "body",
+          "approved",
+          "createdAt",
+          "reply",
+          "replyBy",
+          "repliedAt",
+          "contentTitle",
+          "contentUrl",
+          "editorUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "contentId": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "body": {
+            "type": "string"
+          },
+          "approved": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reply": {
+            "type": "string"
+          },
+          "replyBy": {
+            "type": "string"
+          },
+          "repliedAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "contentTitle": {
+            "type": "string"
+          },
+          "contentUrl": {
+            "type": "string"
+          },
+          "editorUrl": {
+            "type": "string"
+          }
+        },
+        "description": "Comment with its editorial context."
       },
       "MenuInput": {
         "required": [
@@ -7951,7 +8568,7 @@
         },
         "description": "Server-side paginated result."
       },
-      "PageResultOfAuditEntry": {
+      "PageResultOfAuditView": {
         "required": [
           "items",
           "total",
@@ -7963,7 +8580,7 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/AuditEntry"
+              "$ref": "#/components/schemas/AuditView"
             }
           },
           "total": {
@@ -8084,6 +8701,36 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/LeadFollowUp"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Server-side paginated result."
+      },
+      "PageResultOfManagedComment": {
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ManagedComment"
             }
           },
           "total": {
@@ -8999,6 +9646,10 @@
               "null",
               "string"
             ]
+          },
+          "email": {
+            "type": "string",
+            "default": ""
           }
         },
         "description": "Account administration input; password optional on edit."
@@ -9027,6 +9678,10 @@
           },
           "enabled": {
             "type": "boolean"
+          },
+          "email": {
+            "type": "string",
+            "default": ""
           }
         },
         "description": "Account information safe for the browser."

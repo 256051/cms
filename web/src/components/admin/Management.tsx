@@ -331,97 +331,61 @@ export function TaxonomyManager() {
   );
 }
 
-export function CommentManager() {
-  const [page, setPage] = useState(1);
-  const [pending, setPending] = useState(true);
-  const { data, error, setError, reload, loading } = useLoad<Page<Comment>>(
-    `admin/comments?page=${page}&pending=${pending}`,
-  );
-  const [busy, setBusy] = useState(false);
-  async function action(c: Comment, remove = false) {
-    if (remove && !confirm("永久删除此评论？")) return;
-    setBusy(true);
-    try {
-      await api(
-        "admin/comments/" + c.id,
-        remove ? "DELETE" : "PUT",
-        remove ? undefined : { approved: !c.approved },
-      );
-      await reload();
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusy(false);
-    }
+export function CommentManager({ user }: { user: User }) {
+  const [page, setPage] = useState(1), [pending, setPending] = useState(true);
+  const [contentId, setContentId] = useState(""), [contentTitle, setContentTitle] = useState(""), [q, setQ] = useState("");
+  const [selected, setSelected] = useState<string[]>([]), [busy, setBusy] = useState(false), [success, setSuccess] = useState("");
+  const [replying, setReplying] = useState<Comment>();
+  type Row = Required<components["schemas"]["ManagedComment"]>;
+  const { data, error, setError, reload, loading } = useLoad<Page<Row>>(
+    `admin/comments?${new URLSearchParams({ page: String(page), pending: String(pending), contentId, q })}`);
+  async function moderate(ids: string[], action: string) {
+    if (action === "delete" && !confirm(`永久删除选中的 ${ids.length} 条评论及回复？`)) return;
+    setBusy(true); setError(""); setSuccess("");
+    try { await api("admin/comments/batch", "POST", { ids, action }); setSelected([]); await reload(); setSuccess("评论处理完成。"); }
+    catch (e) { setError((e as Error).message); } finally { setBusy(false); }
   }
-  return (
-    <>
-      <Heading title="评论" description="审核读者的反馈，让交流保持友好。" />
-      <Notice error={error} />
-      <LoadState loading={loading} error={error} retry={reload} />
-      <div className="tabs">
-        <button
-          className={pending ? "active" : ""}
-          onClick={() => {
-            setPending(true);
-            setPage(1);
-          }}
-        >
-          待审核
-        </button>
-        <button
-          className={!pending ? "active" : ""}
-          onClick={() => {
-            setPending(false);
-            setPage(1);
-          }}
-        >
-          全部评论
-        </button>
-      </div>
-      <section className="panel">
-        {data?.items.map((c) => (
-          <article className="moderation-comment" key={c.id}>
-            <div>
-              <strong>{c.author}</strong>{" "}
-              <span className={`badge ${c.approved ? "green" : ""}`}>
-                {c.approved ? "已通过" : "待审核"}
-              </span>
-              <p>{c.body}</p>
-              <small className="muted">
-                {new Date(c.createdAt).toLocaleString("zh-CN")}
-              </small>
-            </div>
-            <div className="row-actions">
-              <button
-                className="secondary"
-                disabled={busy}
-                onClick={() => action(c)}
-              >
-                {c.approved ? <X size={16} /> : <Check size={16} />}{" "}
-                {c.approved ? "隐藏" : "通过"}
-              </button>
-              <button
-                className="danger"
-                disabled={busy}
-                onClick={() => action(c, true)}
-              >
-                删除
-              </button>
-            </div>
-          </article>
-        ))}
-        {!loading && !error && data?.total === 0 && (
-          <div className="empty-state">
-            <Check size={32} />
-            <h3>{pending ? "暂时没有待审核评论" : "还没有评论"}</h3>
-            <p>新的读者反馈会出现在这里。</p>
-          </div>
-        )}
-        <Pager data={data} setPage={setPage} />
-      </section>
-    </>
-  );
+  function filterContent(id: string, title = "") { setContentId(id); setContentTitle(title); setPage(1); setSelected([]); }
+  return <><Heading title="评论" description="查看所属内容、审核读者反馈，并由管理员回复。" />
+    <Notice error={error} success={success} /><LoadState loading={loading} error={error} retry={reload} />
+    {replying && <CommentReply key={replying.id} comment={replying} close={() => setReplying(undefined)} saved={() => { setReplying(undefined); setSuccess("回复已保存；评论通过审核后会在前台展示。"); void reload(); }} />}
+    <div className="table-toolbar editorial-filters"><div className="tabs">
+      {[true, false].map(value => <button key={String(value)} className={pending === value ? "active" : ""} disabled={busy} onClick={() => { setPending(value); setPage(1); setSelected([]); }}>{value ? "待审核" : "全部评论"}</button>)}
+    </div><form className="compact-search" onSubmit={e => { e.preventDefault(); setQ(String(new FormData(e.currentTarget).get("q") || "")); setPage(1); setSelected([]); }}>
+      <input name="q" aria-label="搜索评论" placeholder="称呼或评论内容" maxLength={200} /><button className="secondary" disabled={busy}>搜索</button></form>
+      {contentId && <p>当前内容：{contentTitle} <button className="secondary" onClick={() => filterContent("")}>查看全部内容</button></p>}
+    </div><section className="panel"><div className="row-actions">
+      <label className="checkbox-label"><input type="checkbox" aria-label="选择本页评论" disabled={busy || !data?.items.length} checked={!!data?.items.length && data.items.every(x => selected.includes(x.id))}
+        onChange={e => setSelected(e.target.checked ? data?.items.map(x => x.id) || [] : [])} />本页全选</label>
+      <span>已选 {selected.length} 条</span>{[["approve", "批量通过"], ["hide", "批量隐藏"], ["delete", "批量删除"]].map(([action, label]) =>
+        <button key={action} className="secondary" disabled={busy || !selected.length} onClick={() => void moderate(selected, action)}>{label}</button>)}
+    </div>{data?.items.map(row => { const c = row; return <article className="moderation-comment" key={c.id}>
+      <div><label className="checkbox-label"><input type="checkbox" aria-label={`选择 ${c.author} 的评论`} disabled={busy} checked={selected.includes(c.id)}
+        onChange={e => setSelected(e.target.checked ? [...selected, c.id] : selected.filter(id => id !== c.id))} /><strong>{c.author}</strong><span className={`badge ${c.approved ? "green" : ""}`}>{c.approved ? "已通过" : "待审核"}</span></label>
+        <p>{row.editorUrl ? <a href={row.editorUrl}>{row.contentTitle}</a> : row.contentTitle}{" "}{row.contentUrl && <a href={row.contentUrl} target="_blank" rel="noopener noreferrer">查看前台</a>}</p>
+        <p style={{ whiteSpace: "pre-wrap" }}>{c.body}</p><small className="muted">{new Date(c.createdAt).toLocaleString("zh-CN")}</small>
+        {c.reply && <blockquote><strong>管理员回复 · {c.replyBy}</strong><p style={{ whiteSpace: "pre-wrap" }}>{c.reply}</p></blockquote>}</div>
+      <div className="row-actions"><button className="secondary" disabled={busy} onClick={() => filterContent(c.contentId, row.contentTitle)}>只看此内容</button>
+        {user.role === "Admin" && <button className="secondary" disabled={busy} onClick={() => setReplying(c)}>{c.reply ? "编辑回复" : "回复"}</button>}
+        <button className="secondary" disabled={busy} onClick={() => void moderate([c.id], c.approved ? "hide" : "approve")}>{c.approved ? "隐藏" : "通过"}</button>
+        <button className="danger secondary" disabled={busy} onClick={() => void moderate([c.id], "delete")}>删除</button></div>
+    </article>; })}
+      {!loading && data?.total === 0 && <p className="empty-state">没有符合条件的评论。</p>}
+      <Pager data={data} setPage={value => { setPage(value); setSelected([]); }} /></section></>;
+}
+
+function CommentReply({ comment, close, saved }: { comment: Comment; close: () => void; saved: () => void }) {
+  const changes = useUnsavedChanges("回复尚未保存，确定放弃吗？");
+  const [busy, setBusy] = useState(false), [error, setError] = useState("");
+  return <EditorDialog title="管理员回复" close={() => { if (!busy && changes.confirmDiscard()) close(); }}>
+    <p>{comment.author}：{comment.body}</p><Notice error={error} />
+    <form onChange={changes.markChanged} onSubmit={async e => {
+      e.preventDefault(); setBusy(true); setError(""); const reply = String(new FormData(e.currentTarget).get("reply") || "");
+      try { await api(`admin/comments/${comment.id}/reply`, "PUT", { reply }); changes.markSaved(); saved(); }
+      catch (e) { setError((e as Error).message); } finally { setBusy(false); }
+    }}><fieldset className="form-fields" disabled={busy}><label>回复内容<textarea name="reply" rows={5} maxLength={2000} defaultValue={comment.reply || ""} /></label>
+      <p className="muted">回复为纯文本；清空后保存可移除回复。不会自动通过评论审核。</p><button>{busy ? "保存中…" : "保存回复"}</button></fieldset></form>
+  </EditorDialog>;
 }
 
 export function UserManager() {
@@ -481,6 +445,7 @@ export function UserManager() {
                     role: f.get("role"),
                     enabled: f.get("enabled") === "on",
                     password: f.get("password") || null,
+                    email: f.get("email") || "",
                   },
                 );
                 changes.markSaved();
@@ -520,7 +485,13 @@ export function UserManager() {
                   <select name="role" defaultValue={editing?.role || "Editor"}>
                     <option value="Editor">内容编辑</option>
                     <option value="Admin">管理员</option>
+                    <option value="Support">咨询专员（仅跟进自己的咨询）</option>
                   </select>
+                </label>
+                <label>
+                  通知邮箱（选填）
+                  <input name="email" type="email" maxLength={254} defaultValue={editing?.email || ""} />
+                  <small>已分配咨询的邮件通知发给负责人；留空时发给站点收件人。</small>
                 </label>
                 <label>
                   {editing ? "新密码（留空不修改）" : "初始密码"}
@@ -581,7 +552,7 @@ export function UserManager() {
                     <strong>{u.displayName}</strong>
                   </td>
                   <td>{u.username}</td>
-                  <td>{u.role === "Admin" ? "管理员" : "内容编辑"}</td>
+                  <td>{u.role === "Admin" ? "管理员" : u.role === "Support" ? "咨询专员" : "内容编辑"}</td>
                   <td>
                     <span className={`badge ${u.enabled ? "green" : ""}`}>
                       {u.enabled ? "启用" : "停用"}
@@ -641,11 +612,20 @@ export function UserManager() {
 
 export function AuditManager() {
   const [page, setPage] = useState(1);
-  const { data, error, loading, reload } = useLoad<Page<AuditEntry>>(
-    "admin/audit?page=" + page,
-  );
+  const [filters, setFilters] = useState({ actor: "", action: "", target: "", from: "", to: "" });
+  const users = useLoad<User[]>("admin/users");
+  const query = new URLSearchParams({ page: String(page), ...filters });
+  if (!filters.from) query.delete("from");
+  if (!filters.to) query.delete("to");
+  const { data, error, loading, reload } = useLoad<Page<AuditEntry>>(`admin/audit?${query}`);
   const labels: Record<string, string> = {
     initialize: "初始化站点",
+    "content.restore-version": "恢复历史版本", "content.restore": "恢复回收站内容", "content.purge": "永久删除内容",
+    "content.batch": "批量处理内容", "content.schedule": "设置发布计划", "content.schedule-run": "执行发布计划",
+    "asset.metadata": "修改附件名称与分组", "comment.reply": "回复评论", "comment.batch": "批量审核评论",
+    "password.recover": "服务器恢复管理员密码", "lead.submit": "提交客户咨询", "lead.followup": "更新咨询跟进", "lead.delete": "删除客户咨询",
+    "maintenance.backup": "完成站点备份", "maintenance.backup-failed": "站点备份失败", "maintenance.backup-cleanup": "清理过期备份",
+    "maintenance.traffic-cleanup": "清理过期访问明细", "notification.retry": "重新排队通知", "notification.test": "测试通知渠道", "inquiry-form.save": "更新咨询表单",
     "content.save": "保存草稿",
     "content.export": "导出内容包",
     "content.import": "导入内容包",
@@ -677,7 +657,18 @@ export function AuditManager() {
         title="操作记录"
         description="查看站点中的关键操作，不记录密码或正文。"
       />
-      <Notice error={error} />
+      <Notice error={error || users.error} />
+      <form className="panel editorial-filters table-toolbar" onSubmit={e => {
+        e.preventDefault(); const form = new FormData(e.currentTarget);
+        setFilters({ actor: String(form.get("actor") || ""), action: String(form.get("action") || ""), target: String(form.get("target") || ""),
+          from: form.get("from") ? new Date(String(form.get("from"))).toISOString() : "", to: form.get("to") ? new Date(String(form.get("to"))).toISOString() : "" }); setPage(1);
+      }}><label>操作者<select name="actor"><option value="">全部操作者</option><option value="visitor">访客</option><option value="operator">部署管理员</option><option value="scheduler">定时任务</option>
+        {users.data?.map(u => <option key={u.id} value={u.id}>{u.displayName}（{u.username}）</option>)}</select></label>
+        <label>操作类型<select name="action"><option value="">全部操作</option>{Object.entries(labels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+        <label>操作对象<input name="target" maxLength={300} placeholder="对象名称或标识" /></label>
+        <label>开始时间<input name="from" type="datetime-local" /></label><label>结束时间<input name="to" type="datetime-local" /></label>
+        <button disabled={loading}>筛选记录</button><button type="reset" className="secondary" onClick={() => { setFilters({ actor: "", action: "", target: "", from: "", to: "" }); setPage(1); }}>清空筛选</button>
+      </form>
       <LoadState loading={loading} error={error} retry={reload} />
       <section className="panel table-panel">
         <div className="table-scroll">
@@ -686,7 +677,7 @@ export function AuditManager() {
               <tr>
                 <th>操作</th>
                 <th>操作对象</th>
-                <th>操作者标识</th>
+                <th>操作者</th>
                 <th>时间</th>
               </tr>
             </thead>
@@ -701,7 +692,7 @@ export function AuditManager() {
                         <small className="audit-target">
                           {(
                             {
-                              post: "文章",
+                              post: "文章", product: "产品", case: "案例", template: "模板", block: "公共区块", lead: "客户咨询", maintenance: "站点维护", notification: "通知", "content-package": "内容包",
                               page: "页面",
                               asset: "附件",
                               comment: "评论",
@@ -723,11 +714,7 @@ export function AuditManager() {
                     )}
                   </td>
                   <td>
-                    {a.actor === "visitor"
-                      ? "访客"
-                      : a.actor === "operator"
-                        ? "部署管理员"
-                        : a.actor}
+                    {a.actorName}<small className="audit-target">{a.actor}</small>
                     {a.tokenId && <small className="audit-target">API · {a.tokenName} · {a.tokenId}</small>}
                   </td>
                   <td>{new Date(a.createdAt).toLocaleString("zh-CN")}</td>

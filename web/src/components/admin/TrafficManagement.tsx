@@ -124,19 +124,21 @@ function VisitorHistory({ id, close }: { id: string; close: () => void }) {
     </table></div>{data?.total === 0 && <p className="empty-state">该浏览器没有访问记录。</p>}<Pager data={data} setPage={setPage} /></section>;
 }
 
-export function LeadManager() {
+export function LeadManager({ user }: { user: User }) {
   const [page, setPage] = useState(1), [status, setStatus] = useState(""), [q, setQ] = useState("");
   const [owner, setOwner] = useState(""), [overdue, setOverdue] = useState(false);
-  const users = useLoad<User[]>("admin/users");
-  const query = new URLSearchParams({ page: String(page), status, q, owner, overdue: String(overdue) });
+  const [mine, setMine] = useState(user.role === "Support");
+  const users = useLoad<Required<components["schemas"]["LeadOwner"]>[]>("admin/leads/owners");
+  const query = new URLSearchParams({ page: String(page), status, q, owner, overdue: String(overdue), mine: String(mine) });
   const [selected, setSelected] = useState<Lead>();
   const { data, error, loading, reload } = useLoad<Page<Lead>>(`admin/leads?${query}`);
-  return <><Heading title="客户咨询" description="联系客户、记录跟进情况。联系方式仅管理员可见。" />
-    <Notice error={error} /><LoadState loading={loading} error={error} retry={reload} />
-    {selected && <LeadDetail key={selected.id} lead={selected} close={() => setSelected(undefined)} saved={() => { setSelected(undefined); void reload(); }} />}
+  return <><Heading title={user.role === "Support" ? "我的咨询" : "客户咨询"} description={user.role === "Support" ? "仅可查看和跟进分配给自己的咨询，转派和删除由管理员处理。" : "分配负责人、联系客户并记录跟进情况。"} />
+    <Notice error={error || users.error} /><LoadState loading={loading} error={error} retry={reload} />
+    {selected && <LeadDetail key={selected.id} lead={selected} user={user} close={() => setSelected(undefined)} saved={() => { setSelected(undefined); void reload(); }} />}
     <section className="panel table-panel"><div className="table-toolbar editorial-filters"><label>跟进状态<select value={status} onChange={event => { setStatus(event.target.value); setPage(1); }}>
       <option value="">全部状态</option>{Object.entries(statuses).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-      <label>负责人<select value={owner} onChange={e => { setOwner(e.target.value); setPage(1); }}><option value="">全部负责人</option>{users.data?.filter(u => u.role === "Admin").map(u => <option key={u.id} value={u.id}>{u.displayName}</option>)}</select></label>
+      {user.role === "Admin" && <label>负责人<select value={owner} disabled={mine} onChange={e => { setOwner(e.target.value); setPage(1); }}><option value="">全部负责人</option>{users.data?.map(u => <option key={u.id} value={u.id}>{u.displayName}</option>)}</select></label>}
+      <label className="checkbox-label"><input type="checkbox" checked={mine} onChange={e => { setMine(e.target.checked); setPage(1); }} />我的待办（未完成）</label>
       <label className="checkbox-label"><input type="checkbox" checked={overdue} onChange={e => { setOverdue(e.target.checked); setPage(1); }} />仅逾期待跟进</label>
       <a className="button secondary" href={`/api/v1/admin/leads/export?${query}`}>导出筛选结果</a>
       <form className="compact-search" onSubmit={event => { event.preventDefault(); setQ(String(new FormData(event.currentTarget).get("q") || "")); setPage(1); }}>
@@ -149,37 +151,37 @@ export function LeadManager() {
   </>;
 }
 
-function LeadDetail({ lead, close, saved }: { lead: Lead; close: () => void; saved: () => void }) {
+function LeadDetail({ lead, user, close, saved }: { lead: Lead; user: User; close: () => void; saved: () => void }) {
   const fields = JSON.parse(lead.fieldsJson || "[]") as { Key: string; Label: string; Value: string }[];
   const [busy, setBusy] = useState(false), [error, setError] = useState("");
   const [ownerId, setOwnerId] = useState(lead.ownerId);
   const [historyPage, setHistoryPage] = useState(1);
-  const users = useLoad<User[]>("admin/users");
+  const users = useLoad<Required<components["schemas"]["LeadOwner"]>[]>("admin/leads/owners");
   const history = useLoad<Page<Required<components["schemas"]["LeadFollowUp"]>>>(`admin/leads/${lead.id}/followups?page=${historyPage}`);
   const { markChanged, markSaved, confirmDiscard } = useUnsavedChanges("跟进备注尚未保存，确定放弃修改吗？");
   return <section className="panel lead-detail" aria-labelledby="lead-detail-heading"><div className="section-heading"><h2 id="lead-detail-heading">{lead.name}的咨询</h2>
     <button type="button" className="secondary" onClick={() => { if (confirmDiscard()) close(); }} disabled={busy}>关闭详情</button></div>
     <dl><dt>联系方式</dt><dd>{lead.contact}</dd><dt>公司 / 学校</dt><dd>{lead.organization || "未填写"}</dd><dt>需求</dt><dd className="lead-need">{lead.need}</dd>
       <dt>提交页面</dt><dd>{lead.path}</dd><dt>来源渠道</dt><dd>{lead.source}</dd><dt>联系授权时间</dt><dd>{time(lead.consentedAt)}</dd>
-      <dt>访客记录</dt><dd><a href={`/admin/visitors/${lead.visitorId}`}>查看此浏览器的访问轨迹 →</a></dd></dl>
+      {user.role === "Admin" && <><dt>访客记录</dt><dd><a href={`/admin/visitors/${lead.visitorId}`}>查看此浏览器的访问轨迹 →</a></dd></>}</dl>
     <Notice error={error} />
     {fields.length > 0 && <section><h3>附加信息</h3><dl>{fields.map(field => <div key={field.Key}><dt>{field.Label}</dt><dd className="lead-need">{field.Value}</dd></div>)}</dl></section>}
     <form onChange={markChanged} onSubmit={async event => {
       event.preventDefault(); if (busy) return; setBusy(true); setError(""); const fields = new FormData(event.currentTarget);
       try { await api(`admin/leads/${lead.id}`, "PUT", { status: fields.get("status"), notes: fields.get("notes"), version: lead.version,
-        ownerId: fields.get("owner"), nextContactAt: fields.get("next") ? new Date(String(fields.get("next"))).toISOString() : null }); markSaved(); saved(); }
+        ownerId: user.role === "Support" ? lead.ownerId : fields.get("owner"), nextContactAt: fields.get("next") ? new Date(String(fields.get("next"))).toISOString() : null }); markSaved(); saved(); }
       catch (e) { setError((e as Error).message); } finally { setBusy(false); }
     }}><fieldset disabled={busy} className="form-fields"><label>跟进状态<select name="status" defaultValue={lead.status}>
       {Object.entries(statuses).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-      <label>负责人<select name="owner" value={ownerId} onChange={e => setOwnerId(e.target.value)} disabled={users.loading || !!users.error}><option value="">未分配</option>{users.data?.filter(u => u.role === "Admin" && (u.enabled || u.id === lead.ownerId)).map(u => <option key={u.id} value={u.id}>{u.displayName}</option>)}</select></label>
+      <label>负责人<select name="owner" value={ownerId} onChange={e => setOwnerId(e.target.value)} disabled={user.role === "Support" || users.loading || !!users.error}><option value="">未分配</option>{users.data?.filter(u => u.enabled || u.id === lead.ownerId).map(u => <option key={u.id} value={u.id}>{u.displayName}</option>)}</select></label>
       <label>下次联系时间<input name="next" type="datetime-local" defaultValue={localDateTime(lead.nextContactAt)} /></label>
       <label>本次跟进记录<textarea name="notes" maxLength={4000} rows={4} placeholder="记录本次沟通结果，历史记录会保留" /></label>
-      <div className="row-actions"><button disabled={users.loading || !!users.error}>{busy ? "正在保存…" : "保存跟进"}</button><button type="button" className="danger secondary" onClick={async () => {
+      <div className="row-actions"><button disabled={users.loading || !!users.error}>{busy ? "正在保存…" : "保存跟进"}</button>{user.role === "Admin" && <button type="button" className="danger secondary" onClick={async () => {
         if (!window.confirm("删除这条咨询及联系方式？此操作无法撤销。")) return;
         setBusy(true); setError("");
         try { await api(`admin/leads/${lead.id}?version=${lead.version}`, "DELETE"); markSaved(); saved(); }
         catch (e) { setError((e as Error).message); } finally { setBusy(false); }
-      }}>删除咨询</button></div></fieldset></form>
+      }}>删除咨询</button>}</div></fieldset></form>
       <h3>逐次跟进记录</h3><Notice error={history.error || users.error} /><LoadState loading={history.loading} error={history.error} retry={history.reload} />
       <ul className="history-list">{history.data?.items.map(item => <li key={item.id}><div><strong>{time(item.createdAt)} · {item.actor}</strong><p>{item.notes || "更新负责人或跟进状态"}</p>
         <small>{statuses[item.status as keyof typeof statuses]} · {users.data?.find(u => u.id === item.ownerId)?.displayName || "未分配"}{item.nextContactAt && ` · 下次联系 ${time(item.nextContactAt)}`}</small></div></li>)}</ul>

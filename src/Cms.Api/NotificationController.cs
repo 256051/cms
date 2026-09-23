@@ -16,6 +16,9 @@ public sealed class NotificationController(NotificationService notifications) : 
     /// <summary>Read delivery outcomes.</summary>
     [HttpGet]
     public async Task<ApiResponse<PageResult<NotificationDelivery>>> List(int page = 1) => Result(await notifications.ListAsync(page));
+    /// <summary>Queue a test notification without accepting arbitrary recipients or content.</summary>
+    [HttpPost("test/{channel}")]
+    public async Task<ApiResponse<NotificationDelivery>> Test(string channel) => Result(await notifications.TestAsync(Actor, channel));
     /// <summary>Requeue one failed event without sending successful events again.</summary>
     [HttpPost("{id}/retry")]
     public async Task<ApiResponse<bool>> Retry(string id) => Result(await notifications.RetryAsync(Actor, id));

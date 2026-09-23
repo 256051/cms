@@ -5,7 +5,7 @@ using Mapster;
 namespace Cms.Services;
 
 /// <summary>Account information safe for the browser.</summary>
-public record UserView(string Id, string Username, string DisplayName, string Role, bool Enabled);
+public record UserView(string Id, string Username, string DisplayName, string Role, bool Enabled, string Email = "");
 
 /// <summary>Login credentials.</summary>
 public record LoginInput(string Username, string Password, string CaptchaId, string CaptchaCode);
@@ -109,8 +109,19 @@ public record CommentInput(string ContentId, string Author, string Body);
 /// <summary>Comment moderation input.</summary>
 public record ModerateInput(bool Approved);
 
+/// <summary>One official plain-text reply.</summary>
+public record CommentReplyInput(string Reply);
+/// <summary>Atomic moderation of at most one hundred comments.</summary>
+public record CommentBatchInput(string[] Ids, string Action);
+/// <summary>Comment with its editorial context.</summary>
+public record ManagedComment(string Id, string ContentId, string Author, string Body, bool Approved, DateTime CreatedAt,
+    string Reply, string ReplyBy, DateTime? RepliedAt, string ContentTitle, string ContentUrl, string EditorUrl);
+/// <summary>Audit record with a resolved display name, preserving the original identity.</summary>
+public record AuditView(string Id, DateTime CreatedAt, string Actor, string ActorName, string Action,
+    string TargetType, string TargetId, string TargetName, string TokenId, string TokenName);
+
 /// <summary>Account administration input; password optional on edit.</summary>
-public record UserInput(string Username, string DisplayName, string Role, bool Enabled, string? Password);
+public record UserInput(string Username, string DisplayName, string Role, bool Enabled, string? Password, string Email = "");
 
 /// <summary>Password rotation request.</summary>
 public record PasswordInput(string CurrentPassword, string NewPassword);

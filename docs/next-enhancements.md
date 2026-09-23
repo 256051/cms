@@ -73,7 +73,7 @@
 
 环境变量对应 `Notifications__Enabled`、`Notifications__SiteUrl`、`Notifications__Email__Host` 等。`SiteUrl` 应与前台公开域名一致；密钥仅放部署环境或受控 Consul 配置，不提交仓库。
 
-邮件使用 STARTTLS（常用端口 587），不支持要求连接时立即启用 TLS 的 465 模式。`To` 为固定运营收件人，最多 20 个、逗号分隔；当前没有按咨询负责人自动查邮箱的机制。企业微信启用时将群机器人完整地址填入 `Notifications:WeCom:WebhookUrl`，只接受 `https://qyapi.weixin.qq.com/cgi-bin/webhook/send?...`；本机 HTTP 地址仅用于隔离测试。
+邮件使用 STARTTLS（常用端口 587），不支持要求连接时立即启用 TLS 的 465 模式。`To` 为固定运营收件人，最多 20 个、逗号分隔；成员填写通知邮箱后，咨询邮件优先发送给当前负责人；其他事件仍使用站点收件人，见 [运营功能完善](operations-enhancements.md)。企业微信启用时将群机器人完整地址填入 `Notifications:WeCom:WebhookUrl`，只接受 `https://qyapi.weixin.qq.com/cgi-bin/webhook/send?...`；本机 HTTP 地址仅用于隔离测试。
 
 通知处理独立于定时发布任务，每 30 秒检查一次，每批最多 10 条；单次发送最多等待 15 秒，每轮最多尝试 5 次，失败后间隔约 2、4、8、16 分钟重试。手动重试开启新一轮额度，总尝试次数保留。停用渠道的待发消息保留但不阻塞已启用渠道。
 

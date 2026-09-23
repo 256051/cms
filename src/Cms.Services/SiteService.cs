@@ -82,9 +82,19 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
     }
 
     /// <summary>Page audit events.</summary>
-    public Task<PageResult<AuditEntry>> AuditAsync(int page)
+    public async Task<PageResult<AuditView>> AuditAsync(int page, string actor = "", string action = "", string target = "", DateTime? from = null, DateTime? to = null)
     {
-        return repository.PageAsync<AuditEntry>(x => true, page, 30);
+        Text(actor, 160, true); Text(action, 120, true); Text(target, 300, true);
+        if (from.HasValue && to.HasValue && from > to) throw Bad("开始时间不能晚于结束时间。");
+        var suffix = " (" + actor + ")";
+        var rows = await repository.PageAsync<AuditEntry>(x => (actor == "" || x.Actor == actor || x.Actor.EndsWith(suffix)) &&
+            (action == "" || x.Action == action) && (target == "" || x.TargetId == target || x.TargetName.Contains(target)) &&
+            (from == null || x.CreatedAt >= from) && (to == null || x.CreatedAt <= to), page, 30);
+        var ids = rows.Items.Select(x => AuditActor(x.Actor).Id).Distinct().ToArray();
+        var users = (await repository.ListAsync<CmsUser>(x => ids.Contains(x.Id))).ToDictionary(x => x.Id, x => x.DisplayName);
+        return new(rows.Items.Select(x => new AuditView(x.Id, x.CreatedAt, x.Actor,
+            AuditActor(x.Actor).Name ?? users.GetValueOrDefault(x.Actor) ?? (x.Actor switch { "visitor" => "访客", "operator" => "部署管理员", "scheduler" => "定时任务", _ => x.Actor }),
+            x.Action, x.TargetType, x.TargetId, x.TargetName, x.TokenId, x.TokenName)).ToArray(), rows.Total, rows.Page, rows.PageSize);
     }
 
     /// <summary>Obtain real dashboard counts.</summary>
@@ -155,6 +165,12 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
             else await repo.UpdateAsync(row);
             return row;
         });
+    }
+
+    private static (string Id, string? Name) AuditActor(string actor)
+    {
+        var match = Regex.Match(actor, @"^(.*) \(([a-f0-9]{32})\)$");
+        return match.Success ? (match.Groups[2].Value, match.Groups[1].Value) : (actor, null);
     }
 
     internal static void ValidateTaxonomy(TaxonomyInput input)
@@ -304,10 +320,49 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
     }
 
     /// <summary>Page comments for moderation.</summary>
-    public Task<PageResult<Comment>> CommentsAsync(int page, bool pending)
+    public async Task<PageResult<ManagedComment>> CommentsAsync(int page, bool pending, string contentId = "", string q = "")
     {
-        return repository.PageAsync<Comment>(x => !pending || !x.Approved, page, 30);
+        Text(contentId, 32, true); Text(q, 200, true);
+        var rows = await repository.PageAsync<Comment>(x => (!pending || !x.Approved) &&
+            (contentId == "" || x.ContentId == contentId) && (q == "" || x.Author.Contains(q) || x.Body.Contains(q)), page, 30);
+        var ids = rows.Items.Select(x => x.ContentId).Distinct().ToArray();
+        var contents = (await repository.ListAsync<Content>(x => ids.Contains(x.Id))).ToDictionary(x => x.Id);
+        return new(rows.Items.Select(x => {
+            var content = contents.GetValueOrDefault(x.ContentId);
+            var section = content?.Kind switch { "post" => "posts", "product" => "products", "case" => "cases", _ => "pages" };
+            return new ManagedComment(x.Id, x.ContentId, x.Author, x.Body, x.Approved, x.CreatedAt, x.Reply, x.ReplyBy, x.RepliedAt,
+                content?.Title ?? "内容已删除", content is { Published: true } ? $"/{section}/{content.Slug}" : "",
+                content == null ? "" : $"/admin/{section}/{content.Id}");
+        }).ToArray(), rows.Total, rows.Page, rows.PageSize);
     }
+
+    /// <summary>Save or clear an official response without bypassing comment approval.</summary>
+    public Task<Comment> ReplyAsync(string actor, string id, string reply) => repository.WriteAsync(actor, "comment.reply", async repo =>
+    {
+        Text(reply, 2000, true);
+        var user = await repo.FindAsync<CmsUser>(actor);
+        if (user is not { Enabled: true, Role: "Admin" }) throw new CmsException(403, "FORBIDDEN", "仅管理员可以回复评论。");
+        var row = await repo.FindAsync<Comment>(id) ?? throw Missing();
+        row.Reply = reply.Trim(); row.ReplyBy = row.Reply == "" ? "" : user.DisplayName;
+        row.RepliedAt = row.Reply == "" ? null : DateTime.UtcNow;
+        repo.SetAuditTarget("comment", row.Id, row.Author + "的评论");
+        await repo.UpdateAsync(row); return row;
+    });
+
+    /// <summary>Validate the full selection before applying one atomic moderation operation.</summary>
+    public Task<bool> BatchCommentsAsync(string actor, CommentBatchInput input) => repository.WriteAsync(actor, "comment.batch", async repo =>
+    {
+        if (input.Ids is not { Length: > 0 and <= 100 } || input.Ids.Distinct().Count() != input.Ids.Length ||
+            input.Ids.Any(x => x == null || !Regex.IsMatch(x, "^[a-f0-9]{32}$")) || input.Action is not ("approve" or "hide" or "delete"))
+            throw Bad("请选择 1–100 条评论和有效操作。");
+        var rows = await repo.ListAsync<Comment>(x => input.Ids.Contains(x.Id));
+        if (rows.Count != input.Ids.Length) throw new CmsException(409, "COMMENT_CHANGED", "部分评论已删除，请刷新后重试。");
+        foreach (var row in rows)
+            if (input.Action == "delete") await repo.DeleteAsync<Comment>(row.Id);
+            else { row.Approved = input.Action == "approve"; await repo.UpdateAsync(row); }
+        repo.SetAuditTarget("comment", "", $"批量{(input.Action == "approve" ? "通过" : input.Action == "hide" ? "隐藏" : "删除")} {rows.Count} 条评论");
+        return true;
+    });
 
     /// <summary>Change approval state.</summary>
     public Task<Comment> ModerateAsync(string actor, string id, bool approved)

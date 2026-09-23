@@ -18,7 +18,7 @@ using IPNetwork = System.Net.IPNetwork;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
-    Args = args.Where(x => x is not ("--initialize" or "--migrate") && !x.StartsWith("--restore=", StringComparison.Ordinal)).ToArray(),
+    Args = args.Where(x => x is not ("--initialize" or "--migrate") && !x.StartsWith("--restore=", StringComparison.Ordinal) && !x.StartsWith("--reset-admin=", StringComparison.Ordinal)).ToArray(),
     ContentRootPath = AppContext.BaseDirectory
 });
 await Configuration.AddConsulAsync(builder.Configuration);
@@ -191,20 +191,28 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.Configure<FormOptions>(x => x.MultipartBodyLengthLimit = 55_000_000);
 var app = builder.Build();
 var restore = args.FirstOrDefault(x => x.StartsWith("--restore=", StringComparison.Ordinal));
+var resetAdmin = args.FirstOrDefault(x => x.StartsWith("--reset-admin=", StringComparison.Ordinal));
+if (resetAdmin != null && (restore != null || args.Contains("--initialize") || args.Contains("--migrate")))
+    throw new InvalidOperationException("账号恢复不能与初始化、迁移或恢复备份同时执行。");
 var explicitDatabaseOperation = args.Contains("--initialize") || args.Contains("--migrate") || restore != null;
 using (var scope = app.Services.CreateScope())
 {
     var repo = scope.ServiceProvider.GetRequiredService<CmsRepository>();
     app.Logger.LogInformation("Checking and upgrading database schema before accepting requests.");
     await repo.InitializeSchemaAsync(allowCreate: explicitDatabaseOperation);
-    if (restore != null)
+    if (resetAdmin != null)
+    {
+        await scope.ServiceProvider.GetRequiredService<AuthService>().ResetAdministratorPasswordAsync(resetAdmin[14..], RecoveryConsole.ReadPassword());
+        Console.WriteLine("管理员密码已重置，旧登录会话及 API 令牌已失效。");
+    }
+    else if (restore != null)
         await scope.ServiceProvider.GetRequiredService<MaintenanceService>().RestoreAsync(restore[10..]);
     else if (args.Contains("--initialize"))
         await scope.ServiceProvider.GetRequiredService<AuthService>().InitializeAsync(
             builder.Configuration["Setup:Username"] ?? "", builder.Configuration["Setup:Password"] ?? "");
     app.Logger.LogInformation("Database schema is ready.");
 }
-if (explicitDatabaseOperation) return;
+if (explicitDatabaseOperation || resetAdmin != null) return;
 
 app.Use(async (ctx, next) =>
 {

@@ -42,6 +42,16 @@ using var db = new FreeSqlBuilder()
     .UseConnectionString(type, Environment.GetEnvironmentVariable("Database__ConnectionString")!)
     .UseAutoSyncStructure(false).Build();
 var repo = new CmsRepository(db);
+if (args.Contains("--maintenance-defaults"))
+{
+    await OperationsChecks.CheckDefaultsAsync(repo);
+    return;
+}
+if (args.Contains("--create-v14-operations"))
+{
+    await OperationsChecks.CreateV14Async(repo, db);
+    return;
+}
 if (args.Contains("--notifications"))
 {
     await NotificationChecks.RunAsync(repo);

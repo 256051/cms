@@ -203,10 +203,10 @@ export default function AdminApp({ route }: { route: string[] }) {
         </a>
         <nav aria-label="内容管理导航">
           <a href="/admin" className={section === "" ? "selected" : ""} aria-current={section === "" ? "page" : undefined}>
-            <LayoutDashboard size={19} aria-hidden="true" />概览
+            <LayoutDashboard size={19} aria-hidden="true" />{user.role === "Support" ? "我的待办" : "概览"}
           </a>
           {navigationGroups.map(group => {
-            const items = group.items.filter(item => !item[3] || user.role === "Admin");
+            const items = group.items.filter(item => user.role === "Support" ? item[0] === "leads" : !item[3] || user.role === "Admin");
             if (!items.length) return null;
             return <details className="nav-group" key={group.label} open={currentGroup === group || (section === "" && group === navigationGroups[0])}>
               <summary>{group.label}<ChevronDown size={16} aria-hidden="true" /></summary>
@@ -227,7 +227,7 @@ export default function AdminApp({ route }: { route: string[] }) {
             <span className="avatar">{user.displayName.slice(0, 1)}</span>
             <div>
               <strong>{user.displayName}</strong>
-              <small>{user.role === "Admin" ? "管理员" : "内容编辑"}</small>
+              <small>{user.role === "Admin" ? "管理员" : user.role === "Support" ? "咨询专员" : "内容编辑"}</small>
             </div>
             <a href="/admin/password" aria-label="修改密码">
               <LockKeyhole size={17} />
@@ -268,7 +268,9 @@ export default function AdminApp({ route }: { route: string[] }) {
         <main className="admin-main" id="admin-main">
           <Notice error={error} />
           {user.role === "Admin" && <OperationsReminder />}
-          {section === "" ? (
+          {user.role === "Support" ? (
+            section === "" || section === "leads" ? <LeadManager user={user} /> : section === "password" ? <PasswordManager /> : <p role="alert">此账号仅可处理分配给自己的咨询。</p>
+          ) : section === "" ? (
             <Dashboard user={user} />
           ) : section === "posts" || section === "pages" || section === "templates" || section === "blocks" || section === "products" || section === "cases" ? (
             route.length > 1 ? (
@@ -288,11 +290,11 @@ export default function AdminApp({ route }: { route: string[] }) {
           ) : section === "assets" ? (
             <AssetManager />
           ) : section === "comments" ? (
-            <CommentManager />
+            <CommentManager user={user} />
           ) : section === "password" ? (
             <PasswordManager />
           ) : user.role === "Admin" ? (
-            section === "inquiry-form" ? <InquiryFormManager /> : section === "notifications" ? <NotificationManager /> : section === "maintenance" ? <MaintenanceManager /> : section === "traffic" ? <TrafficOverview /> : section === "visitors" ? <VisitorManager initialId={route[1]} /> : section === "leads" ? <LeadManager /> : section === "themes" ? (
+            section === "inquiry-form" ? <InquiryFormManager /> : section === "notifications" ? <NotificationManager /> : section === "maintenance" ? <MaintenanceManager /> : section === "traffic" ? <TrafficOverview /> : section === "visitors" ? <VisitorManager initialId={route[1]} /> : section === "leads" ? <LeadManager user={user} /> : section === "themes" ? (
               <ThemeManager />
             ) : section === "settings" ? (
               <SettingsManager />

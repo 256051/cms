@@ -50,7 +50,7 @@ def main():
         process = matrix.start(env, log)
         matrix.stop(process)
     with sqlite3.connect(path) as db:
-        assert db.execute("SELECT Version FROM cms_schema").fetchone()[0] == 14
+        assert db.execute("SELECT Version FROM cms_schema").fetchone()[0] == 15
         assert db.execute("SELECT COUNT(*) FROM cms_users").fetchone()[0] == 1
     checks.append("repair-and-restart-resumes-migration-without-recreating-admin")
     for version in range(1, 6):

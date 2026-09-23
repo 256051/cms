@@ -15,11 +15,15 @@ public sealed class MaintenanceController(MaintenanceService maintenance) : ApiC
     /// <summary>Create a complete portable backup.</summary>
     [HttpPost("backup")]
     public async Task<ApiResponse<MaintenanceView>> Backup() => Result(await maintenance.BackupAsync(Actor));
-    /// <summary>Download the last successful archive.</summary>
+    /// <summary>List retained private backup archives.</summary>
+    [HttpGet("files")]
+    public async Task<ApiResponse<IReadOnlyList<BackupFile>>> Files() => Result(await maintenance.FilesAsync());
+    /// <summary>Download a named archive or the last successful archive.</summary>
     [HttpGet("download")]
-    public async Task<PhysicalFileResult> Download()
+    public async Task<PhysicalFileResult> Download(string? name = null)
     {
-        var file = await maintenance.DownloadAsync();
+        var file = await maintenance.DownloadAsync(name);
+        Response.Headers.CacheControl = "no-store";
         return PhysicalFile(file.Path, file.ContentType, file.Name);
     }
 }

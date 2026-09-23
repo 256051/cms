@@ -145,11 +145,12 @@ public sealed partial class TrafficService(CmsRepository repository, IpLocationS
     }
 
     /// <summary>Return private inquiries filtered by state or supplied contact information.</summary>
-    public Task<PageResult<CustomerLead>> LeadsAsync(string status, string query, int page, string owner = "", bool overdue = false)
+    public async Task<PageResult<CustomerLead>> LeadsAsync(string actor, string status, string query, int page, string owner = "", bool overdue = false, bool mine = false)
     {
         Status(status, true); Text(query, 200);
         if (owner != "") Id(owner);
-        return repository.LeadsAsync(status, query.Trim(), page, owner, overdue);
+        var user = await LeadOperatorAsync(repository, actor);
+        return await repository.LeadsAsync(status, query.Trim(), page, user.Role == "Support" || mine ? actor : owner, overdue, mine);
     }
 
     /// <summary>Update follow-up status and notes with an audit and revision check.</summary>
@@ -158,10 +159,13 @@ public sealed partial class TrafficService(CmsRepository repository, IpLocationS
         Id(id); Status(input.Status); Text(input.Notes, 4000);
         return repository.WriteAsync(actor, "lead.followup", async repo =>
         {
-            var row = await repo.FindAsync<CustomerLead>(id) ?? throw Missing();
+            var user = await LeadOperatorAsync(repo, actor);
+            var row = await AccessibleLeadAsync(repo, user, id);
             if (row.Version != input.Version) throw Conflict();
-            if (input.OwnerId != "" && await repo.FirstAsync<CmsUser>(x => x.Id == input.OwnerId && x.Enabled && x.Role == "Admin") == null)
-                throw new CmsException(400, "INVALID_OWNER", "请选择有效的管理员作为负责人。");
+            if (user.Role == "Support" && input.OwnerId != row.OwnerId)
+                throw new CmsException(403, "FORBIDDEN", "咨询专员不能转派咨询。");
+            if (input.OwnerId != "" && await repo.FirstAsync<CmsUser>(x => x.Id == input.OwnerId && x.Enabled && (x.Role == "Admin" || x.Role == "Support")) == null)
+                throw new CmsException(400, "INVALID_OWNER", "请选择启用的管理员或咨询专员作为负责人。");
             if (input.NextContactAt is { } next && next <= DateTime.UtcNow &&
                 (row.NextContactAt == null || Math.Abs((next - row.NextContactAt.Value).TotalSeconds) >= 60))
                 throw new CmsException(400, "INVALID_DATE", "新的联系计划须晚于当前时间；可清空时间以取消提醒。");
@@ -181,6 +185,7 @@ public sealed partial class TrafficService(CmsRepository repository, IpLocationS
     /// <summary>Delete private contact information at an expected revision.</summary>
     public Task<bool> DeleteLeadAsync(string actor, string id, int version) => repository.WriteAsync(actor, "lead.delete", async repo =>
     {
+        if ((await LeadOperatorAsync(repo, actor)).Role != "Admin") throw new CmsException(403, "FORBIDDEN", "仅管理员可以删除咨询。");
         var row = await repo.FindAsync<CustomerLead>(id) ?? throw Missing();
         if (row.Version != version) throw Conflict();
         repo.SetAuditTarget("lead", row.Id, "客户咨询");

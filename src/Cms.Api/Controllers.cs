@@ -89,7 +89,7 @@ public sealed class AuthController(
 
 /// <summary>Editorial HTTP endpoints; all business rules live in services.</summary>
 [Route("api/v1/admin")]
-[Authorize(AuthenticationSchemes = "cms")]
+[Authorize(AuthenticationSchemes = "cms", Roles = "Admin,Editor")]
 public sealed class AdminController(
     ContentService content,
     SiteService site,
@@ -293,10 +293,19 @@ public sealed class AdminController(
 
     /// <summary>Read moderated and pending comments.</summary>
     [HttpGet("comments")]
-    public async Task<ApiResponse<PageResult<Comment>>> Comments(int page = 1, bool pending = false)
+    public async Task<ApiResponse<PageResult<ManagedComment>>> Comments(int page = 1, bool pending = false, string contentId = "", string q = "")
     {
-        return Result(await site.CommentsAsync(page, pending));
+        return Result(await site.CommentsAsync(page, pending, contentId, q));
     }
+
+    /// <summary>Save or clear an administrator reply.</summary>
+    [HttpPut("comments/{id}/reply")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ApiResponse<Comment>> Reply(string id, CommentReplyInput input) => Result(await site.ReplyAsync(Actor, id, input.Reply));
+
+    /// <summary>Moderate an explicit comment selection atomically.</summary>
+    [HttpPost("comments/batch")]
+    public async Task<ApiResponse<bool>> BatchComments(CommentBatchInput input) => Result(await site.BatchCommentsAsync(Actor, input));
 
     /// <summary>Approve or hide a comment.</summary>
     [HttpPut("comments/{id}")]
@@ -435,9 +444,9 @@ public sealed class AdminController(
     /// <summary>Page administrative audit events.</summary>
     [HttpGet("audit")]
     [Authorize(Roles = "Admin")]
-    public async Task<ApiResponse<PageResult<AuditEntry>>> Audit(int page = 1)
+    public async Task<ApiResponse<PageResult<AuditView>>> Audit(int page = 1, string actor = "", string action = "", string target = "", DateTime? from = null, DateTime? to = null)
     {
-        return Result(await site.AuditAsync(page));
+        return Result(await site.AuditAsync(page, actor, action, target, from, to));
     }
 }
 
@@ -532,7 +541,7 @@ public sealed class MediaController(AssetService service) : ControllerBase
     [HttpGet("/media/{id}")]
     public async Task<IActionResult> Read(string id)
     {
-        var file = await service.ReadAsync(id, User.Identity?.IsAuthenticated == true);
+        var file = await service.ReadAsync(id, User.IsInRole("Admin") || User.IsInRole("Editor"));
         Response.Headers.CacheControl = "no-store";
         return file.ContentType == "application/pdf"
             ? PhysicalFile(file.Path, file.ContentType, file.Name)

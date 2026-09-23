@@ -70,47 +70,56 @@ public sealed class PublicTrafficController(TrafficService traffic, VisitorIdent
         Result(await traffic.SubmitLeadAsync(identity.Get(HttpContext), input, Request.Host.Host));
 }
 
-/// <summary>Administrator-only traffic reports and customer contact management.</summary>
+/// <summary>Administrative traffic reports and owner-scoped inquiry management.</summary>
 [Route("api/v1/admin")]
-[Authorize(Roles = "Admin")]
+[Authorize(AuthenticationSchemes = "cms", Roles = "Admin,Support")]
 public sealed class TrafficController(TrafficService traffic) : ApiController
 {
     /// <summary>Read current inquiry configuration.</summary>
     [HttpGet("inquiry-form")]
+    [Authorize(Roles = "Admin")]
     public async Task<ApiResponse<InquiryFormView>> InquiryForm() => Result(await traffic.InquiryFormAsync());
     /// <summary>Save a validated form definition at an expected revision.</summary>
     [HttpPut("inquiry-form")]
+    [Authorize(Roles = "Admin")]
     public async Task<ApiResponse<InquiryFormView>> SaveInquiryForm(InquiryFormView input) => Result(await traffic.SaveInquiryFormAsync(Actor, input));
     /// <summary>Aggregate public traffic and customer inquiries over a bounded date range.</summary>
     [HttpGet("traffic")]
+    [Authorize(Roles = "Admin")]
     public async Task<ApiResponse<TrafficReport>> Report(string? from = null, string? to = null) =>
         Result(await traffic.ReportAsync(from, to));
 
     /// <summary>Page pseudonymous browser profiles.</summary>
     [HttpGet("visitors")]
+    [Authorize(Roles = "Admin")]
     public async Task<ApiResponse<PageResult<VisitorProfile>>> Visitors(int page = 1) => Result(await traffic.VisitorsAsync(page));
 
     /// <summary>Page a browser's accepted public navigation history.</summary>
     [HttpGet("visitors/{id}/visits")]
+    [Authorize(Roles = "Admin")]
     public async Task<ApiResponse<PageResult<PageVisit>>> History(string id, int page = 1) => Result(await traffic.VisitorHistoryAsync(id, page));
 
     /// <summary>Page private customer inquiries.</summary>
     [HttpGet("leads")]
-    public async Task<ApiResponse<PageResult<CustomerLead>>> Leads(string status = "", string q = "", int page = 1, string owner = "", bool overdue = false) =>
-        Result(await traffic.LeadsAsync(status, q, page, owner, overdue));
+    public async Task<ApiResponse<PageResult<CustomerLead>>> Leads(string status = "", string q = "", int page = 1, string owner = "", bool overdue = false, bool mine = false) =>
+        Result(await traffic.LeadsAsync(Actor, status, q, page, owner, overdue, mine));
+
+    /// <summary>Read the owner choices permitted for this account.</summary>
+    [HttpGet("leads/owners")]
+    public async Task<ApiResponse<IReadOnlyList<LeadOwner>>> Owners() => Result(await traffic.LeadOwnersAsync(Actor));
 
     /// <summary>Read append-only contact history.</summary>
     [HttpGet("leads/{id}/followups")]
-    public async Task<ApiResponse<PageResult<LeadFollowUp>>> FollowUps(string id, int page = 1) => Result(await traffic.FollowUpsAsync(id, page));
+    public async Task<ApiResponse<PageResult<LeadFollowUp>>> FollowUps(string id, int page = 1) => Result(await traffic.FollowUpsAsync(Actor, id, page));
 
     /// <summary>Read the overdue contact reminder count.</summary>
     [HttpGet("leads/overdue-count")]
-    public async Task<ApiResponse<long>> OverdueCount() => Result(await traffic.OverdueLeadsAsync());
+    public async Task<ApiResponse<long>> OverdueCount(bool mine = false) => Result(await traffic.OverdueLeadsAsync(Actor, mine));
 
     /// <summary>Download a private filtered CSV export.</summary>
     [HttpGet("leads/export")]
-    public async Task<FileContentResult> Export(string status = "", string q = "", string owner = "", bool overdue = false) =>
-        File(await traffic.ExportLeadsAsync(status, q, owner, overdue), "text/csv; charset=utf-8", "客户咨询.csv");
+    public async Task<FileContentResult> Export(string status = "", string q = "", string owner = "", bool overdue = false, bool mine = false) =>
+        File(await traffic.ExportLeadsAsync(Actor, status, q, owner, overdue, mine), "text/csv; charset=utf-8", "客户咨询.csv");
 
     /// <summary>Save follow-up state and notes at an expected revision.</summary>
     [HttpPut("leads/{id}")]
@@ -118,5 +127,6 @@ public sealed class TrafficController(TrafficService traffic) : ApiController
 
     /// <summary>Delete private contact data at an expected revision.</summary>
     [HttpDelete("leads/{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ApiResponse<bool>> Delete(string id, int version) => Result(await traffic.DeleteLeadAsync(Actor, id, version));
 }

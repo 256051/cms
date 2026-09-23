@@ -1708,6 +1708,8 @@ export interface paths {
                 query?: {
                     page?: number;
                     pending?: boolean;
+                    contentId?: string;
+                    q?: string;
                 };
                 header?: never;
                 path?: never;
@@ -1721,15 +1723,105 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["ApiResponseOfPageResultOfComment"];
-                        "application/json": components["schemas"]["ApiResponseOfPageResultOfComment"];
-                        "text/json": components["schemas"]["ApiResponseOfPageResultOfComment"];
+                        "text/plain": components["schemas"]["ApiResponseOfPageResultOfManagedComment"];
+                        "application/json": components["schemas"]["ApiResponseOfPageResultOfManagedComment"];
+                        "text/json": components["schemas"]["ApiResponseOfPageResultOfManagedComment"];
                     };
                 };
             };
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/comments/{id}/reply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Save or clear an administrator reply. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CommentReplyInput"];
+                    "text/json": components["schemas"]["CommentReplyInput"];
+                    "application/*+json": components["schemas"]["CommentReplyInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfComment"];
+                        "application/json": components["schemas"]["ApiResponseOfComment"];
+                        "text/json": components["schemas"]["ApiResponseOfComment"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/comments/batch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Moderate an explicit comment selection atomically. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CommentBatchInput"];
+                    "text/json": components["schemas"]["CommentBatchInput"];
+                    "application/*+json": components["schemas"]["CommentBatchInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfboolean"];
+                        "application/json": components["schemas"]["ApiResponseOfboolean"];
+                        "text/json": components["schemas"]["ApiResponseOfboolean"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -1986,6 +2078,144 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/friend-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read footer friend links. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
+                        "application/json": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
+                        "text/json": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Create a footer friend link. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["MenuInput"];
+                    "text/json": components["schemas"]["MenuInput"];
+                    "application/*+json": components["schemas"]["MenuInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfMenuView"];
+                        "application/json": components["schemas"]["ApiResponseOfMenuView"];
+                        "text/json": components["schemas"]["ApiResponseOfMenuView"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/friend-links/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update a footer friend link. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["MenuInput"];
+                    "text/json": components["schemas"]["MenuInput"];
+                    "application/*+json": components["schemas"]["MenuInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfMenuView"];
+                        "application/json": components["schemas"]["ApiResponseOfMenuView"];
+                        "text/json": components["schemas"]["ApiResponseOfMenuView"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** Delete a footer friend link. */
+        delete: {
+            parameters: {
+                query?: {
+                    version?: number;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfboolean"];
+                        "application/json": components["schemas"]["ApiResponseOfboolean"];
+                        "text/json": components["schemas"]["ApiResponseOfboolean"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/settings": {
         parameters: {
             query?: never;
@@ -2200,6 +2430,11 @@ export interface paths {
             parameters: {
                 query?: {
                     page?: number;
+                    actor?: string;
+                    action?: string;
+                    target?: string;
+                    from?: string;
+                    to?: string;
                 };
                 header?: never;
                 path?: never;
@@ -2213,9 +2448,9 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "text/plain": components["schemas"]["ApiResponseOfPageResultOfAuditEntry"];
-                        "application/json": components["schemas"]["ApiResponseOfPageResultOfAuditEntry"];
-                        "text/json": components["schemas"]["ApiResponseOfPageResultOfAuditEntry"];
+                        "text/plain": components["schemas"]["ApiResponseOfPageResultOfAuditView"];
+                        "application/json": components["schemas"]["ApiResponseOfPageResultOfAuditView"];
+                        "text/json": components["schemas"]["ApiResponseOfPageResultOfAuditView"];
                     };
                 };
             };
@@ -2514,6 +2749,44 @@ export interface paths {
             cookie?: never;
         };
         /** Read public navigation. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
+                        "application/json": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
+                        "text/json": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/friend-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read public footer friend links in display order. */
         get: {
             parameters: {
                 query?: never;
@@ -3356,6 +3629,44 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/maintenance/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List retained private backup archives. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfIReadOnlyListOfBackupFile"];
+                        "application/json": components["schemas"]["ApiResponseOfIReadOnlyListOfBackupFile"];
+                        "text/json": components["schemas"]["ApiResponseOfIReadOnlyListOfBackupFile"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/maintenance/download": {
         parameters: {
             query?: never;
@@ -3366,7 +3677,9 @@ export interface paths {
         /** Download the last successful archive. */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    name?: string;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -3462,6 +3775,46 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/notifications/test/{channel}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Queue a test notification without accepting arbitrary recipients or content. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    channel: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfNotificationDelivery"];
+                        "application/json": components["schemas"]["ApiResponseOfNotificationDelivery"];
+                        "text/json": components["schemas"]["ApiResponseOfNotificationDelivery"];
+                    };
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;
@@ -3931,6 +4284,7 @@ export interface paths {
                     page?: number;
                     owner?: string;
                     overdue?: boolean;
+                    mine?: boolean;
                 };
                 header?: never;
                 path?: never;
@@ -3947,6 +4301,44 @@ export interface paths {
                         "text/plain": components["schemas"]["ApiResponseOfPageResultOfCustomerLead"];
                         "application/json": components["schemas"]["ApiResponseOfPageResultOfCustomerLead"];
                         "text/json": components["schemas"]["ApiResponseOfPageResultOfCustomerLead"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/leads/owners": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read the owner choices permitted for this account. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfIReadOnlyListOfLeadOwner"];
+                        "application/json": components["schemas"]["ApiResponseOfIReadOnlyListOfLeadOwner"];
+                        "text/json": components["schemas"]["ApiResponseOfIReadOnlyListOfLeadOwner"];
                     };
                 };
             };
@@ -4011,7 +4403,9 @@ export interface paths {
         /** Read the overdue contact reminder count. */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    mine?: boolean;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -4054,6 +4448,7 @@ export interface paths {
                     q?: string;
                     owner?: string;
                     overdue?: boolean;
+                    mine?: boolean;
                 };
                 header?: never;
                 path?: never;
@@ -4145,182 +4540,6 @@ export interface paths {
                 };
             };
         };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/friend-links": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Read footer friend links. */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
-                        "application/json": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
-                        "text/json": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /** Create a footer friend link. */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["MenuInput"];
-                    "text/json": components["schemas"]["MenuInput"];
-                    "application/*+json": components["schemas"]["MenuInput"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["ApiResponseOfMenuView"];
-                        "application/json": components["schemas"]["ApiResponseOfMenuView"];
-                        "text/json": components["schemas"]["ApiResponseOfMenuView"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/admin/friend-links/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        /** Update a footer friend link. */
-        put: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["MenuInput"];
-                    "text/json": components["schemas"]["MenuInput"];
-                    "application/*+json": components["schemas"]["MenuInput"];
-                };
-            };
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["ApiResponseOfMenuView"];
-                        "application/json": components["schemas"]["ApiResponseOfMenuView"];
-                        "text/json": components["schemas"]["ApiResponseOfMenuView"];
-                    };
-                };
-            };
-        };
-        post?: never;
-        /** Delete a footer friend link. */
-        delete: {
-            parameters: {
-                query?: {
-                    version?: number;
-                };
-                header?: never;
-                path: {
-                    id: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["ApiResponseOfboolean"];
-                        "application/json": components["schemas"]["ApiResponseOfboolean"];
-                        "text/json": components["schemas"]["ApiResponseOfboolean"];
-                    };
-                };
-            };
-        };
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/v1/public/friend-links": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Read public footer friend links in display order. */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description OK */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "text/plain": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
-                        "application/json": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
-                        "text/json": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        post?: never;
-        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -4433,6 +4652,13 @@ export interface components {
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
+        ApiResponseOfIReadOnlyListOfBackupFile: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["BackupFile"][];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
         ApiResponseOfIReadOnlyListOfBlockReference: {
             code: string;
             message: string;
@@ -4444,6 +4670,13 @@ export interface components {
             code: string;
             message: string;
             data: null | components["schemas"]["ContentView"][];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfIReadOnlyListOfLeadOwner: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["LeadOwner"][];
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
@@ -4504,6 +4737,13 @@ export interface components {
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
+        ApiResponseOfNotificationDelivery: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["NotificationDelivery"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
         ApiResponseOfNotificationSettings: {
             code: string;
             message: string;
@@ -4532,10 +4772,10 @@ export interface components {
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
-        ApiResponseOfPageResultOfAuditEntry: {
+        ApiResponseOfPageResultOfAuditView: {
             code: string;
             message: string;
-            data: null | components["schemas"]["PageResultOfAuditEntry"];
+            data: null | components["schemas"]["PageResultOfAuditView"];
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
@@ -4564,6 +4804,13 @@ export interface components {
             code: string;
             message: string;
             data: null | components["schemas"]["PageResultOfLeadFollowUp"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfPageResultOfManagedComment: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["PageResultOfManagedComment"];
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
@@ -4700,29 +4947,28 @@ export interface components {
              */
             version: number;
         };
-        /** @description Successful write audit; never stores passwords or content. */
-        AuditEntry: {
-            /** @description Integration credential identifier, never its secret. */
-            tokenId?: string;
-            /** @description Integration name retained after revocation. */
-            tokenName?: string;
-            /** @description Actor identity. */
-            actor?: string;
-            /** @description Business action. */
-            action?: string;
-            /** @description Stable kind of the affected business object; blank on historical v1 entries. */
-            targetType?: string;
-            /** @description Identifier retained even after the target is deleted. */
-            targetId?: string;
-            /** @description Safe object name at the time of the operation; never credentials or body text. */
-            targetName?: string;
-            /** @description Opaque portable identifier. */
-            id?: string;
-            /**
-             * Format: date-time
-             * @description UTC creation timestamp.
-             */
-            createdAt?: string;
+        /** @description Audit record with a resolved display name, preserving the original identity. */
+        AuditView: {
+            id: string;
+            /** Format: date-time */
+            createdAt: string;
+            actor: string;
+            actorName: string;
+            action: string;
+            targetType: string;
+            targetId: string;
+            targetName: string;
+            tokenId: string;
+            tokenName: string;
+        };
+        /** @description One private backup archive; no filesystem path is exposed. */
+        BackupFile: {
+            name: string;
+            /** Format: int64 */
+            size: number;
+            /** Format: date-time */
+            createdAt: string;
+            latest: boolean;
         };
         /** @description A retained page or template that uses a synchronized block. */
         BlockReference: {
@@ -4749,6 +4995,15 @@ export interface components {
             body?: string;
             /** @description Moderator approval. */
             approved?: boolean;
+            /** @description Plain-text official response; empty when unanswered. */
+            reply?: string;
+            /** @description Administrator display name at response time. */
+            replyBy?: string;
+            /**
+             * Format: date-time
+             * @description Most recent official response time.
+             */
+            repliedAt?: null | string;
             /** @description Opaque portable identifier. */
             id?: string;
             /**
@@ -4757,11 +5012,20 @@ export interface components {
              */
             createdAt?: string;
         };
+        /** @description Atomic moderation of at most one hundred comments. */
+        CommentBatchInput: {
+            ids: string[];
+            action: string;
+        };
         /** @description Public comment input. */
         CommentInput: {
             contentId: string;
             author: string;
             body: string;
+        };
+        /** @description One official plain-text reply. */
+        CommentReplyInput: {
+            reply: string;
         };
         /** @description Atomic category change or withdrawal of at most one hundred items. */
         ContentBatchInput: {
@@ -5032,6 +5296,13 @@ export interface components {
                 [key: string]: string;
             };
         };
+        /** @description Minimal staff identity for assigning and displaying inquiry owners. */
+        LeadOwner: {
+            id: string;
+            displayName: string;
+            role: string;
+            enabled: boolean;
+        };
         /** @description Private follow-up changes with optimistic concurrency. */
         LeadUpdateInput: {
             status: string;
@@ -5086,6 +5357,32 @@ export interface components {
             backupIntervalHours: number;
             /** Format: int32 */
             trafficRetentionDays: number;
+            /** Format: int32 */
+            backupKeepCount: number;
+            /** Format: int32 */
+            backupRetentionDays: number;
+            /** Format: int64 */
+            diskFreeBytes: null | number;
+            /** Format: int64 */
+            diskTotalBytes: null | number;
+            storageWarning: string;
+        };
+        /** @description Comment with its editorial context. */
+        ManagedComment: {
+            id: string;
+            contentId: string;
+            author: string;
+            body: string;
+            approved: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            reply: string;
+            replyBy: string;
+            /** Format: date-time */
+            repliedAt: null | string;
+            contentTitle: string;
+            contentUrl: string;
+            editorUrl: string;
         };
         /** @description Menu input. */
         MenuInput: {
@@ -5310,8 +5607,8 @@ export interface components {
             pageSize: number;
         };
         /** @description Server-side paginated result. */
-        PageResultOfAuditEntry: {
-            items: components["schemas"]["AuditEntry"][];
+        PageResultOfAuditView: {
+            items: components["schemas"]["AuditView"][];
             /** Format: int64 */
             total: number;
             /** Format: int32 */
@@ -5352,6 +5649,16 @@ export interface components {
         /** @description Server-side paginated result. */
         PageResultOfLeadFollowUp: {
             items: components["schemas"]["LeadFollowUp"][];
+            /** Format: int64 */
+            total: number;
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
+        /** @description Server-side paginated result. */
+        PageResultOfManagedComment: {
+            items: components["schemas"]["ManagedComment"][];
             /** Format: int64 */
             total: number;
             /** Format: int32 */
@@ -5732,6 +6039,8 @@ export interface components {
             role: string;
             enabled: boolean;
             password: null | string;
+            /** @default  */
+            email: string;
         };
         /** @description Account information safe for the browser. */
         UserView: {
@@ -5740,6 +6049,8 @@ export interface components {
             displayName: string;
             role: string;
             enabled: boolean;
+            /** @default  */
+            email: string;
         };
         /** @description Version required for publish, unpublish and delete. */
         VersionInput: {

@@ -71,6 +71,7 @@ public static class EditorialChecks
         var config = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["Maintenance:BackupPath"] = Path.Combine(root, "blocked"),
+            ["Maintenance:BackupIntervalHours"] = "0",
             ["Maintenance:TrafficRetentionDays"] = "90", ["Storage:Path"] = Path.Combine(root, "uploads"),
             ["Security:KeyPath"] = Path.Combine(root, "keys")
         }).Build();

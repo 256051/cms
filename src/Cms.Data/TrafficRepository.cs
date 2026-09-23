@@ -63,10 +63,11 @@ public sealed partial class CmsRepository
         .ToListAsync(a => new LeadDayTotals(a.Key, a.Count()));
 
     /// <summary>Page private inquiries using a bounded query and optional state.</summary>
-    public Task<PageResult<CustomerLead>> LeadsAsync(string status, string query, int page, string owner = "", bool overdue = false) =>
+    public Task<PageResult<CustomerLead>> LeadsAsync(string status, string query, int page, string owner = "", bool overdue = false, bool openOnly = false) =>
         PageAsync<CustomerLead>(x => (status == "" || x.Status == status) &&
             (query == "" || x.Name.Contains(query) || x.Contact.Contains(query) || x.Organization.Contains(query)) &&
-            (owner == "" || x.OwnerId == owner) && (!overdue || (x.NextContactAt < DateTime.UtcNow && x.Status != "completed" && x.Status != "invalid")), page, 20);
+            (owner == "" || x.OwnerId == owner) && (!openOnly || x.Status != "completed" && x.Status != "invalid") &&
+            (!overdue || (x.NextContactAt < DateTime.UtcNow && x.Status != "completed" && x.Status != "invalid")), page, 20);
 
     /// <summary>Update follow-up data only at the expected revision.</summary>
     public async Task SaveLeadAsync(CustomerLead lead, int expected)

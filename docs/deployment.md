@@ -9,7 +9,7 @@
 - `Database:Type`、`Database:ConnectionString`：唯一数据库及其连接串。
 - `Storage:Path`：附件目录；`Storage:MaxBytes`：单文件上限，默认 10 MiB，最大 50 MiB。
 - `Security:KeyPath`：ASP.NET Core Data Protection 密钥目录，必须持久化。
-- `Maintenance:BackupPath`：私有备份目录，容器默认 `/data/backups`。`BackupIntervalHours` 为备份间隔，`TrafficRetentionDays` 为访问明细保留天数（启用后至少 90 天），后两项默认 0 关闭；支持 Consul 和环境变量。详见 [备份维护](editorial-enhancements.md#备份与明细维护)。
+- `Maintenance:BackupPath`：私有备份目录，容器默认 `/data/backups`。`BackupIntervalHours` 默认 24 小时，`BackupKeepCount` 默认 14 份，`BackupRetentionDays` 默认 30 天，`LowDiskSpaceMb` 默认 1024 MB；缺项时使用相同默认值，显式 0 可关闭定时备份或对应保留限制。`TrafficRetentionDays` 为访问明细保留天数，仍默认 0 关闭（启用后至少 90 天）。支持 Consul 和环境变量，详见 [运营功能完善](operations-enhancements.md)。
 - `Setup:Username`、`Setup:Password`：仅显式初始化首个管理员时需要。
 - `Consul:Enabled`、`Consul:Address`、`Consul:Key`、`Consul:Token`：Consul 连接；默认关闭。
 - `ForwardedHeaders:KnownNetworks`：可信反向代理网段数组；不要配置任意互联网网段。

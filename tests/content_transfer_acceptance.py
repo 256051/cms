@@ -159,7 +159,7 @@ def main():
             upload_package(target, "product", raw, expected=400)
             assert snapshot(target, uploads) == before
         upload_package(target, "case", packages["product"], expected=400)
-        target.call("admin/contents/export", "POST", dict(kind="post"), expected=400)
+        target.call("admin/contents/export", "POST", dict(kind="template"), expected=400)
         target.call("admin/contents/export", "POST", dict(kind="product", ids=[uuid.uuid4().hex]), expected=400)
         target.call("admin/contents/export", "POST", dict(kind="product", ids=[uuid.uuid4().hex] * 101), expected=400)
         target.call("admin/contents/export", "POST", dict(kind="product", status="trash"), expected=400)

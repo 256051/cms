@@ -27,7 +27,7 @@ export default function ContentManager({ kind }: { kind: Content["kind"] }) {
   }));
   return <><Heading title={kind === "post" ? "文章" : kind === "template" ? "页面模板" : kind === "block" ? "公共区块" : kind === "product" ? "产品" : kind === "case" ? "案例" : "独立页面"} description={kind === "block" ? "维护可同步更新的公共内容；发布后影响引用它的页面，独立副本保留各自内容。" : kind === "template" ? "设计可复用的页面布局。发布后可在页面搭建器中选择，模板修改不会影响已有页面。" : "筛选、批量管理内容，或从回收站恢复误删内容。"}>
     <div className="row-actions content-manager-actions">
-      {["product", "case", "page"].includes(kind) && <ContentTransfer key={kind} kind={kind} ids={Object.keys(selection)}
+      {["post", "product", "case", "page"].includes(kind) && <ContentTransfer key={kind} kind={kind} ids={Object.keys(selection)}
         filters={{ q, status, categoryId: category, tagId: tag }} disabled={busy}
         canExport={!trash && !loading && !error && !!data?.total} onError={setMessage}
         imported={async () => { setSelection({}); setMessage(""); await reload(); }} />}

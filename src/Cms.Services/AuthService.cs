@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using System.Net.Mail;
 using Cms.Data;
 using MapsterMapper;
 using Microsoft.AspNetCore.Identity;
@@ -134,12 +135,35 @@ public sealed class AuthService(CmsRepository repository, IMapper mapper, LoginP
     {
         var name = (input.Username ?? "").Trim().ToLowerInvariant();
         if (!Regex.IsMatch(name, "^[a-z0-9][a-z0-9._-]{2,63}$") || string.IsNullOrWhiteSpace(input.DisplayName) ||
-            input.DisplayName.Length > 100 || input.Role is not ("Admin" or "Editor"))
+            input.DisplayName.Length > 100 || input.Role is not ("Admin" or "Editor" or "Support"))
             throw new CmsException(400, "INVALID_USER", "账号需为 3–64 位字母、数字或 ._-，请填写姓名并选择有效角色。");
         if (!string.IsNullOrEmpty(input.Password)) ValidatePassword(input.Password);
+        var email = input.Email?.Trim() ?? "";
+        if (email.Length > 254 || email != "" && (!MailAddress.TryCreate(email, out var address) || address.Address != email))
+            throw new CmsException(400, "INVALID_EMAIL", "请填写有效的通知邮箱，或留空使用站点收件人。");
         return new CmsUser
-            { Username = name, DisplayName = input.DisplayName.Trim(), Role = input.Role, Enabled = input.Enabled };
+            { Username = name, DisplayName = input.DisplayName.Trim(), Role = input.Role, Enabled = input.Enabled, Email = email };
     }
+
+    /// <summary>Recover an existing administrator from the server console, revoking sessions and machine credentials.</summary>
+    public Task<bool> ResetAdministratorPasswordAsync(string username, string password) => repository.WriteAsync("operator", "password.recover", async repo =>
+    {
+        ValidatePassword(password);
+        var name = username.Trim().ToLowerInvariant();
+        var user = await repo.FirstAsync<CmsUser>(x => x.Username == name && x.Role == "Admin") ?? throw Missing();
+        user.PasswordHash = hasher.HashPassword(user, password);
+        user.SecurityStamp = Guid.NewGuid().ToString("N");
+        user.Enabled = true;
+        await repo.UpdateAsync(user);
+        foreach (var token in await repo.ListAsync<AccessToken>(x => x.UserId == user.Id && x.RevokedAt == null))
+        {
+            token.RevokedAt = DateTime.UtcNow;
+            await repo.UpdateAsync(token);
+        }
+        repo.SetAuditTarget("user", user.Id, user.DisplayName);
+        protection.Succeeded(name);
+        return true;
+    });
 
     private static void ValidatePassword(string? value)
     {

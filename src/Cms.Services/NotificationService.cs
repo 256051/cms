@@ -52,6 +52,21 @@ public sealed class NotificationService(CmsRepository repository, IConfiguration
     /// <summary>Page safe delivery records for administrators.</summary>
     public Task<PageResult<NotificationDelivery>> ListAsync(int page) => repository.PageAsync<NotificationDelivery>(x => true, page, 30);
 
+    /// <summary>Queue one auditable test through a configured channel, at most once per minute per channel.</summary>
+    public Task<NotificationDelivery> TestAsync(string actor, string channel) => repository.WriteAsync(actor, "notification.test", async repo =>
+    {
+        var settings = Settings();
+        if (!settings.Enabled || !Channels.Contains(channel) || settings.Errors.Length > 0)
+            throw new CmsException(400, "NOTIFICATION_NOT_READY", "请先启用通知渠道并修正配置错误。");
+        var since = DateTime.UtcNow.AddMinutes(-1);
+        if (await repo.CountAsync<NotificationDelivery>(x => x.Kind == "test" && x.Channel == channel && x.CreatedAt > since) > 0)
+            throw new CmsException(429, "RATE_LIMITED", "同一渠道每分钟只能发送一条测试通知，请稍后查看发送结果。", 60);
+        var row = new NotificationDelivery { Kind = "test", Channel = channel, TargetId = actor, OccurredAt = DateTime.UtcNow,
+            EventKey = "test:" + Guid.NewGuid().ToString("N"), Title = "通知渠道测试", Path = "/admin/notifications" };
+        repo.SetAuditTarget("notification", row.Id, row.Title);
+        await repo.InsertAsync(row); return row;
+    });
+
     /// <summary>Queue a fresh retry round for an unsent failed message without resending successful events.</summary>
     public Task<bool> RetryAsync(string actor, string id) => repository.WriteAsync(actor, "notification.retry", async repo =>
     {
@@ -137,6 +152,7 @@ public sealed class NotificationService(CmsRepository repository, IConfiguration
 
     private async Task<bool> RelevantAsync(NotificationDelivery row)
     {
+        if (row.Kind == "test") return true;
         if (row.Kind is "lead-new" or "lead-overdue")
         {
             var lead = await repository.FindAsync<CustomerLead>(row.TargetId);
@@ -169,7 +185,14 @@ public sealed class NotificationService(CmsRepository repository, IConfiguration
             return;
         }
         using var message = new MailMessage { From = new MailAddress(Value("Email:From")), Subject = "CMS · " + row.Title, Body = body };
-        message.To.Add(Value("Email:To"));
+        var recipient = Value("Email:To");
+        if (row.Kind is "lead-new" or "lead-overdue")
+        {
+            var lead = await repository.FindAsync<CustomerLead>(row.TargetId);
+            var owner = lead == null || lead.OwnerId == "" ? null : await repository.FindAsync<CmsUser>(lead.OwnerId);
+            if (owner is { Enabled: true, Email.Length: > 0 } && owner.Role is "Admin" or "Support") recipient = owner.Email;
+        }
+        message.To.Add(recipient);
         if (message.To.Count is < 1 or > 20) throw new InvalidOperationException("Invalid recipients.");
         using var smtp = new SmtpClient(Value("Email:Host"), config.GetValue<int>("Notifications:Email:Port", 587)) {
             EnableSsl = config.GetValue<bool>("Notifications:Email:EnableSsl", true), UseDefaultCredentials = false };

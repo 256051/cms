@@ -26,11 +26,15 @@ public class CmsUser : Entity
     [Column(StringLength = 100)]
     public string DisplayName { get; set; } = "";
 
+    /// <summary>Optional address for assigned inquiry notifications.</summary>
+    [Column(StringLength = 254)]
+    public string Email { get; set; } = "";
+
     /// <summary>ASP.NET password hash.</summary>
     [Column(StringLength = 512)]
     public string PasswordHash { get; set; } = "";
 
-    /// <summary>Admin or Editor role.</summary>
+    /// <summary>Admin, Editor or Support role.</summary>
     [Column(StringLength = 16)]
     public string Role { get; set; } = "Editor";
 
@@ -198,6 +202,13 @@ public class Comment : Entity
 
     /// <summary>Moderator approval.</summary>
     public bool Approved { get; set; }
+
+    /// <summary>Plain-text official response; empty when unanswered.</summary>
+    [Column(StringLength = 2000)] public string Reply { get; set; } = "";
+    /// <summary>Administrator display name at response time.</summary>
+    [Column(StringLength = 100)] public string ReplyBy { get; set; } = "";
+    /// <summary>Most recent official response time.</summary>
+    public DateTime? RepliedAt { get; set; }
 }
 
 /// <summary>Flat navigation entry.</summary>

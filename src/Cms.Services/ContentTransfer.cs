@@ -278,9 +278,9 @@ public sealed partial class ContentService
         .Concat(draft.Layout?.Blocks.Select(x => x.CategoryId) ?? []).Where(x => x != "").Distinct();
     private static string ImportSlug(string original, int max) => original[..Math.Min(original.Length, max - 20)].TrimEnd('-') + "-import-" + Guid.NewGuid().ToString("N")[..12];
     private static bool PackageId(string? value, bool empty = false) => value != null && (empty && value == "" || Regex.IsMatch(value, "^[a-f0-9]{32}$"));
-    private static string PackageLabel(string kind) => kind == "product" ? "产品" : kind == "case" ? "案例" : "独立页面";
+    private static string PackageLabel(string kind) => kind == "post" ? "文章" : kind == "product" ? "产品" : kind == "case" ? "案例" : "独立页面";
     private static void CheckPackageKind(string kind)
-    { if (kind is not ("product" or "case" or "page")) throw PackageError("仅支持产品、案例和独立页面的内容包。"); }
+    { if (kind is not ("post" or "product" or "case" or "page")) throw PackageError("仅支持文章、产品、案例和独立页面的内容包。"); }
     private static CmsException PackageError(string message) => new(400, "INVALID_CONTENT_PACKAGE", message);
     private static async Task<byte[]> ReadPackageBytes(Stream stream, long limit, CancellationToken cancellation)
     {

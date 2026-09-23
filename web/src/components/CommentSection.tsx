@@ -41,6 +41,8 @@ export default function CommentSection({ contentId, preview = false, requireAppr
           <strong>{c.author}</strong>
           <time>{new Date(c.createdAt).toLocaleDateString("zh-CN")}</time>
           <p>{c.body}</p>
+          {c.reply && <blockquote><strong>管理员回复 · {c.replyBy}</strong><p style={{ whiteSpace: "pre-wrap" }}>{c.reply}</p>
+            {c.repliedAt && <time dateTime={c.repliedAt}>{new Date(c.repliedAt).toLocaleDateString("zh-CN")}</time>}</blockquote>}
         </article>
       ))}
       {data && (

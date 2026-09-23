@@ -55,7 +55,7 @@ export default function TokenManager({ user }: { user: User }) {
         <fieldset className="form-fields" disabled={busy || !!issued || members.loading || !members.data}>
           <div className="form-grid">
             <label>令牌名称<input name="name" required maxLength={100} placeholder="例如：文章发布助手" autoComplete="off" /></label>
-            <label>关联账号<select name="userId" defaultValue={user.id} required>{members.data?.filter(member => member.enabled).map(member => <option key={member.id} value={member.id}>{member.displayName}（{member.username}）</option>)}</select></label>
+            <label>关联账号<select name="userId" defaultValue={user.id} required>{members.data?.filter(member => member.enabled && member.role !== "Support").map(member => <option key={member.id} value={member.id}>{member.displayName}（{member.username}）</option>)}</select></label>
             <label>到期时间<input name="expiresAt" type="datetime-local" required defaultValue={localDate(new Date(Date.now() + 30 * 86_400_000))} min={localDate(new Date(Date.now() + 60_000))} max={localDate(new Date(Date.now() + 365 * 86_400_000))} /></label>
           </div>
           <p className="muted">时间按当前设备时区显示，最长一年。关联账号停用或删除后，令牌不能访问接口。</p>

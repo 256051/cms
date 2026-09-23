@@ -1,30 +1,94 @@
 using System.IO.Compression;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Cms.Data;
 using Microsoft.Extensions.Configuration;
 
 namespace Cms.Services;
 
 /// <summary>Backup status plus deployment-managed schedules.</summary>
-public record MaintenanceView(MaintenanceState State, int BackupIntervalHours, int TrafficRetentionDays);
+public record MaintenanceView(MaintenanceState State, int BackupIntervalHours, int TrafficRetentionDays,
+    int BackupKeepCount, int BackupRetentionDays, long? DiskFreeBytes, long? DiskTotalBytes, string StorageWarning);
+/// <summary>One private backup archive; no filesystem path is exposed.</summary>
+public record BackupFile(string Name, long Size, DateTime CreatedAt, bool Latest);
 /// <summary>Portable schema-specific archive integrity manifest.</summary>
 public record BackupManifest(int Schema, string ApplicationVersion, DateTime CreatedAt, Dictionary<string, string> Sha256);
 
 /// <summary>Portable logical backups, isolated restore and explicit traffic retention.</summary>
 public sealed class MaintenanceService(CmsRepository repository, IConfiguration config)
 {
-    private readonly string backups = Path.GetFullPath(config["Maintenance:BackupPath"] ?? "data/backups");
+    private static readonly SemaphoreSlim BackupGate = new(1, 1);
+    private readonly string backups = Path.TrimEndingDirectorySeparator(Path.GetFullPath(config["Maintenance:BackupPath"] ?? "data/backups"));
     private readonly string uploads = Path.GetFullPath(config["Storage:Path"] ?? "data/uploads");
     private readonly string keys = Path.GetFullPath(config["Security:KeyPath"] ?? "data/keys");
-    private int BackupHours => Math.Clamp(config.GetValue<int>("Maintenance:BackupIntervalHours"), 0, 8760);
+    private int BackupHours => Math.Clamp(config.GetValue<int>("Maintenance:BackupIntervalHours", 24), 0, 8760);
     private int RetentionDays => config.GetValue<int>("Maintenance:TrafficRetentionDays") is var days && days > 0 ? Math.Clamp(days, 90, 3650) : 0;
+    private int KeepCount => Math.Clamp(config.GetValue<int>("Maintenance:BackupKeepCount", 14), 0, 10000);
+    private int BackupDays => Math.Clamp(config.GetValue<int>("Maintenance:BackupRetentionDays", 30), 0, 3650);
 
     /// <summary>Read backup success, failure and the configured maintenance policy.</summary>
-    public async Task<MaintenanceView> StatusAsync() => new(await repository.FindAsync<MaintenanceState>("site") ?? new() { Id = "site" }, BackupHours, RetentionDays);
+    public async Task<MaintenanceView> StatusAsync()
+    {
+        long? free = null, total = null;
+        var warning = "";
+        try
+        {
+            var drive = DriveInfo.GetDrives().Where(x => x.IsReady && (backups + Path.DirectorySeparatorChar).StartsWith(
+                Path.EndsInDirectorySeparator(x.Name) ? x.Name : x.Name + Path.DirectorySeparatorChar, OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal))
+                .OrderByDescending(x => x.Name.Length).FirstOrDefault();
+            if (drive != null) { free = drive.AvailableFreeSpace; total = drive.TotalSize; }
+            var threshold = Math.Clamp(config.GetValue<long>("Maintenance:LowDiskSpaceMb", 1024), 1, 1_048_576) * 1024 * 1024;
+            if (free < threshold) warning = "备份磁盘可用空间不足，请下载备份到安全位置并及时释放空间。";
+            if (free == null) warning = "无法读取备份磁盘容量，请由维护人员检查。";
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { warning = "无法读取备份磁盘容量，请由维护人员检查。"; }
+        return new(await repository.FindAsync<MaintenanceState>("site") ?? new() { Id = "site" }, BackupHours, RetentionDays,
+            KeepCount, BackupDays, free, total, warning);
+    }
+
+    /// <summary>List only application-owned regular archives, newest first.</summary>
+    public async Task<IReadOnlyList<BackupFile>> FilesAsync()
+    {
+        var state = await repository.FindAsync<MaintenanceState>("site");
+        return ArchiveFiles().Select(x => new BackupFile(x.Name, x.Length, x.LastWriteTimeUtc, x.Name == state?.FileName)).ToArray();
+    }
+
+    private FileInfo[] ArchiveFiles() => !Directory.Exists(backups) ? [] : new DirectoryInfo(backups).EnumerateFiles("cms-*.zip")
+        .Where(x => Regex.IsMatch(x.Name, "^cms-[0-9]{8}-[0-9]{6}-[a-f0-9]{32}\\.zip$") &&
+            (x.Attributes & FileAttributes.ReparsePoint) == 0).OrderByDescending(x => x.LastWriteTimeUtc).ThenByDescending(x => x.Name).ToArray();
 
     /// <summary>Create an integrity-checked archive of database tables, retained attachments and authentication keys.</summary>
     public async Task<MaintenanceView> BackupAsync(string actor)
+    {
+        if (!await BackupGate.WaitAsync(0)) throw new CmsException(409, "BACKUP_BUSY", "已有备份正在执行，请稍后刷新状态。");
+        try
+        {
+            var result = await CreateBackupAsync(actor);
+            if (KeepCount > 0 || BackupDays > 0)
+            {
+                var obsolete = ArchiveFiles().Where((file, index) => file.Name != result.State.FileName &&
+                    (KeepCount > 0 && index >= KeepCount || BackupDays > 0 && file.LastWriteTimeUtc < DateTime.UtcNow.AddDays(-BackupDays))).ToArray();
+                if (obsolete.Length > 0)
+                    await repository.WriteAsync(actor, "maintenance.backup-cleanup", async repo =>
+                    {
+                        repo.SetAuditTarget("maintenance", "site", "清理过期备份");
+                        try { foreach (var file in obsolete) File.Delete(ArchivePath(file.Name)); }
+                        catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+                        {
+                            var state = await repo.FindAsync<MaintenanceState>("site");
+                            state!.Error = "最新备份已成功，但部分旧备份未能清理，请检查目录权限。";
+                            await repo.UpdateAsync(state);
+                        }
+                        return true;
+                    });
+            }
+            return await StatusAsync();
+        }
+        finally { BackupGate.Release(); }
+    }
+
+    private async Task<MaintenanceView> CreateBackupAsync(string actor)
     {
         var filename = $"cms-{DateTime.UtcNow:yyyyMMdd-HHmmss}-{Guid.NewGuid():N}.zip";
         var path = Path.Combine(backups, filename);
@@ -80,17 +144,25 @@ public sealed class MaintenanceService(CmsRepository repository, IConfiguration 
         return await StatusAsync();
     }
 
-    /// <summary>Download only the last successful archive from the private backup directory.</summary>
-    public async Task<FileView> DownloadAsync()
+    /// <summary>Download a named archive or the last successful archive from the private backup directory.</summary>
+    public async Task<FileView> DownloadAsync(string? name = null)
     {
         var state = await repository.FindAsync<MaintenanceState>("site");
-        if (string.IsNullOrEmpty(state?.FileName)) throw new CmsException(404, "NOT_FOUND", "尚无成功备份。");
-        var path = Path.Combine(backups, SafeName(state.FileName));
-        if (!File.Exists(path)) throw new CmsException(404, "NOT_FOUND", "备份文件不存在。");
-        return new(path, "application/zip", state.FileName);
+        name ??= state?.FileName;
+        if (string.IsNullOrEmpty(name)) throw new CmsException(404, "NOT_FOUND", "尚无成功备份。");
+        return new(ArchivePath(name), "application/zip", name);
     }
 
-    /// <summary>Run configured backups and detail cleanup; defaults leave both disabled.</summary>
+    private string ArchivePath(string name)
+    {
+        if (!Regex.IsMatch(name, "^cms-[0-9]{8}-[0-9]{6}-[a-f0-9]{32}\\.zip$")) throw new CmsException(400, "INVALID_BACKUP", "备份文件名无效。");
+        var path = Path.GetFullPath(Path.Combine(backups, name));
+        if (Path.GetDirectoryName(path) != backups || !File.Exists(path) || (File.GetAttributes(path) & FileAttributes.ReparsePoint) != 0)
+            throw new CmsException(404, "NOT_FOUND", "备份文件不存在。");
+        return path;
+    }
+
+    /// <summary>Run scheduled backups and explicitly enabled traffic detail cleanup.</summary>
     public async Task RunAsync()
     {
         var view = await StatusAsync();

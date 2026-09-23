@@ -156,11 +156,14 @@ export function AssetManager() {
 
 export function TaxonomyManager() {
   const changes = useUnsavedChanges();
-  const { data, error, setError, reload, loading } =
+  const { data, setData, error, setError, reload, loading } =
     useLoad<Taxonomy[]>("admin/taxonomy");
   const [editing, setEditing] = useState<Taxonomy>();
   const [busy, setBusy] = useState(false);
   const [success, setSuccess] = useState("");
+  const [deleting, setDeleting] = useState<Taxonomy>();
+  const [deleteError, setDeleteError] = useState("");
+  const [deleted, setDeleted] = useState(false);
   return (
     <>
       <Heading
@@ -168,6 +171,31 @@ export function TaxonomyManager() {
         description="用清晰的结构组织内容，帮助读者发现更多。"
       />
       <Notice error={error} success={success} />
+      {deleting && <EditorDialog title="删除分类 / 标签" close={() => { if (!busy) setDeleting(undefined); }}>
+        <Notice error={deleteError} success={deleted ? `已删除“${deleting.name}”。` : ""} />
+        {!deleted && <p>确定删除“{deleting.name}”？被内容、导航或历史版本引用时无法删除。</p>}
+        <div className="row-actions">
+          {deleted ? <button type="button" onClick={() => setDeleting(undefined)}>完成</button> : <>
+            <button type="button" className="secondary" disabled={busy} onClick={() => setDeleting(undefined)}>取消</button>
+            <button type="button" className="danger" disabled={busy} onClick={async () => {
+              setBusy(true); setDeleteError("");
+              try {
+                await api("admin/taxonomy/" + deleting.id, "DELETE");
+                setData(rows => rows?.filter(row => row.id !== deleting.id));
+                if (editing?.id === deleting.id) {
+                  changes.markSaved();
+                  setEditing(undefined);
+                }
+                setDeleted(true);
+              } catch (e) {
+                setDeleteError((e as Error).message);
+              } finally {
+                setBusy(false);
+              }
+            }}>{busy ? "正在删除…" : "确认删除"}</button>
+          </>}
+        </div>
+      </EditorDialog>}
       <LoadState
         loading={loading}
         error={error}
@@ -187,6 +215,7 @@ export function TaxonomyManager() {
             onSubmit={async (e) => {
               e.preventDefault();
               setBusy(true);
+              setError(""); setSuccess("");
               const f = new FormData(e.currentTarget);
               try {
                 await api(
@@ -296,21 +325,9 @@ export function TaxonomyManager() {
                           className="icon-button danger-text"
                           aria-label={"删除 " + t.name}
                           disabled={busy}
-                          onClick={async () => {
-                            if (!confirm("删除此分类或标签？")) return;
-                            setBusy(true);
-                            try {
-                              await api("admin/taxonomy/" + t.id, "DELETE");
-                              if (editing?.id === t.id) {
-                                changes.markSaved();
-                                setEditing(undefined);
-                              }
-                              await reload();
-                            } catch (e) {
-                              setError((e as Error).message);
-                            } finally {
-                              setBusy(false);
-                            }
+                          onClick={() => {
+                            setError(""); setSuccess(""); setDeleteError(""); setDeleted(false);
+                            setDeleting(t);
                           }}
                         >
                           <Trash2 size={16} />

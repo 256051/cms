@@ -188,13 +188,19 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
             var row = await repo.FindAsync<Taxonomy>(id) ?? throw Missing();
             repo.SetAuditTarget(row.Kind, row.Id, row.Name);
             var marker = "|" + id + "|";
-            if (await repo.CountAsync<MenuItem>(x => x.TargetId == id && x.Type == row.Kind) > 0)
-                throw new CmsException(409, "MENU_IN_USE", "导航菜单引用了此分类或标签，请先修改或删除对应菜单项。");
-            if (await repo.CountAsync<Content>(x =>
+            var menu = await repo.FirstAsync<MenuItem>(x => x.TargetId == id && x.Type == row.Kind);
+            if (menu != null)
+                throw new CmsException(409, "MENU_IN_USE", $"导航菜单“{menu.Label}”引用了此分类或标签，请先修改或删除该菜单项。");
+            var content = await repo.FirstAsync<Content>(x =>
                     x.CategoryId == id || x.PublishedCategoryId == id || x.TagIds.Contains(marker) ||
-                    x.PublishedTagIds.Contains(marker) || x.ScheduledJson.Contains(id) || x.LayoutJson.Contains(id) || x.PublishedJson.Contains(id)) > 0 ||
-                await repo.CountAsync<ContentRevision>(x => x.SnapshotJson.Contains(id)) > 0)
-                throw new CmsException(409, "IN_USE", "已有内容引用此分类或标签，请先移除引用。");
+                    x.PublishedTagIds.Contains(marker) || x.ScheduledJson.Contains(id) || x.LayoutJson.Contains(id) || x.PublishedJson.Contains(id));
+            if (content != null)
+                throw new CmsException(409, "IN_USE", content.DeletedAt != null
+                    ? $"回收站中的“{content.Title}”仍引用此分类或标签。请恢复内容后处理引用，或确认不再需要该内容后彻底删除。"
+                    : $"内容“{content.Title}”仍引用此分类或标签，请检查草稿、已发布版本、定时发布和页面模块中的引用。");
+            var revision = await repo.FirstAsync<ContentRevision>(x => x.SnapshotJson.Contains(id));
+            if (revision != null)
+                throw new CmsException(409, "IN_USE", $"“{revision.Title}”的历史版本仍引用此分类或标签，仅修改当前内容不能解除历史引用。保留历史版本时需保留该分类或标签。");
             await repo.DeleteAsync<Taxonomy>(id);
             return true;
         });

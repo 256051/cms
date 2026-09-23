@@ -2,6 +2,16 @@
 
 参考 [Halo 菜单文档](https://docs.halo.run/guide/use/menus) 和提供的菜单项截图实现，入口为后台 `/admin/menu`。本期管理网站的主导航，所有四套内置主题共用；首页与搜索入口仍由主题提供。
 
+## 友情链接
+
+后台「设计与素材 → 友情链接」（`/admin/friend-links`）可新增、编辑、删除网站底部链接，填写名称、完整 HTTP/HTTPS 网址、排序和打开方式。排序越小越靠前，默认新窗口打开；保存后立即生效，没有链接时不显示该区域。
+
+所有主题和页面布局预览共用页脚展示；页面明确关闭页脚时不显示。友情链接与顶部导航分开，只有管理员可以维护，沿用版本冲突检查、未保存提醒和操作记录。
+
+接口为 `GET/POST /api/v1/admin/friend-links`、`PUT/DELETE /api/v1/admin/friend-links/{id}`，访客通过 `GET /api/v1/public/friend-links` 读取。复用 `cms_menu` 的 `Type=friend`，无需修改数据库结构或添加部署配置，随现有数据库备份保存。
+
+验收：先运行 `dotnet build --no-restore`，再设置 `CMS_TEST_CONFIGURATION=Debug` 并执行 `python tests/friend_links_browser.py`。测试使用独立数据库、端口和前端构建，覆盖增删改、菜单隔离、网址校验、版本冲突，以及全部主题在手机和电脑宽度下的页脚展示。
+
 ## 添加和编辑
 
 1. 点击“新增菜单项”，或直接填写左侧添加表单。

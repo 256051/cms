@@ -664,6 +664,8 @@ export function AuditManager() {
     "theme.apply": "应用主题外观",
     "menu.save": "保存导航",
     "menu.delete": "删除导航",
+    "friend-link.save": "保存友情链接",
+    "friend-link.delete": "删除友情链接",
     "taxonomy.save": "保存分类标签",
     "taxonomy.delete": "删除分类标签",
     "token.create": "创建访问令牌",
@@ -708,6 +710,7 @@ export function AuditManager() {
                               category: "分类",
                               tag: "标签",
                               menu: "菜单",
+                              "friend-link": "友情链接",
                               theme: "主题",
                               token: "访问令牌",
                             } as Record<string, string>

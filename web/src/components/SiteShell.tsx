@@ -16,10 +16,11 @@ export default async function SiteShell({
   context?: ThemeContext;
   layout?: PageLayout | null;
 }) {
-  const [site, menus, theme] = await Promise.all([
+  const [site, menus, theme, friendLinks] = await Promise.all([
     publicApi<Settings>("settings"),
     publicApi<Menu[]>("menu"),
     context?.theme ?? publicApi<ThemeView>("theme"),
+    publicApi<Menu[]>("friend-links"),
   ]);
   const source = themeSource(theme.themeId);
   const hasSidebar = !layout && ["fuwari", "chirpy", "stellar", "halorum", "aurora", "iemo", "clarity"].includes(theme.themeId);
@@ -38,7 +39,7 @@ export default async function SiteShell({
         <ThemeSidebar site={site} taxonomy={taxonomy} preview={context?.preview} />
       </div> : <main id="main">{children}</main>}
       <Suspense fallback={null}><PublicTraffic preview={!!context?.preview} /></Suspense>
-      {layout?.showFooter !== false && <SiteFooter site={site} />}
+      {layout?.showFooter !== false && <SiteFooter site={site} friendLinks={friendLinks} />}
     </div>
   );
 }

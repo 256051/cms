@@ -30,6 +30,7 @@ export default function LayoutPreview({ layout, title = "", fields = [] }: { lay
   const host = useRef<HTMLDivElement>(null);
   const { data: theme } = useLoad<ThemeView>("public/theme");
   const site = useLoad<Settings>("public/settings"), menus = useLoad<Menu[]>("public/menu");
+  const friendLinks = useLoad<Menu[]>("public/friend-links");
   const sources = JSON.stringify((displayed?.blocks || []).filter(x => x.type === "posts" && !x.hidden).map(x => ({ id: x.id, categoryId: x.categoryId, limit: x.limit, contentKind: x.contentKind || "post" })));
   useEffect(() => {
     let cancelled = false;
@@ -64,7 +65,7 @@ export default function LayoutPreview({ layout, title = "", fields = [] }: { lay
       <BusinessDetails fields={fields} />
       {displayed ? <PageLayoutView layout={displayed} posts={posts} preview /> : <p role="status">{blockError || "正在加载公共区块…"}</p>}
       </main>
-      {layout.showFooter && site.data && <SiteFooter site={site.data} />}
+      {layout.showFooter && site.data && <SiteFooter site={site.data} friendLinks={friendLinks.data} />}
     </div>, target)}
     <small className="muted">按设备宽度渲染并缩放显示，可在预览区域内滚动。导航和咨询提交在预览中禁用。</small>
   </section>;

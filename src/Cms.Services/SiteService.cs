@@ -18,10 +18,10 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
         return repository.ListAsync<Taxonomy>();
     }
 
-    /// <summary>Resolve live destinations, omitting unavailable branches from the public navigation.</summary>
-    public async Task<IReadOnlyList<MenuView>> MenuAsync(bool published = false)
+    /// <summary>Resolve navigation or footer links, omitting unavailable branches for visitors.</summary>
+    public async Task<IReadOnlyList<MenuView>> MenuAsync(bool published = false, bool friendLinks = false)
     {
-        var rows = await repository.ListAsync<MenuItem>();
+        var rows = await repository.ListAsync<MenuItem>(x => friendLinks ? x.Type == "friend" : x.Type != "friend");
         var views = await ResolveMenuAsync(repository, rows);
         var byId = views.ToDictionary(x => x.Id);
 
@@ -77,7 +77,7 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
             var label = post?.PublishedTitle ?? term?.Name ?? row.Label;
             var url = post != null ? ContentUrl(post) : term != null ? $"/{term.Kind}/{term.Slug}" : row.Url;
             return new MenuView(row.Id, label, url, row.Sort, row.ParentId, row.Type, row.TargetId, row.OpenInNewTab,
-                row.Version, row.Type == "custom" || post != null || term != null);
+                row.Version, row.Type is "custom" or "friend" || post != null || term != null);
         }).ToList();
     }
 
@@ -184,30 +184,38 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
         });
     }
 
-    /// <summary>Save safe site navigation.</summary>
-    public Task<MenuView> SaveMenuAsync(string actor, string? id, MenuInput input)
+    /// <summary>Save a safe navigation or footer link without allowing moves between the two groups.</summary>
+    public Task<MenuView> SaveMenuAsync(string actor, string? id, MenuInput input, bool friendLinks = false)
     {
-        return repository.WriteAsync(actor, "menu.save", async repo =>
+        return repository.WriteAsync(actor, friendLinks ? "friend-link.save" : "menu.save", async repo =>
         {
-            if (input.Type is not ("custom" or "post" or "page" or "product" or "case" or "category" or "tag") || input.Version < 0 ||
+            if (friendLinks) input = input with { Type = "friend" };
+            if ((friendLinks ? input.Type != "friend" : input.Type is not ("custom" or "post" or "page" or "product" or "case" or "category" or "tag")) || input.Version < 0 ||
                 input.Version == int.MaxValue) throw Bad("菜单类型或版本号无效。");
             var row = id == null ? new MenuItem() : await repo.FindAsync<MenuItem>(id) ?? throw Missing();
+            if (id != null && (row.Type == "friend") != friendLinks) throw Missing();
+            if (friendLinks && (!string.IsNullOrEmpty(input.ParentId) || !string.IsNullOrEmpty(input.TargetId)))
+                throw Bad("友情链接不支持上级菜单或关联内容。");
             row.ParentId = input.ParentId ?? "";
             row.Type = input.Type;
             row.TargetId = input.TargetId ?? "";
             row.OpenInNewTab = input.OpenInNewTab;
             row.Sort = input.Sort;
             if (row.ParentId.Length > 32 || row.TargetId.Length > 32) throw Bad("上级菜单或关联内容无效。");
-            if (input.Type == "custom")
+            if (input.Type is "custom" or "friend")
             {
                 Text(input.Label, 60);
                 Text(input.Url, 500);
                 var url = input.Url.Trim();
+                if (friendLinks && (!Uri.TryCreate(url, UriKind.Absolute, out var friendUri) ||
+                    friendUri.Scheme is not ("https" or "http") || string.IsNullOrEmpty(friendUri.Host) ||
+                    friendUri.UserInfo != "" || url.Any(char.IsWhiteSpace)))
+                    throw Bad("友情链接请填写完整的 HTTP 或 HTTPS 网址。");
                 if (url.Contains('\\') || url.Any(char.IsControl) || !((url.StartsWith('/') && !url.StartsWith("//")) ||
                                                                        url.StartsWith('#') ||
                                                                        (Uri.TryCreate(url, UriKind.Absolute,
                                                                             out var uri) &&
-                                                                        uri.Scheme == "https")))
+                                                                        (uri.Scheme == "https" || friendLinks && uri.Scheme == "http"))))
                     throw Bad("链接仅支持站内路径、页内锚点或 HTTPS 地址。");
                 row.Label = input.Label.Trim();
                 row.Url = url;
@@ -221,7 +229,7 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
                 row.Url = resolved.Url;
             }
 
-            var all = (await repo.ListAsync<MenuItem>()).ToDictionary(x => x.Id);
+            var all = (await repo.ListAsync<MenuItem>(x => friendLinks ? x.Type == "friend" : x.Type != "friend")).ToDictionary(x => x.Id);
             all[row.Id] = row;
             foreach (var item in all.Values)
             {
@@ -236,24 +244,25 @@ public sealed class SiteService(CmsRepository repository, SettingsValidator sett
                 }
             }
 
-            repo.SetAuditTarget("menu", row.Id, row.Label);
+            repo.SetAuditTarget(friendLinks ? "friend-link" : "menu", row.Id, row.Label);
             if (id == null) await repo.InsertAsync(row);
             else await repo.SaveMenuAsync(row, input.Version);
             return (await ResolveMenuAsync(repo, [row]))[0];
         });
     }
 
-    /// <summary>Remove a leaf navigation entry without leaving orphaned children.</summary>
-    public Task<bool> DeleteMenuAsync(string actor, string id, int? version = null)
+    /// <summary>Remove a navigation or footer link without leaving orphaned children.</summary>
+    public Task<bool> DeleteMenuAsync(string actor, string id, int? version = null, bool friendLinks = false)
     {
-        return repository.WriteAsync(actor, "menu.delete", async repo =>
+        return repository.WriteAsync(actor, friendLinks ? "friend-link.delete" : "menu.delete", async repo =>
         {
             var row = await repo.FindAsync<MenuItem>(id) ?? throw Missing();
+            if ((row.Type == "friend") != friendLinks) throw Missing();
             if (version.HasValue && version != row.Version)
                 throw new CmsException(409, "VERSION_CONFLICT", "菜单已被其他管理员修改，请重新加载。");
             if (await repo.CountAsync<MenuItem>(x => x.ParentId == id) > 0)
                 throw new CmsException(409, "MENU_HAS_CHILDREN", "请先移动或删除子菜单，再删除此菜单项。");
-            repo.SetAuditTarget("menu", row.Id, row.Label);
+            repo.SetAuditTarget(friendLinks ? "friend-link" : "menu", row.Id, row.Label);
             await repo.DeleteAsync<MenuItem>(id);
             return true;
         });

@@ -352,6 +352,38 @@ public sealed class AdminController(
         return Result(await site.DeleteMenuAsync(Actor, id, version));
     }
 
+    /// <summary>Read footer friend links.</summary>
+    [HttpGet("friend-links")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ApiResponse<IReadOnlyList<MenuView>>> FriendLinks()
+    {
+        return Result(await site.MenuAsync(friendLinks: true));
+    }
+
+    /// <summary>Create a footer friend link.</summary>
+    [HttpPost("friend-links")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ApiResponse<MenuView>> CreateFriendLink(MenuInput input)
+    {
+        return Result(await site.SaveMenuAsync(Actor, null, input, friendLinks: true));
+    }
+
+    /// <summary>Update a footer friend link.</summary>
+    [HttpPut("friend-links/{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ApiResponse<MenuView>> SaveFriendLink(string id, MenuInput input)
+    {
+        return Result(await site.SaveMenuAsync(Actor, id, input, friendLinks: true));
+    }
+
+    /// <summary>Delete a footer friend link.</summary>
+    [HttpDelete("friend-links/{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ApiResponse<bool>> DeleteFriendLink(string id, int? version = null)
+    {
+        return Result(await site.DeleteMenuAsync(Actor, id, version, friendLinks: true));
+    }
+
     /// <summary>Read site settings.</summary>
     [HttpGet("settings")]
     [Authorize(Roles = "Admin")]
@@ -461,6 +493,13 @@ public sealed class PublicController(ContentService content, SiteService site, T
     public async Task<ApiResponse<IReadOnlyList<MenuView>>> Menu()
     {
         return Result(await site.MenuAsync(true));
+    }
+
+    /// <summary>Read public footer friend links in display order.</summary>
+    [HttpGet("friend-links")]
+    public async Task<ApiResponse<IReadOnlyList<MenuView>>> FriendLinks()
+    {
+        return Result(await site.MenuAsync(true, friendLinks: true));
     }
 
     /// <summary>List all published sitemap records.</summary>

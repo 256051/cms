@@ -219,7 +219,7 @@ public class MenuItem : Entity
     [Column(StringLength = 32)]
     public string ParentId { get; set; } = "";
 
-    /// <summary>Custom link, post, page, category or tag.</summary>
+    /// <summary>Custom link, content, taxonomy, or friend link displayed separately in the footer.</summary>
     [Column(StringLength = 16)]
     public string Type { get; set; } = "custom";
 

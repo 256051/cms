@@ -168,10 +168,18 @@ def main():
         admin.call("admin/contents/" + product["id"] + "/publish", "POST", dict(version=product["version"]))
         rendered = admin.call("/products/package-product").decode()
         assert "Docker 验收" in rendered and "部署 SEO" in rendered and "noindex" in rendered
+        friend = admin.call("admin/friend-links", "POST", dict(label="离线包友情链接", url="https://example.com/partner", sort=-1, openInNewTab=True))
+        assert friend["id"] not in {item["id"] for item in admin.call("public/menu")}
+        command(compose + ["restart", "api", "web"])
+        ready()
+        assert any(item["id"] == friend["id"] for item in admin.call("public/friend-links"))
+        assert "https://example.com/partner" in admin.call("/posts/package-proof").decode()
+        checks.append("Footer friend links persist after container restart and remain separate from header navigation")
         admin.call("admin/maintenance/backup", "POST")
         with zipfile.ZipFile(io.BytesIO(admin.call("admin/maintenance/download"))) as backup:
             assert json.loads(backup.read("manifest.json"))["Schema"] == manifest["schema"]
             assert json.loads(backup.read("database/SchemaVersion.json"))[0]["Version"] == manifest["schema"]
+            assert any(item["Id"] == friend["id"] for item in json.loads(backup.read("database/MenuItem.json")))
         checks.append("Packaged schema matches actual database and backup; product SEO/fields, asset groups, inquiry definitions and disabled notifications work")
         if args.browser:
             credentials = local / "browser-credentials.json"

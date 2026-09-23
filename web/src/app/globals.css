@@ -593,6 +593,13 @@ small {
   gap: 6px;
   align-items: center;
 }
+.friend-links { margin-bottom: 20px; }
+.friend-links > strong { color: var(--ink); }
+.friend-links ul { display: flex; flex-wrap: wrap; gap: 4px 20px; list-style: none; margin: 8px 0 0; padding: 0; }
+.friend-links li { min-width: 0; max-width: 100%; }
+.friend-links a { min-height: 44px; overflow-wrap: anywhere; }
+.friend-links a:hover { text-decoration: underline; }
+.friend-links svg { flex-shrink: 0; }
 .search-form {
   display: flex;
   gap: 10px;

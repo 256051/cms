@@ -20,8 +20,16 @@ export function SiteHeader({ site, menus, origin, preview, colorMode, staticPrev
   </header>;
 }
 
-export function SiteFooter({ site }: { site: Settings }) {
+export function SiteFooter({ site, friendLinks = [] }: { site: Settings; friendLinks?: Menu[] }) {
   return <footer className="site-footer">
+    {friendLinks.length > 0 && <nav className="friend-links" aria-label="友情链接">
+      <strong>友情链接</strong>
+      <ul>{friendLinks.map(link => <li key={link.id}>
+        <a href={link.url} target={link.openInNewTab ? "_blank" : undefined} rel={link.openInNewTab ? "noopener noreferrer" : undefined}>
+          {link.label}{link.openInNewTab && <ArrowUpRight size={13} aria-label="新窗口打开" />}
+        </a>
+      </li>)}</ul>
+    </nav>}
     <div><BookOpen size={20} /><strong>{site.title}</strong></div>
     <p>{site.description}</p>
     <span><span className="site-footer-text">{site.footerText.trim() || defaultCopyright()}</span>

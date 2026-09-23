@@ -11,6 +11,7 @@ import {
   Settings,
   Users,
   List,
+  Link as LinkIcon,
   LogOut,
   ArrowUpRight,
   ShieldCheck,
@@ -54,6 +55,7 @@ const navigationGroups: { label: string; items: [string, string, typeof FileText
   { label: "设计与素材", items: [
     ["templates", "页面模板", Files], ["blocks", "公共区块", Files], ["assets", "附件库", ImageIcon],
     ["menu", "导航菜单", List, true], ["themes", "主题外观", Palette, true],
+    ["friend-links", "友情链接", LinkIcon, true],
   ] },
   { label: "客户运营", items: [
     ["comments", "评论", MessageSquare], ["leads", "客户咨询", MessageSquare, true],
@@ -296,6 +298,8 @@ export default function AdminApp({ route }: { route: string[] }) {
               <SettingsManager />
             ) : section === "menu" ? (
               <MenuManager />
+            ) : section === "friend-links" ? (
+              <MenuManager friendLinks />
             ) : section === "users" ? (
               <UserManager />
             ) : section === "access-tokens" ? (

@@ -4150,6 +4150,182 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/friend-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read footer friend links. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
+                        "application/json": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
+                        "text/json": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Create a footer friend link. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["MenuInput"];
+                    "text/json": components["schemas"]["MenuInput"];
+                    "application/*+json": components["schemas"]["MenuInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfMenuView"];
+                        "application/json": components["schemas"]["ApiResponseOfMenuView"];
+                        "text/json": components["schemas"]["ApiResponseOfMenuView"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/friend-links/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Update a footer friend link. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["MenuInput"];
+                    "text/json": components["schemas"]["MenuInput"];
+                    "application/*+json": components["schemas"]["MenuInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfMenuView"];
+                        "application/json": components["schemas"]["ApiResponseOfMenuView"];
+                        "text/json": components["schemas"]["ApiResponseOfMenuView"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /** Delete a footer friend link. */
+        delete: {
+            parameters: {
+                query?: {
+                    version?: number;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfboolean"];
+                        "application/json": components["schemas"]["ApiResponseOfboolean"];
+                        "text/json": components["schemas"]["ApiResponseOfboolean"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/public/friend-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read public footer friend links in display order. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
+                        "application/json": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
+                        "text/json": components["schemas"]["ApiResponseOfIReadOnlyListOfMenuView"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {

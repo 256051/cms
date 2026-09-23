@@ -22,8 +22,9 @@ export async function api<T>(
   body?: unknown,
   keepalive = false,
   binary = false,
+  extraHeaders: Record<string, string> = {},
 ): Promise<T> {
-  const headers: Record<string, string> = {};
+  const headers: Record<string, string> = { ...extraHeaders };
   if (method !== "GET") {
     if (!csrf) {
       csrfRequest ??= (async () => {

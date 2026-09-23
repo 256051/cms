@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "http://127.0.0.1:61940/"
+      "url": "/"
     }
   ],
   "paths": {
@@ -26,6 +26,629 @@
       "get": {
         "tags": [
           "Cms.Api"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/commerce/settings": {
+      "get": {
+        "tags": [
+          "CommerceAdmin"
+        ],
+        "summary": "Read redacted payment configuration.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfCommerceSettingsView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfCommerceSettingsView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfCommerceSettingsView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CommerceAdmin"
+        ],
+        "summary": "Save encrypted merchant configuration.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommerceOptions"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommerceOptions"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommerceOptions"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfCommerceSettingsView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfCommerceSettingsView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfCommerceSettingsView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/commerce/products/{id}": {
+      "get": {
+        "tags": [
+          "CommerceAdmin"
+        ],
+        "summary": "Read product sale terms.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopProductView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopProductView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopProductView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "CommerceAdmin"
+        ],
+        "summary": "Update sale terms without changing previously purchased files or amounts.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShopProductInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShopProductInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShopProductInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopProductView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopProductView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopProductView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/commerce/files": {
+      "post": {
+        "tags": [
+          "CommerceAdmin"
+        ],
+        "summary": "Upload a private digital deliverable.",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "$ref": "#/components/schemas/IFormFile"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopFile"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopFile"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopFile"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/commerce/orders": {
+      "get": {
+        "tags": [
+          "CommerceAdmin"
+        ],
+        "summary": "Page transactions without exposing receipt credentials.",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfShopOrderView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfShopOrderView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPageResultOfShopOrderView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/commerce/orders/{id}/refresh": {
+      "post": {
+        "tags": [
+          "CommerceAdmin"
+        ],
+        "summary": "Reconcile payment/refund state with the gateway.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/commerce/orders/{id}/close": {
+      "post": {
+        "tags": [
+          "CommerceAdmin"
+        ],
+        "summary": "Close an unpaid checkout at the gateway.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shop/products/{id}": {
+      "get": {
+        "tags": [
+          "Shop"
+        ],
+        "summary": "Read available channels and immutable purchase price.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOffer"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOffer"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOffer"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shop/orders": {
+      "post": {
+        "tags": [
+          "Shop"
+        ],
+        "summary": "Create a single-item order idempotently.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShopOrderInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShopOrderInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShopOrderInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shop/orders/{id}": {
+      "get": {
+        "tags": [
+          "Shop"
+        ],
+        "summary": "Read a private order by receipt token.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shop/orders/{id}/pay": {
+      "post": {
+        "tags": [
+          "Shop"
+        ],
+        "summary": "Obtain the selected gateway's checkout.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaymentLink"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaymentLink"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfPaymentLink"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shop/orders/{id}/refresh": {
+      "post": {
+        "tags": [
+          "Shop"
+        ],
+        "summary": "Refresh payment status from its gateway.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shop/orders/{id}/close": {
+      "post": {
+        "tags": [
+          "Shop"
+        ],
+        "summary": "Cancel an unpaid order after closing its gateway checkout.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfShopOrderView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/shop/orders/{id}/download": {
+      "get": {
+        "tags": [
+          "Shop"
+        ],
+        "summary": "Stream a private paid attachment with no caching or inline execution.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -4219,7 +4842,7 @@
         "tags": [
           "Maintenance"
         ],
-        "summary": "Download the last successful archive.",
+        "summary": "Download a named archive or the last successful archive.",
         "parameters": [
           {
             "name": "name",
@@ -5421,6 +6044,37 @@
         },
         "description": "Consistent HTTP response envelope."
       },
+      "ApiResponseOfCommerceSettingsView": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/CommerceSettingsView"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
       "ApiResponseOfContentDiscovery": {
         "required": [
           "code",
@@ -6460,6 +7114,37 @@
         },
         "description": "Consistent HTTP response envelope."
       },
+      "ApiResponseOfPageResultOfShopOrderView": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PageResultOfShopOrderView"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
       "ApiResponseOfPageResultOfVisitorProfile": {
         "required": [
           "code",
@@ -6513,6 +7198,161 @@
               },
               {
                 "$ref": "#/components/schemas/PageVisitReceipt"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfPaymentLink": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/PaymentLink"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfShopFile": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ShopFile"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfShopOffer": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ShopOffer"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfShopOrderView": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ShopOrderView"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfShopProductView": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/ShopProductView"
               }
             ]
           },
@@ -6994,6 +7834,45 @@
         },
         "description": "Single-use login challenge, image and validity period; never includes its answer."
       },
+      "ChannelSettings": {
+        "required": [
+          "id",
+          "values",
+          "savedSecrets",
+          "configured",
+          "deploymentManaged",
+          "error",
+          "notifyUrl"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "values": {
+            "$ref": "#/components/schemas/PaymentChannel"
+          },
+          "savedSecrets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "configured": {
+            "type": "boolean"
+          },
+          "deploymentManaged": {
+            "type": "boolean"
+          },
+          "error": {
+            "type": "string"
+          },
+          "notifyUrl": {
+            "type": "string"
+          }
+        },
+        "description": "Redacted configuration and separate presence flags; configured does not mean live-tested."
+      },
       "Comment": {
         "type": "object",
         "properties": {
@@ -7091,6 +7970,58 @@
           }
         },
         "description": "One official plain-text reply."
+      },
+      "CommerceOptions": {
+        "type": "object",
+        "properties": {
+          "siteUrl": {
+            "type": "string",
+            "default": ""
+          },
+          "channels": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "additionalProperties": {
+              "$ref": "#/components/schemas/PaymentChannel"
+            }
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          }
+        },
+        "description": "Versioned merchant configuration, protected at rest."
+      },
+      "CommerceSettingsView": {
+        "required": [
+          "siteUrl",
+          "version",
+          "siteUrlManaged",
+          "channels"
+        ],
+        "type": "object",
+        "properties": {
+          "siteUrl": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "siteUrlManaged": {
+            "type": "boolean"
+          },
+          "channels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ChannelSettings"
+            }
+          }
+        },
+        "description": "Administrator-safe configuration."
       },
       "ContentBatchInput": {
         "required": [
@@ -8868,6 +9799,36 @@
         },
         "description": "Server-side paginated result."
       },
+      "PageResultOfShopOrderView": {
+        "required": [
+          "items",
+          "total",
+          "page",
+          "pageSize"
+        ],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ShopOrderView"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Server-side paginated result."
+      },
       "PageResultOfVisitorProfile": {
         "required": [
           "items",
@@ -8991,6 +9952,88 @@
           }
         },
         "description": "Password rotation request."
+      },
+      "PaymentChannel": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "description": "Allow new payments."
+          },
+          "testMode": {
+            "type": "boolean",
+            "description": "Stripe test keys or Alipay sandbox; WeChat Native uses live credentials only."
+          },
+          "appId": {
+            "type": "string",
+            "description": "Application identity."
+          },
+          "merchantId": {
+            "type": "string",
+            "description": "WeChat merchant ID, Alipay seller ID or Stripe account ID."
+          },
+          "privateKey": {
+            "type": "string",
+            "description": "Merchant RSA PEM private key."
+          },
+          "publicKey": {
+            "type": "string",
+            "description": "Payment platform RSA PEM public key."
+          },
+          "serialNo": {
+            "type": "string",
+            "description": "WeChat merchant certificate serial number."
+          },
+          "publicKeyId": {
+            "type": "string",
+            "description": "WeChat payment public key identifier."
+          },
+          "apiV3Key": {
+            "type": "string",
+            "description": "WeChat 32-byte notification decryption secret."
+          },
+          "secretKey": {
+            "type": "string",
+            "description": "Stripe server API key."
+          },
+          "webhookSecret": {
+            "type": "string",
+            "description": "Stripe endpoint signing secret."
+          }
+        },
+        "description": "Credentials for one supported payment account; empty secrets on save preserve existing values."
+      },
+      "PaymentChoice": {
+        "required": [
+          "id",
+          "testMode"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "testMode": {
+            "type": "boolean"
+          }
+        },
+        "description": "Publicly selectable configured channel."
+      },
+      "PaymentLink": {
+        "required": [
+          "reference",
+          "url"
+        ],
+        "type": "object",
+        "properties": {
+          "reference": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        },
+        "description": "Provider checkout destination; never a download authorization."
       },
       "PopularContent": {
         "required": [
@@ -9168,6 +10211,244 @@
           }
         },
         "description": "Public site settings input."
+      },
+      "ShopFile": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Original safe download name."
+          },
+          "size": {
+            "type": "integer",
+            "description": "Verified byte length.",
+            "format": "int64"
+          },
+          "sha256": {
+            "type": "string",
+            "description": "Integrity checksum."
+          },
+          "id": {
+            "type": "string",
+            "description": "Opaque portable identifier."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "UTC creation timestamp.",
+            "format": "date-time"
+          }
+        },
+        "description": "Immutable private download metadata; past orders retain their original file."
+      },
+      "ShopOffer": {
+        "required": [
+          "enabled",
+          "price",
+          "currency",
+          "fileName",
+          "version",
+          "channels"
+        ],
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "price": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "channels": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentChoice"
+            }
+          }
+        },
+        "description": "Public product checkout availability."
+      },
+      "ShopOrderInput": {
+        "required": [
+          "productId",
+          "channel",
+          "email",
+          "receiptToken",
+          "productVersion"
+        ],
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "receiptToken": {
+            "type": "string"
+          },
+          "productVersion": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Browser request; the server determines the title, price, currency and file."
+      },
+      "ShopOrderView": {
+        "required": [
+          "id",
+          "productId",
+          "title",
+          "amount",
+          "currency",
+          "channel",
+          "status",
+          "email",
+          "testMode",
+          "createdAt",
+          "paidAt",
+          "expiresAt",
+          "canDownload",
+          "fileName"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "productId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "testMode": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "paidAt": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "format": "date-time"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "canDownload": {
+            "type": "boolean"
+          },
+          "fileName": {
+            "type": "string"
+          }
+        },
+        "description": "Owner/admin-safe order details; receipt secrets and storage paths never appear here."
+      },
+      "ShopProductInput": {
+        "required": [
+          "enabled",
+          "price",
+          "currency",
+          "fileId",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "price": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "fileId": {
+            "type": "string"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Versioned digital sale terms; prices are integer minor units."
+      },
+      "ShopProductView": {
+        "required": [
+          "productId",
+          "enabled",
+          "price",
+          "currency",
+          "fileId",
+          "fileName",
+          "fileSize",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string"
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "price": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "fileId": {
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "fileSize": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "description": "Safe sale information without a storage path."
       },
       "SiteSettings": {
         "type": "object",
@@ -9808,6 +11089,12 @@
   "tags": [
     {
       "name": "Cms.Api"
+    },
+    {
+      "name": "CommerceAdmin"
+    },
+    {
+      "name": "Shop"
     },
     {
       "name": "ContentTransfer"

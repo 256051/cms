@@ -42,6 +42,11 @@ using var db = new FreeSqlBuilder()
     .UseConnectionString(type, Environment.GetEnvironmentVariable("Database__ConnectionString")!)
     .UseAutoSyncStructure(false).Build();
 var repo = new CmsRepository(db);
+if (args.Contains("--commerce"))
+{
+    await CommerceChecks.RunAsync(repo);
+    return;
+}
 if (args.Contains("--maintenance-defaults"))
 {
     await OperationsChecks.CheckDefaultsAsync(repo);

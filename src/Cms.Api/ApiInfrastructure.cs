@@ -33,7 +33,7 @@ public sealed class CsrfFilter(IAntiforgery antiforgery) : IAsyncActionFilter
     {
         var machine = context.Controller is IntegrationController && context.HttpContext.User.Identities.Any(x =>
             x.IsAuthenticated && x.AuthenticationType == IntegrationAuthenticationHandler.SchemeName);
-        if (!machine && context.HttpContext.Request.Method is not ("GET" or "HEAD" or "OPTIONS"))
+        if (!machine && context.Controller is not PaymentNotificationController && context.HttpContext.Request.Method is not ("GET" or "HEAD" or "OPTIONS"))
             await antiforgery.ValidateRequestAsync(context.HttpContext);
         await next();
     }

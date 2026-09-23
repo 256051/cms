@@ -70,6 +70,587 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/commerce/settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read redacted payment configuration. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfCommerceSettingsView"];
+                        "application/json": components["schemas"]["ApiResponseOfCommerceSettingsView"];
+                        "text/json": components["schemas"]["ApiResponseOfCommerceSettingsView"];
+                    };
+                };
+            };
+        };
+        /** Save encrypted merchant configuration. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["CommerceOptions"];
+                    "text/json": components["schemas"]["CommerceOptions"];
+                    "application/*+json": components["schemas"]["CommerceOptions"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfCommerceSettingsView"];
+                        "application/json": components["schemas"]["ApiResponseOfCommerceSettingsView"];
+                        "text/json": components["schemas"]["ApiResponseOfCommerceSettingsView"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/commerce/products/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read product sale terms. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfShopProductView"];
+                        "application/json": components["schemas"]["ApiResponseOfShopProductView"];
+                        "text/json": components["schemas"]["ApiResponseOfShopProductView"];
+                    };
+                };
+            };
+        };
+        /** Update sale terms without changing previously purchased files or amounts. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ShopProductInput"];
+                    "text/json": components["schemas"]["ShopProductInput"];
+                    "application/*+json": components["schemas"]["ShopProductInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfShopProductView"];
+                        "application/json": components["schemas"]["ApiResponseOfShopProductView"];
+                        "text/json": components["schemas"]["ApiResponseOfShopProductView"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/commerce/files": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload a private digital deliverable. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "multipart/form-data": {
+                        file?: components["schemas"]["IFormFile"];
+                    };
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfShopFile"];
+                        "application/json": components["schemas"]["ApiResponseOfShopFile"];
+                        "text/json": components["schemas"]["ApiResponseOfShopFile"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/commerce/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Page transactions without exposing receipt credentials. */
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    status?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfPageResultOfShopOrderView"];
+                        "application/json": components["schemas"]["ApiResponseOfPageResultOfShopOrderView"];
+                        "text/json": components["schemas"]["ApiResponseOfPageResultOfShopOrderView"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/commerce/orders/{id}/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reconcile payment/refund state with the gateway. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfShopOrderView"];
+                        "application/json": components["schemas"]["ApiResponseOfShopOrderView"];
+                        "text/json": components["schemas"]["ApiResponseOfShopOrderView"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/commerce/orders/{id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Close an unpaid checkout at the gateway. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfShopOrderView"];
+                        "application/json": components["schemas"]["ApiResponseOfShopOrderView"];
+                        "text/json": components["schemas"]["ApiResponseOfShopOrderView"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shop/products/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read available channels and immutable purchase price. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfShopOffer"];
+                        "application/json": components["schemas"]["ApiResponseOfShopOffer"];
+                        "text/json": components["schemas"]["ApiResponseOfShopOffer"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shop/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create a single-item order idempotently. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ShopOrderInput"];
+                    "text/json": components["schemas"]["ShopOrderInput"];
+                    "application/*+json": components["schemas"]["ShopOrderInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfShopOrderView"];
+                        "application/json": components["schemas"]["ApiResponseOfShopOrderView"];
+                        "text/json": components["schemas"]["ApiResponseOfShopOrderView"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shop/orders/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read a private order by receipt token. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfShopOrderView"];
+                        "application/json": components["schemas"]["ApiResponseOfShopOrderView"];
+                        "text/json": components["schemas"]["ApiResponseOfShopOrderView"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shop/orders/{id}/pay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Obtain the selected gateway's checkout. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfPaymentLink"];
+                        "application/json": components["schemas"]["ApiResponseOfPaymentLink"];
+                        "text/json": components["schemas"]["ApiResponseOfPaymentLink"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shop/orders/{id}/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Refresh payment status from its gateway. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfShopOrderView"];
+                        "application/json": components["schemas"]["ApiResponseOfShopOrderView"];
+                        "text/json": components["schemas"]["ApiResponseOfShopOrderView"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shop/orders/{id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel an unpaid order after closing its gateway checkout. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfShopOrderView"];
+                        "application/json": components["schemas"]["ApiResponseOfShopOrderView"];
+                        "text/json": components["schemas"]["ApiResponseOfShopOrderView"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/shop/orders/{id}/download": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Stream a private paid attachment with no caching or inline execution. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/contents/export": {
         parameters: {
             query?: never;
@@ -3674,7 +4255,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Download the last successful archive. */
+        /** Download a named archive or the last successful archive. */
         get: {
             parameters: {
                 query?: {
@@ -4603,6 +5184,13 @@ export interface components {
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
+        ApiResponseOfCommerceSettingsView: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["CommerceSettingsView"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
         ApiResponseOfContentDiscovery: {
             code: string;
             message: string;
@@ -4842,6 +5430,13 @@ export interface components {
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
+        ApiResponseOfPageResultOfShopOrderView: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["PageResultOfShopOrderView"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
         ApiResponseOfPageResultOfVisitorProfile: {
             code: string;
             message: string;
@@ -4853,6 +5448,41 @@ export interface components {
             code: string;
             message: string;
             data: null | components["schemas"]["PageVisitReceipt"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfPaymentLink: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["PaymentLink"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfShopFile: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["ShopFile"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfShopOffer: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["ShopOffer"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfShopOrderView: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["ShopOrderView"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfShopProductView: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["ShopProductView"];
             traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
@@ -4985,6 +5615,16 @@ export interface components {
             /** Format: int32 */
             expiresInSeconds: number;
         };
+        /** @description Redacted configuration and separate presence flags; configured does not mean live-tested. */
+        ChannelSettings: {
+            id: string;
+            values: components["schemas"]["PaymentChannel"];
+            savedSecrets: string[];
+            configured: boolean;
+            deploymentManaged: boolean;
+            error: string;
+            notifyUrl: string;
+        };
         /** @description Moderated plain-text visitor comment. */
         Comment: {
             /** @description Parent article identifier. */
@@ -5026,6 +5666,27 @@ export interface components {
         /** @description One official plain-text reply. */
         CommentReplyInput: {
             reply: string;
+        };
+        /** @description Versioned merchant configuration, protected at rest. */
+        CommerceOptions: {
+            /** @default  */
+            siteUrl: string;
+            channels?: null | {
+                [key: string]: components["schemas"]["PaymentChannel"];
+            };
+            /**
+             * Format: int32
+             * @default 0
+             */
+            version: number;
+        };
+        /** @description Administrator-safe configuration. */
+        CommerceSettingsView: {
+            siteUrl: string;
+            /** Format: int32 */
+            version: number;
+            siteUrlManaged: boolean;
+            channels: components["schemas"]["ChannelSettings"][];
         };
         /** @description Atomic category change or withdrawal of at most one hundred items. */
         ContentBatchInput: {
@@ -5707,6 +6368,16 @@ export interface components {
             pageSize: number;
         };
         /** @description Server-side paginated result. */
+        PageResultOfShopOrderView: {
+            items: components["schemas"]["ShopOrderView"][];
+            /** Format: int64 */
+            total: number;
+            /** Format: int32 */
+            page: number;
+            /** Format: int32 */
+            pageSize: number;
+        };
+        /** @description Server-side paginated result. */
         PageResultOfVisitorProfile: {
             items: components["schemas"]["VisitorProfile"][];
             /** Format: int64 */
@@ -5764,6 +6435,41 @@ export interface components {
         PasswordInput: {
             currentPassword: string;
             newPassword: string;
+        };
+        /** @description Credentials for one supported payment account; empty secrets on save preserve existing values. */
+        PaymentChannel: {
+            /** @description Allow new payments. */
+            enabled?: boolean;
+            /** @description Stripe test keys or Alipay sandbox; WeChat Native uses live credentials only. */
+            testMode?: boolean;
+            /** @description Application identity. */
+            appId?: string;
+            /** @description WeChat merchant ID, Alipay seller ID or Stripe account ID. */
+            merchantId?: string;
+            /** @description Merchant RSA PEM private key. */
+            privateKey?: string;
+            /** @description Payment platform RSA PEM public key. */
+            publicKey?: string;
+            /** @description WeChat merchant certificate serial number. */
+            serialNo?: string;
+            /** @description WeChat payment public key identifier. */
+            publicKeyId?: string;
+            /** @description WeChat 32-byte notification decryption secret. */
+            apiV3Key?: string;
+            /** @description Stripe server API key. */
+            secretKey?: string;
+            /** @description Stripe endpoint signing secret. */
+            webhookSecret?: string;
+        };
+        /** @description Publicly selectable configured channel. */
+        PaymentChoice: {
+            id: string;
+            testMode: boolean;
+        };
+        /** @description Provider checkout destination; never a download authorization. */
+        PaymentLink: {
+            reference: string;
+            url: string;
         };
         /** @description Popular article with period reading metrics. */
         PopularContent: {
@@ -5846,6 +6552,90 @@ export interface components {
             version: number;
             /** @default  */
             homePageId: string;
+        };
+        /** @description Immutable private download metadata; past orders retain their original file. */
+        ShopFile: {
+            /** @description Original safe download name. */
+            name?: string;
+            /**
+             * Format: int64
+             * @description Verified byte length.
+             */
+            size?: number;
+            /** @description Integrity checksum. */
+            sha256?: string;
+            /** @description Opaque portable identifier. */
+            id?: string;
+            /**
+             * Format: date-time
+             * @description UTC creation timestamp.
+             */
+            createdAt?: string;
+        };
+        /** @description Public product checkout availability. */
+        ShopOffer: {
+            enabled: boolean;
+            /** Format: int64 */
+            price: number;
+            currency: string;
+            fileName: string;
+            /** Format: int32 */
+            version: number;
+            channels: components["schemas"]["PaymentChoice"][];
+        };
+        /** @description Browser request; the server determines the title, price, currency and file. */
+        ShopOrderInput: {
+            productId: string;
+            channel: string;
+            email: string;
+            receiptToken: string;
+            /** Format: int32 */
+            productVersion: number;
+        };
+        /** @description Owner/admin-safe order details; receipt secrets and storage paths never appear here. */
+        ShopOrderView: {
+            id: string;
+            productId: string;
+            title: string;
+            /** Format: int64 */
+            amount: number;
+            currency: string;
+            channel: string;
+            status: string;
+            email: string;
+            testMode: boolean;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            paidAt: null | string;
+            /** Format: date-time */
+            expiresAt: string;
+            canDownload: boolean;
+            fileName: string;
+        };
+        /** @description Versioned digital sale terms; prices are integer minor units. */
+        ShopProductInput: {
+            enabled: boolean;
+            /** Format: int64 */
+            price: number;
+            currency: string;
+            fileId: string;
+            /** Format: int32 */
+            version: number;
+        };
+        /** @description Safe sale information without a storage path. */
+        ShopProductView: {
+            productId: string;
+            enabled: boolean;
+            /** Format: int64 */
+            price: number;
+            currency: string;
+            fileId: string;
+            fileName: string;
+            /** Format: int64 */
+            fileSize: number;
+            /** Format: int32 */
+            version: number;
         };
         /** @description Site metadata stored in the selected database. */
         SiteSettings: {

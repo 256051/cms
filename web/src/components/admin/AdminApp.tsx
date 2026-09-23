@@ -28,6 +28,7 @@ import type { components } from "@/lib/api.generated";
 import { Heading, Loading, Notice, useLoad, LoadState } from "./shared";
 import InquiryFormManager from "./InquiryFormManager";
 import NotificationManager from "./NotificationManager";
+import { PaymentSettings, CommerceProducts, CommerceOrders } from "./CommerceManager";
 import ContentManager from "./ContentManager";
 import ContentEditor from "./ContentEditor";
 import LayoutPreview from "./LayoutPreview";
@@ -68,6 +69,9 @@ const navigationGroups: { label: string; items: [string, string, typeof FileText
     ["settings", "站点设置", Settings, true], ["users", "成员与权限", Users, true],
     ["access-tokens", "API 访问令牌", LockKeyhole, true], ["maintenance", "备份与维护", ShieldCheck, true],
     ["notifications", "通知记录", MessageSquare, true], ["audit", "操作记录", ShieldCheck, true],
+  ] },
+  { label: "商品交易", items: [
+    ["commerce-products", "商品销售", Files, true], ["commerce-orders", "交易订单", List, true], ["payments", "支付设置", Settings, true],
   ] },
 ];
 export default function AdminApp({ route }: { route: string[] }) {
@@ -294,7 +298,7 @@ export default function AdminApp({ route }: { route: string[] }) {
           ) : section === "password" ? (
             <PasswordManager />
           ) : user.role === "Admin" ? (
-            section === "inquiry-form" ? <InquiryFormManager /> : section === "notifications" ? <NotificationManager /> : section === "maintenance" ? <MaintenanceManager /> : section === "traffic" ? <TrafficOverview /> : section === "visitors" ? <VisitorManager initialId={route[1]} /> : section === "leads" ? <LeadManager user={user} /> : section === "themes" ? (
+            section === "payments" ? <PaymentSettings /> : section === "commerce-products" ? <CommerceProducts id={route[1]} /> : section === "commerce-orders" ? <CommerceOrders /> : section === "inquiry-form" ? <InquiryFormManager /> : section === "notifications" ? <NotificationManager /> : section === "maintenance" ? <MaintenanceManager /> : section === "traffic" ? <TrafficOverview /> : section === "visitors" ? <VisitorManager initialId={route[1]} /> : section === "leads" ? <LeadManager user={user} /> : section === "themes" ? (
               <ThemeManager />
             ) : section === "settings" ? (
               <SettingsManager />

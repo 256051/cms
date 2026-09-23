@@ -42,7 +42,11 @@ builder.Host.ConfigureContainer<ContainerBuilder>(container =>
     container.RegisterType<VisitorIdentity>().InstancePerLifetimeScope();
     container.RegisterType<MaintenanceService>().InstancePerLifetimeScope();
     container.RegisterType<NotificationService>().InstancePerLifetimeScope();
+    container.RegisterType<CommerceSettings>().InstancePerLifetimeScope();
+    container.RegisterType<CommerceService>().InstancePerLifetimeScope();
 });
+builder.Services.AddHttpClient<PaymentGateway>(client => client.Timeout = TimeSpan.FromSeconds(20))
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
 builder.Services.AddHostedService<MaintenanceWorker>();
 builder.Services.AddHostedService<NotificationWorker>();
 builder.Services.AddSingleton<IMapper>(new Mapper(MappingConfiguration.Create()));
@@ -167,6 +171,9 @@ builder.Services.AddRateLimiter(options =>
         ctx => RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             _ => new FixedWindowRateLimiterOptions
                 { PermitLimit = 120, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
+    options.AddPolicy("commerce",
+        ctx => RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            _ => new FixedWindowRateLimiterOptions { PermitLimit = 60, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
     options.AddPolicy("leads",
         ctx => RateLimitPartition.GetFixedWindowLimiter(ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown",
             _ => new FixedWindowRateLimiterOptions

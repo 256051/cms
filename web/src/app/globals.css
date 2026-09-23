@@ -1990,3 +1990,12 @@ td button {
   .editor-tools { position: sticky; top: 0; z-index: 10; box-shadow: 0 4px 10px #172b4d0a; }
   .tiptap :is(p, h2, h3, h4, img, video, audio, iframe, th, td) { scroll-margin-top: 270px; }
 }
+.shop-checkout { margin: 32px auto; padding: 24px; border: 1px solid var(--line); border-radius: 12px; max-width: 680px; background: var(--surface, #fff); color: var(--ink); }
+.shop-checkout h1, .shop-checkout h2 { margin-top: 0; }
+.shop-checkout label { display: flex; flex-direction: column; gap: 6px; margin: 14px 0; }
+.shop-checkout .checkbox-label { flex-direction: row; align-items: center; }
+.shop-checkout fieldset { min-width: 0; }
+.shop-price { font-size: 28px; font-weight: 700; }
+.shop-qr { padding: 20px 0; text-align: center; }
+.shop-qr svg { max-width: 100%; height: auto; background: white; padding: 12px; box-sizing: content-box; }
+.shop-order-id { overflow-wrap: anywhere; }

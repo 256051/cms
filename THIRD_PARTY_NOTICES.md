@@ -103,3 +103,8 @@ CMS 的 Fuwari、Retypeset、Cactus 内置主题采用以下原作的布局和�
 - 版权：Copyright (c) 2024 Zhilu。
 - 完整许可：[MIT](licenses/themes/clarity.txt)。
 - 直接采用 blog-v3 的三栏博客布局及文章摘要结构，不复制 Halo Clarity GPL 版实现，也不复制 CC BY-NC-SA 博客文章、天气或自定义内容块。
+
+## 支付二维码
+
+- `qrcode.react` 4.2.0 用于微信 Native 二维码；Copyright (c) 2015, Paul O’Shannessy。
+- 完整许可：[ISC 及内嵌 QR 代码许可](licenses/qrcode-react.txt)。

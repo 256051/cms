@@ -111,6 +111,8 @@ public sealed class MaintenanceService(CmsRepository repository, IConfiguration 
                     await repo.ExportAsync((name, bytes) => Write("database/" + name, bytes));
                     foreach (var asset in await repo.ListAsync<Asset>())
                         await Write("uploads/" + SafeName(asset.StorageName), await File.ReadAllBytesAsync(Path.Combine(uploads, SafeName(asset.StorageName))));
+                    foreach (var file in await repo.ListAsync<ShopFile>())
+                        await Write("uploads/" + CommerceService.FileName(file.Id), await File.ReadAllBytesAsync(Path.Combine(uploads, CommerceService.FileName(file.Id))));
                     foreach (var file in Directory.GetFiles(keys, "*.xml")) await Write("keys/" + Path.GetFileName(file), await File.ReadAllBytesAsync(file));
                     var manifest = new BackupManifest(CmsRepository.CurrentSchemaVersion, typeof(MaintenanceService).Assembly.GetName().Version!.ToString(), DateTime.UtcNow, hashes);
                     await using var entry = zip.CreateEntry("manifest.json").Open();
@@ -214,6 +216,12 @@ public sealed class MaintenanceService(CmsRepository repository, IConfiguration 
                 verified.TryAdd("database/" + table + ".json", "[]"u8.ToArray());
         if (manifest.Schema < 12) verified.TryAdd("database/ContentRedirect.json", "[]"u8.ToArray());
         if (manifest.Schema < 14) verified.TryAdd("database/InquiryFormSettings.json", "[]"u8.ToArray());
+        if (manifest.Schema < 16)
+            foreach (var table in new[] { "ShopProduct", "ShopFile", "ShopSettings", "ShopOrder" })
+                verified.TryAdd("database/" + table + ".json", "[]"u8.ToArray());
+        foreach (var file in JsonSerializer.Deserialize<List<ShopFile>>(verified["database/ShopFile.json"])!)
+            if (!verified.TryGetValue("uploads/" + CommerceService.FileName(file.Id), out var bytes) || bytes.LongLength != file.Size ||
+                Convert.ToHexString(SHA256.HashData(bytes)) != file.Sha256) throw new InvalidDataException("付费交付文件不完整。");
         foreach (var asset in assets)
             if (!verified.TryGetValue("uploads/" + SafeName(asset.StorageName), out var bytes) || bytes.LongLength != asset.Size)
                 throw new InvalidDataException("附件内容不完整。");

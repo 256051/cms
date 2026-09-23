@@ -11,6 +11,7 @@ import ArticleToc from "./ArticleToc";
 import { ArticleViewCount } from "./PublicTraffic";
 import PageLayoutContent from "./PageLayoutContent";
 import BusinessDetails from "./BusinessDetails";
+import ShopCheckout from "./ShopCheckout";
 
 export async function BusinessArchive({ params, searchParams }: { params: Promise<{ archive: string }>; searchParams: Promise<{ page?: string }> }) {
   const { archive } = await params;
@@ -204,6 +205,7 @@ export async function DetailPage({
     <article id="article-body"><h1 className={post.layout.showTitle ? "page-layout-title" : "sr-only"}>{post.title}</h1>
       <BusinessDetails fields={post.fields} />
       <PageLayoutContent layout={post.layout} context={resolvedContext} />
+      {post.kind === "product" && !context?.preview && <ShopCheckout productId={post.id} />}
     </article>
   </SiteShell>;
   const discovery = await publicApi<{ previous: Content | null; next: Content | null; related: Content[] }>(`contents/${encodeURIComponent(post.slug)}/discovery`);
@@ -239,6 +241,7 @@ export async function DetailPage({
           />
         )}
         <BusinessDetails fields={post.fields} />
+        {post.kind === "product" && !context?.preview && <ShopCheckout productId={post.id} />}
         <div className="reading-layout">
         {themeSource(theme.themeId) && <ArticleToc key={`${post.id}:${post.version}`} contentId={post.id} />}
         <div

@@ -24,7 +24,7 @@ public record PageResult<T>(IReadOnlyList<T> Items, long Total, int Page, int Pa
 public sealed partial class CmsRepository(IFreeSql database)
 {
     /// <summary>Latest explicitly numbered database schema understood by this build.</summary>
-    public const int CurrentSchemaVersion = 15;
+    public const int CurrentSchemaVersion = 16;
     // ponytail: one writer per API process; single API instance only. Use database locks before scaling out.
     private static readonly SemaphoreSlim Writes = new(1, 1);
     private readonly IFreeSql db = database;
@@ -389,11 +389,17 @@ public sealed partial class CmsRepository(IFreeSql database)
         await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 14).ExecuteAffrowsAsync();
         }
         // v14 -> v15: official replies and optional staff notification addresses.
+        if (version < 15)
+        {
         db.CodeFirst.SyncStructure(typeof(Comment), typeof(CmsUser));
         await db.Update<Comment>().Where(x => x.Reply == null).Set(x => x.Reply, "").ExecuteAffrowsAsync();
         await db.Update<Comment>().Where(x => x.ReplyBy == null).Set(x => x.ReplyBy, "").ExecuteAffrowsAsync();
         await db.Update<CmsUser>().Where(x => x.Email == null).Set(x => x.Email, "").ExecuteAffrowsAsync();
         await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 15).ExecuteAffrowsAsync();
+        }
+        // v15 -> v16: additive commerce tables; existing editorial tables remain unchanged.
+        db.CodeFirst.SyncStructure(typeof(ShopProduct), typeof(ShopFile), typeof(ShopSettings), typeof(ShopOrder));
+        await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 16).ExecuteAffrowsAsync();
     }
 
     /// <summary>Check database connectivity and expected schema without modifying it.</summary>

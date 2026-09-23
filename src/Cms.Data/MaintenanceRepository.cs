@@ -18,6 +18,7 @@ public sealed partial class CmsRepository
         await Table<NotificationDelivery>(); await Table<NotificationState>();
         await Table<ContentRedirect>();
         await Table<InquiryFormSettings>();
+        await Table<ShopProduct>(); await Table<ShopFile>(); await Table<ShopSettings>(); await Table<ShopOrder>();
     }
 
     /// <summary>Validate a complete snapshot then restore only into an empty initialized database.</summary>
@@ -47,6 +48,7 @@ public sealed partial class CmsRepository
         await Table<NotificationDelivery>(); await Table<NotificationState>();
         await Table<ContentRedirect>();
         await Table<InquiryFormSettings>();
+        await Table<ShopProduct>(); await Table<ShopFile>(); await Table<ShopSettings>(); await Table<ShopOrder>();
         foreach (var insert in inserts) await insert();
     }
 

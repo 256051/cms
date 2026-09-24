@@ -20,6 +20,7 @@ public sealed partial class CmsRepository
         await Table<InquiryFormSettings>();
         await Table<ShopProduct>(); await Table<ShopFile>(); await Table<ShopSettings>(); await Table<ShopOrder>();
         await Table<WeChatDraft>(); await Table<WeChatAccountSettings>(); await Table<WeChatPublication>();
+        await Table<AiSettings>();
     }
 
     /// <summary>Validate a complete snapshot then restore only into an empty initialized database.</summary>
@@ -65,6 +66,7 @@ public sealed partial class CmsRepository
         await Table<InquiryFormSettings>();
         await Table<ShopProduct>(); await Table<ShopFile>(); await Table<ShopSettings>(); await Table<ShopOrder>();
         await Table<WeChatDraft>(); await Table<WeChatAccountSettings>(); await Table<WeChatPublication>();
+        await Table<AiSettings>();
         foreach (var insert in inserts) await insert();
     }
 

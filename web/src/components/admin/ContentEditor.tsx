@@ -13,6 +13,7 @@ import PageBuilder from "./PageBuilder";
 import BusinessFieldsEditor, { defaultBusinessFields } from "./BusinessFieldsEditor";
 import type { components } from "@/lib/api.generated";
 import WeChatDraftPanel from "./WeChatDraftPanel";
+import AiWritingDialog from "./AiWritingDialog";
 
 function BlockUses({ id }: { id: string }) {
   const { data, error, loading, reload } = useLoad<Required<components["schemas"]["BlockReference"]>[]>(`admin/blocks/${id}/references`);
@@ -37,6 +38,7 @@ export default function ContentEditor({
   const { dirty, setDirty } = useUnsavedChanges();
   const [busy, setBusy] = useState(false);
   const [wide, setWide] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const wechat = useLoad<Required<components["schemas"]["WeChatSettings"]>>("admin/wechat/settings");
@@ -107,7 +109,7 @@ export default function ContentEditor({
     setFailures(0);
   };
   async function save(publish = false) {
-    if (!doc || busy || saving.current || recovery) return;
+    if (!doc || busy || saving.current || recovery || aiOpen) return;
     saving.current = true;
     setBusy(true);
     setError("");
@@ -149,7 +151,7 @@ export default function ContentEditor({
     }
   }
   useEffect(() => {
-    if (!dirty || !doc?.title.trim() || busy || conflict || recovery || failures >= 3) return;
+    if (!dirty || !doc?.title.trim() || busy || conflict || recovery || aiOpen || failures >= 3) return;
     const timer = window.setTimeout(() => void save(), failures ? 10000 : 5000);
     return () => window.clearTimeout(timer);
   });
@@ -173,6 +175,7 @@ export default function ContentEditor({
         }
       >
         <div className="row-actions">
+          {doc && !doc.layout && <button type="button" className="secondary" disabled={busy || !!recovery || conflict} onClick={() => setAiOpen(true)}>AI 写作助手</button>}
           {doc?.id && (
             <a
               className="button secondary"
@@ -198,6 +201,7 @@ export default function ContentEditor({
         </div>
       </Heading>
       <Notice error={error} success={success} />
+      {aiOpen && doc && <AiWritingDialog doc={doc} terms={terms ?? []} apply={change} close={() => setAiOpen(false)} />}
       <Notice error={localError} />
       <p role="status" className="muted">{busy ? "正在处理…" : dirty ? "输入已保留，停止编辑 5 秒后自动保存草稿。" : "草稿已同步。"}
         {doc?.updatedAt && ` 最后保存：${new Date(doc.updatedAt).toLocaleString("zh-CN")}`}

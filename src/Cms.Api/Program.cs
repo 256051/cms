@@ -44,6 +44,9 @@ builder.Host.ConfigureContainer<ContainerBuilder>(container =>
     container.RegisterType<NotificationService>().InstancePerLifetimeScope();
     container.RegisterType<WeChatDraftService>().InstancePerLifetimeScope();
     container.RegisterType<WeChatSettingsService>().InstancePerLifetimeScope();
+    container.RegisterType<AiSettingsService>().InstancePerLifetimeScope();
+    container.Register(_ => AiWritingService.CreateClient()).Named<HttpClient>("ai").SingleInstance();
+    container.Register(c => new AiWritingService(c.Resolve<CmsRepository>(), c.Resolve<AiSettingsService>(), c.ResolveNamed<HttpClient>("ai"))).InstancePerLifetimeScope();
     container.RegisterType<CommerceSettings>().InstancePerLifetimeScope();
     container.RegisterType<CommerceService>().InstancePerLifetimeScope();
 });
@@ -158,6 +161,9 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.NumberHandling = JsonNumberHandling.Strict);
 builder.Services.AddRateLimiter(options =>
 {
+    options.AddPolicy("ai", ctx => RateLimitPartition.GetFixedWindowLimiter(
+        ctx.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "anonymous",
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1), QueueLimit = 0 }));
     options.AddPolicy("login",
         ctx => RateLimitPartition.GetSlidingWindowLimiter(
             ctx.Connection.RemoteIpAddress?.MapToIPv6().ToString() ?? "unknown",

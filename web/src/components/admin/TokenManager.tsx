@@ -8,7 +8,7 @@ import { useUnsavedChanges } from "./unsaved";
 
 type Token = Required<components["schemas"]["AccessTokenView"]>;
 type Issued = components["schemas"]["IssuedAccessToken"];
-const scopes = [["content:read", "读取内容和分类标签"], ["content:write", "创建和编辑草稿"], ["asset:upload", "上传附件"], ["content:publish", "直接发布文章和页面"]] as const;
+const scopes = [["content:read", "读取内容和分类标签"], ["content:write", "创建和编辑草稿"], ["asset:upload", "上传附件"], ["ai:generate", "AI 生成内容（消耗模型额度）"], ["content:publish", "直接发布文章和页面"]] as const;
 const statuses: Record<string, string> = { active: "有效", expired: "已过期", revoked: "已撤销", disabled: "关联账号已停用" };
 const localDate = (date: Date) => new Date(date.getTime() - date.getTimezoneOffset() * 60_000).toISOString().slice(0, 16);
 const dateText = (date?: string | null) => date ? new Date(date).toLocaleString("zh-CN") : "尚未使用";
@@ -59,7 +59,7 @@ export default function TokenManager({ user }: { user: User }) {
             <label>到期时间<input name="expiresAt" type="datetime-local" required defaultValue={localDate(new Date(Date.now() + 30 * 86_400_000))} min={localDate(new Date(Date.now() + 60_000))} max={localDate(new Date(Date.now() + 365 * 86_400_000))} /></label>
           </div>
           <p className="muted">时间按当前设备时区显示，最长一年。关联账号停用或删除后，令牌不能访问接口。</p>
-          <fieldset className="token-scopes"><legend>允许的操作</legend>{scopes.map(([value, label]) => <label className="checkbox-label" key={value}><input type="checkbox" name="scope" value={value} defaultChecked={value !== "content:publish"} />{label}</label>)}</fieldset>
+          <fieldset className="token-scopes"><legend>允许的操作</legend>{scopes.map(([value, label]) => <label className="checkbox-label" key={value}><input type="checkbox" name="scope" value={value} defaultChecked={value !== "content:publish" && value !== "ai:generate"} />{label}</label>)}</fieldset>
           <p className="muted">勾选直接发布后，Agent 可以使内容立即公开。权限适用于站内所有文章和独立页面。</p>
           <button disabled={busy || !!issued}>{busy ? "正在创建…" : "创建令牌"}</button>
         </fieldset>

@@ -7,14 +7,22 @@ using Microsoft.AspNetCore.RateLimiting;
 
 namespace Cms.Api;
 
-/// <summary>Header-authenticated content automation; every mutation requires an idempotency key.</summary>
+/// <summary>Header-authenticated automation; content mutations require an idempotency key.</summary>
 [Route("api/v1/integration")]
 [Authorize(AuthenticationSchemes = IntegrationAuthenticationHandler.SchemeName)]
 [EnableRateLimiting("integration")]
 [RequestSizeLimit(2_100_000)]
-public sealed class IntegrationController(IntegrationService service) : ApiController
+public sealed class IntegrationController(IntegrationService service, AiWritingService writing) : ApiController
 {
     private string TokenId => User.FindFirstValue("token_id")!;
+
+    /// <summary>Generate a proposal using database AI settings; requires ai:generate, never saves or publishes.</summary>
+    [HttpPost("ai/generate")]
+    [Authorize(Policy = IntegrationScopes.AiGenerate)]
+    [EnableRateLimiting("ai")]
+    [RequestSizeLimit(650_000)]
+    public async Task<ApiResponse<AiWritingResult>> Generate(AiWritingInput input, CancellationToken cancellation)
+        => Result(await writing.GenerateAsync(input, cancellation));
 
     /// <summary>List drafts; requires content:read.</summary>
     [HttpGet("contents")]

@@ -24,7 +24,7 @@ public record PageResult<T>(IReadOnlyList<T> Items, long Total, int Page, int Pa
 public sealed partial class CmsRepository(IFreeSql database)
 {
     /// <summary>Latest explicitly numbered database schema understood by this build.</summary>
-    public const int CurrentSchemaVersion = 19;
+    public const int CurrentSchemaVersion = 20;
     // ponytail: one writer per API process; single API instance only. Use database locks before scaling out.
     private static readonly SemaphoreSlim Writes = new(1, 1);
     private readonly IFreeSql db = database;
@@ -416,8 +416,14 @@ public sealed partial class CmsRepository(IFreeSql database)
         await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 18).ExecuteAffrowsAsync();
         }
         // v18 -> v19: independent optional publication state; no existing table changes.
+        if (version < 19)
+        {
         db.CodeFirst.SyncStructure(typeof(WeChatPublication));
         await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 19).ExecuteAffrowsAsync();
+        }
+        // v19 -> v20: encrypted AI settings in an independent table.
+        db.CodeFirst.SyncStructure(typeof(AiSettings));
+        await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 20).ExecuteAffrowsAsync();
     }
 
     /// <summary>Check database connectivity and expected schema without modifying it.</summary>

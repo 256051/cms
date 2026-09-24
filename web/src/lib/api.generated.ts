@@ -70,6 +70,192 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/ai/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read editor-safe availability. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfAiStatus"];
+                        "application/json": components["schemas"]["ApiResponseOfAiStatus"];
+                        "text/json": components["schemas"]["ApiResponseOfAiStatus"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/ai/configuration": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read redacted provider settings. */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfAiConfigurationView"];
+                        "application/json": components["schemas"]["ApiResponseOfAiConfigurationView"];
+                        "text/json": components["schemas"]["ApiResponseOfAiConfigurationView"];
+                    };
+                };
+            };
+        };
+        /** Save encrypted provider settings to the database. */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AiOptions"];
+                    "text/json": components["schemas"]["AiOptions"];
+                    "application/*+json": components["schemas"]["AiOptions"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfAiConfigurationView"];
+                        "application/json": components["schemas"]["ApiResponseOfAiConfigurationView"];
+                        "text/json": components["schemas"]["ApiResponseOfAiConfigurationView"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/ai/test": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Test saved settings by requesting actual text. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfAiWritingResult"];
+                        "application/json": components["schemas"]["ApiResponseOfAiWritingResult"];
+                        "text/json": components["schemas"]["ApiResponseOfAiWritingResult"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/ai/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate a preview only; never saves or publishes content. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AiWritingInput"];
+                    "text/json": components["schemas"]["AiWritingInput"];
+                    "application/*+json": components["schemas"]["AiWritingInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfAiWritingResult"];
+                        "application/json": components["schemas"]["ApiResponseOfAiWritingResult"];
+                        "text/json": components["schemas"]["ApiResponseOfAiWritingResult"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/commerce/settings": {
         parameters: {
             query?: never;
@@ -3505,6 +3691,85 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/integration/ai/generate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate a proposal using database AI settings; requires ai:generate, never saves or publishes. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AiWritingInput"];
+                    "text/json": components["schemas"]["AiWritingInput"];
+                    "application/*+json": components["schemas"]["AiWritingInput"];
+                };
+            };
+            responses: {
+                /** @description OK */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "text/plain": components["schemas"]["ApiResponseOfAiWritingResult"];
+                        "application/json": components["schemas"]["ApiResponseOfAiWritingResult"];
+                        "text/json": components["schemas"]["ApiResponseOfAiWritingResult"];
+                    };
+                };
+                /** @description Invalid input or missing idempotency key */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid, expired or revoked token */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing scope */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Version or idempotency conflict */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Rate limited; see Retry-After */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/integration/contents": {
         parameters: {
             query?: never;
@@ -5263,7 +5528,7 @@ export interface paths {
             };
         };
         put?: never;
-        /** Queue one frozen publication for draft synchronization. */
+        /** Queue one frozen website version for synchronization and optional configured automatic publication. */
         post: {
             parameters: {
                 query?: never;
@@ -5368,6 +5633,73 @@ export interface components {
             /** Format: date-time */
             revokedAt: null | string;
             status: string;
+        };
+        /** @description Administrator configuration with the credential removed. */
+        AiConfigurationView: {
+            values: components["schemas"]["AiOptions"];
+            hasSecret: boolean;
+            deploymentManaged: boolean;
+            errors: string[];
+        };
+        /** @description OpenAI-compatible Chat Completions configuration; blank keys preserve the same endpoint's key. */
+        AiOptions: {
+            /** @default false */
+            enabled: boolean;
+            /** @default  */
+            apiUrl: string;
+            /** @default  */
+            apiKey: string;
+            /** @default  */
+            model: string;
+            /**
+             * Format: int32
+             * @default 0
+             */
+            version: number;
+        };
+        /** @description Editor-visible readiness without exposing provider credentials or addresses. */
+        AiStatus: {
+            enabled: boolean;
+            ready: boolean;
+        };
+        /** @description An explicit editorial action using the current, possibly unsaved, article. */
+        AiWritingInput: {
+            action: string;
+            /** @default  */
+            title: string;
+            /** @default  */
+            html: string;
+            /** @default  */
+            instructions: string;
+            /** @default 英文 */
+            targetLanguage: string;
+        };
+        /** @description A proposal only; content persistence and publication are never performed by this service. */
+        AiWritingResult: {
+            text: string;
+            html: string;
+            tagIds: string[];
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfAiConfigurationView: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["AiConfigurationView"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfAiStatus: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["AiStatus"];
+            traceId: string;
+        };
+        /** @description Consistent HTTP response envelope. */
+        ApiResponseOfAiWritingResult: {
+            code: string;
+            message: string;
+            data: null | components["schemas"]["AiWritingResult"];
+            traceId: string;
         };
         /** @description Consistent HTTP response envelope. */
         ApiResponseOfAssetView: {

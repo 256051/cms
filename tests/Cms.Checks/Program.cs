@@ -4,6 +4,12 @@ using FreeSql;
 using FreeSql.DataAnnotations;
 using SQLitePCL;
 
+if (args.Contains("--ai-writing"))
+{
+    await AiWritingChecks.RunAsync();
+    return;
+}
+
 if (args.Contains("--wechat"))
 {
     WeChatFormattingChecks.Run();

@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "http://127.0.0.1:55690/"
+      "url": "/"
     }
   ],
   "paths": {
@@ -30,6 +30,194 @@
         "responses": {
           "200": {
             "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/ai/status": {
+      "get": {
+        "tags": [
+          "Ai"
+        ],
+        "summary": "Read editor-safe availability.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiStatus"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiStatus"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/ai/configuration": {
+      "get": {
+        "tags": [
+          "Ai"
+        ],
+        "summary": "Read redacted provider settings.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiConfigurationView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiConfigurationView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiConfigurationView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Ai"
+        ],
+        "summary": "Save encrypted provider settings to the database.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiOptions"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiOptions"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiOptions"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiConfigurationView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiConfigurationView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiConfigurationView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/ai/test": {
+      "post": {
+        "tags": [
+          "Ai"
+        ],
+        "summary": "Test saved settings by requesting actual text.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiWritingResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiWritingResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiWritingResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/ai/generate": {
+      "post": {
+        "tags": [
+          "Ai"
+        ],
+        "summary": "Generate a preview only; never saves or publishes content.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiWritingInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiWritingInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiWritingInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiWritingResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiWritingResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiWritingResult"
+                }
+              }
+            }
           }
         }
       }
@@ -4105,6 +4293,76 @@
         }
       }
     },
+    "/api/v1/integration/ai/generate": {
+      "post": {
+        "tags": [
+          "Integration"
+        ],
+        "summary": "Generate a proposal using database AI settings; requires ai:generate, never saves or publishes.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiWritingInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiWritingInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/AiWritingInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiWritingResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiWritingResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfAiWritingResult"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input or missing idempotency key"
+          },
+          "401": {
+            "description": "Invalid, expired or revoked token"
+          },
+          "403": {
+            "description": "Missing scope"
+          },
+          "409": {
+            "description": "Version or idempotency conflict"
+          },
+          "429": {
+            "description": "Rate limited; see Retry-After"
+          }
+        },
+        "security": [
+          {
+            "IntegrationToken": []
+          }
+        ]
+      }
+    },
     "/api/v1/integration/contents": {
       "get": {
         "tags": [
@@ -5986,7 +6244,7 @@
         "tags": [
           "WeChat"
         ],
-        "summary": "Queue one frozen publication for draft synchronization.",
+        "summary": "Queue one frozen website version for synchronization and optional configured automatic publication.",
         "parameters": [
           {
             "name": "id",
@@ -6172,6 +6430,220 @@
           }
         },
         "description": "Safe credential metadata, with no secret or hash."
+      },
+      "AiConfigurationView": {
+        "required": [
+          "values",
+          "hasSecret",
+          "deploymentManaged",
+          "errors"
+        ],
+        "type": "object",
+        "properties": {
+          "values": {
+            "$ref": "#/components/schemas/AiOptions"
+          },
+          "hasSecret": {
+            "type": "boolean"
+          },
+          "deploymentManaged": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "Administrator configuration with the credential removed."
+      },
+      "AiOptions": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": false
+          },
+          "apiUrl": {
+            "type": "string",
+            "default": ""
+          },
+          "apiKey": {
+            "type": "string",
+            "default": ""
+          },
+          "model": {
+            "type": "string",
+            "default": ""
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          }
+        },
+        "description": "OpenAI-compatible Chat Completions configuration; blank keys preserve the same endpoint's key."
+      },
+      "AiStatus": {
+        "required": [
+          "enabled",
+          "ready"
+        ],
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "ready": {
+            "type": "boolean"
+          }
+        },
+        "description": "Editor-visible readiness without exposing provider credentials or addresses."
+      },
+      "AiWritingInput": {
+        "required": [
+          "action"
+        ],
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string",
+            "default": ""
+          },
+          "html": {
+            "type": "string",
+            "default": ""
+          },
+          "instructions": {
+            "type": "string",
+            "default": ""
+          },
+          "targetLanguage": {
+            "type": "string",
+            "default": "英文"
+          }
+        },
+        "description": "An explicit editorial action using the current, possibly unsaved, article."
+      },
+      "AiWritingResult": {
+        "required": [
+          "text",
+          "html",
+          "tagIds"
+        ],
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "html": {
+            "type": "string"
+          },
+          "tagIds": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "A proposal only; content persistence and publication are never performed by this service."
+      },
+      "ApiResponseOfAiConfigurationView": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AiConfigurationView"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfAiStatus": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AiStatus"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfAiWritingResult": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/AiWritingResult"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
       },
       "ApiResponseOfAssetView": {
         "required": [
@@ -11619,6 +12091,9 @@
   "tags": [
     {
       "name": "Cms.Api"
+    },
+    {
+      "name": "Ai"
     },
     {
       "name": "CommerceAdmin"

@@ -8,6 +8,7 @@
 - `content:write`：创建和更新文章、独立页面的草稿；不改变已发布正文。
 - `content:publish`：发布指定版本，内容会立即公开；此权限在后台默认不勾选。
 - `asset:upload`：上传附件，继续执行文件格式、大小和引用校验。
+- `ai:generate`：使用站点已配置的模型生成内容，可能消耗模型额度；默认不勾选，不获得 AI 配置或密钥读取权限。
 
 浏览器和 Agent 共用附件、正文验证。图片、PDF 之外支持 MP4、WebM、MP3、WAV；正文支持固定格式的图片集、分栏和受限 HTTPS 框架，具体规则见 [编辑器说明](editor.md)。新增格式需同步更新 API/web，无新增 API 请求字段或数据库升级。
 
@@ -36,8 +37,11 @@ Content-Type: application/json
 - `POST /api/v1/integration/contents`：创建草稿。
 - `PUT /api/v1/integration/contents/{id}`：保存指定版本的草稿。
 - `POST /api/v1/integration/contents/{id}/publish`：发布指定版本。
+- `POST /api/v1/integration/ai/generate`：生成写作预览，输入和返回值见 [AI 写作助手](ai-writing.md)。不保存、不发布、不要求幂等键；不自动重试，避免重复消耗模型额度。每个关联用户每分钟最多 10 次。
 
 所有写入都必须提供 `Idempotency-Key`，包括更新草稿。键长度 8–128，仅允许 ASCII 字母、数字、`-`、`_`、`.`。每个步骤使用不同键，同一步骤重试时保留原键和输入。
+
+n8n 的“整理资料 → AI 生成 → 保存草稿”工作流及本地演示见 [n8n 自动化](n8n.md)。生成与保存为独立步骤，只有保存步骤写入内容数据库。
 
 创建草稿示例：
 

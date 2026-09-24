@@ -19,8 +19,11 @@ public static class IntegrationScopes
     /// <summary>Upload verified media.</summary>
     public const string Upload = "asset:upload";
 
+    /// <summary>Use the site's configured model to generate writing proposals; may consume provider credits.</summary>
+    public const string AiGenerate = "ai:generate";
+
     /// <summary>All supported permissions.</summary>
-    public static readonly string[] All = [Read, Write, Publish, Upload];
+    public static readonly string[] All = [Read, Write, Publish, Upload, AiGenerate];
 }
 
 /// <summary>Administrator request to issue an expiring machine credential.</summary>

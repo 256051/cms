@@ -70,6 +70,9 @@ public record ContentDiscovery(ContentView? Previous, ContentView? Next, IReadOn
 /// <summary>Version required for publish, unpublish and delete.</summary>
 public record VersionInput(int Version);
 
+/// <summary>Publish an expected version with an explicit WeChat choice, or the deployment default when omitted.</summary>
+public record ContentPublishInput(int Version, bool? SyncToWeChat = null);
+
 /// <summary>Human-readable attachment reference location.</summary>
 public record AssetReference(string ContentId, string Kind, string Title, string Source, int? Version, bool Deleted = false);
 

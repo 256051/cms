@@ -42,6 +42,8 @@ builder.Host.ConfigureContainer<ContainerBuilder>(container =>
     container.RegisterType<VisitorIdentity>().InstancePerLifetimeScope();
     container.RegisterType<MaintenanceService>().InstancePerLifetimeScope();
     container.RegisterType<NotificationService>().InstancePerLifetimeScope();
+    container.RegisterType<WeChatDraftService>().InstancePerLifetimeScope();
+    container.RegisterType<WeChatSettingsService>().InstancePerLifetimeScope();
     container.RegisterType<CommerceSettings>().InstancePerLifetimeScope();
     container.RegisterType<CommerceService>().InstancePerLifetimeScope();
 });
@@ -49,6 +51,9 @@ builder.Services.AddHttpClient<PaymentGateway>(client => client.Timeout = TimeSp
     .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
 builder.Services.AddHostedService<MaintenanceWorker>();
 builder.Services.AddHostedService<NotificationWorker>();
+// Deliberately no HTTP request logging: WeChat requires access_token in query strings.
+builder.Services.AddSingleton(_ => new WeChatClient(new HttpClient(new SocketsHttpHandler { AllowAutoRedirect = false })));
+builder.Services.AddHostedService<WeChatWorker>();
 builder.Services.AddSingleton<IMapper>(new Mapper(MappingConfiguration.Create()));
 var keys = Path.GetFullPath(builder.Configuration["Security:KeyPath"] ?? "data/keys");
 Directory.CreateDirectory(keys);

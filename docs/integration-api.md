@@ -59,6 +59,8 @@ Content-Type: application/json
 
 响应沿用 `ApiResponse<T>`：`code`、`message`、`data`、`traceId`。创建后取 `data.id` 与 `data.version`，向发布接口提交 `{"version":返回的版本号}`，并使用新的发布请求键。发布响应的 `data.content` 为发布后的内容状态，`data.path` 为站点相对路径，例如 `/posts/hello-agent`，与站点源地址组合即为阅读地址。
 
+发布请求可额外指定 `syncToWeChat`：`true` 同步公众号草稿（需接入配置完整），`false` 明确不发送，省略或 `null` 沿用有效配置的 `WeChat:AutoSync`。管理员开启 `AutoPublish` 时，新建同步任务还会在草稿创建后自动提交发布；既有草稿不会补发。该选择参与幂等校验；使用相同请求键重试时必须保持选择一致。详见 [公众号同步](wechat-publishing.md)。
+
 保存或发布遇到 `409 / VERSION_CONFLICT` 时，应先读取最新草稿并决定如何处理修改。不要自动用最新版本号强行覆盖其他编辑人员的内容。
 
 ## 超时重试与限流

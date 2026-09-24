@@ -12,6 +12,7 @@ import ContentHistory from "./ContentHistory";
 import PageBuilder from "./PageBuilder";
 import BusinessFieldsEditor, { defaultBusinessFields } from "./BusinessFieldsEditor";
 import type { components } from "@/lib/api.generated";
+import WeChatDraftPanel from "./WeChatDraftPanel";
 
 function BlockUses({ id }: { id: string }) {
   const { data, error, loading, reload } = useLoad<Required<components["schemas"]["BlockReference"]>[]>(`admin/blocks/${id}/references`);
@@ -38,6 +39,10 @@ export default function ContentEditor({
   const [wide, setWide] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const wechat = useLoad<Required<components["schemas"]["WeChatSettings"]>>("admin/wechat/settings");
+  const [syncToWeChat, setSyncToWeChat] = useState(false);
+  const wechatReady = !!wechat.data?.enabled && wechat.data.errors.length === 0 && !wechat.loading && !wechat.error;
+  const syncThisPublication = kind === "post" && wechatReady && syncToWeChat;
   const [loading, setLoading] = useState(!!id);
   const [recovery, setRecovery] = useState<Content>();
   const [conflict, setConflict] = useState(false);
@@ -124,11 +129,11 @@ export default function ContentEditor({
         saved = await api<Content>(
           `admin/contents/${saved.id}/publish`,
           "POST",
-          { version: saved.version },
+          { version: saved.version, syncToWeChat: syncThisPublication },
         );
       setDoc(saved);
       setDirty(false);
-      setSuccess(publish ? kind === "block" ? "公共区块已发布，引用页面同步更新。" : kind === "template" ? "模板已发布，可在页面搭建器中选择。" : "已发布，网站内容已更新。" : "草稿已保存。");
+      setSuccess(publish ? kind === "block" ? "公共区块已发布，引用页面同步更新。" : kind === "template" ? "模板已发布，可在页面搭建器中选择。" : syncThisPublication ? wechat.data?.autoPublish ? "网站已发布，已安排公众号同步及自动发布，请查看发布结果。" : "网站已发布，已安排公众号草稿同步，请查看同步结果。" : "已发布，网站内容已更新。" : "草稿已保存。");
       completed = true;
     } catch (e) {
       setError((e as Error).message);
@@ -274,6 +279,13 @@ export default function ContentEditor({
             </section>
             <section className="panel">
               <h2>发布设置</h2>
+              {kind === "post" && <div>
+                <label className="checkbox-label"><input type="checkbox" checked={wechatReady && syncToWeChat}
+                  disabled={!wechatReady || busy} aria-describedby="wechat-publish-help"
+                  onChange={event => setSyncToWeChat(event.target.checked)} />{wechat.data?.autoPublish ? "同步到微信公众号（自动发布）" : "同步到微信公众号（草稿箱）"}</label>
+                <small id="wechat-publish-help">{wechat.loading ? "正在检查公众号接入配置…" : wechat.error ? "无法读取公众号配置，暂不可勾选。" : !wechat.data?.enabled ? "尚未配置公众号接入，暂不可勾选。" : wechat.data.errors.length ? "公众号配置不完整，暂不可勾选：" + wechat.data.errors.join("；") : wechat.data.autoPublish ? "勾选后，新建同步任务会上传图片、创建草稿并自动发布；不会群发给粉丝。" : "勾选后，本次“保存并发布”会同步到公众号草稿箱；不会群发给粉丝。"}</small>
+                {(wechat.error || !wechatReady && !wechat.loading) && <button type="button" className="secondary" onClick={() => void wechat.reload()}>重新检查接入</button>}
+              </div>}
               <div className="status-row">
                 <span>当前状态</span>
                 <span className={`badge ${doc.published ? "green" : ""}`}>
@@ -343,6 +355,7 @@ export default function ContentEditor({
                   )}
               </fieldset>
             </section>
+            {kind === "post" && doc.id && <WeChatDraftPanel doc={doc} disabled={busy || dirty || !!recovery} />}
             {kind !== "template" && kind !== "block" && <section className="panel"><h2>搜索与分享</h2>
               <label>SEO 标题<input value={doc.seo?.title || ""} placeholder={doc.title} maxLength={200}
                 onChange={e => change({ seo: { ...seo, title: e.target.value } })} /></label>

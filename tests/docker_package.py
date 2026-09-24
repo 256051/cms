@@ -158,6 +158,12 @@ def main():
             assert admin.call("admin/traffic")["totalViews"] == 0
             checks.append(f"Replacing the schema {previous['schema']} API image automatically upgrades to schema {manifest['schema']} and preserves the existing site without --migrate")
         assert not admin.call("admin/notifications/settings")["enabled"]
+        wechat = admin.call("admin/wechat/configuration")
+        assert not wechat["values"]["enabled"] and not wechat["values"]["autoPublish"]
+        wechat_secret = "isolated-package-secret"
+        wechat = admin.call("admin/wechat/configuration", "PUT", dict(wechat["values"], appId="wx1234567890123456",
+            appSecret=wechat_secret, siteUrl="https://example.com", autoPublish=True))
+        assert wechat["hasSecret"] and wechat["values"]["appSecret"] == "" and not wechat["values"]["enabled"]
         assert len(admin.call("public/inquiry-form")["fields"]) == 3
         current_asset = admin.call("admin/assets")["items"][0]
         admin.call("admin/assets/" + current_asset["id"], "PUT", dict(name="package-group.png", group="验收分组", version=current_asset["version"]))
@@ -174,12 +180,20 @@ def main():
         ready()
         assert any(item["id"] == friend["id"] for item in admin.call("public/friend-links"))
         assert "https://example.com/partner" in admin.call("/posts/package-proof").decode()
+        wechat = admin.call("admin/wechat/configuration")
+        assert wechat["hasSecret"] and wechat["values"]["appSecret"] == "" and wechat["values"]["autoPublish"]
+        assert not admin.call("admin/wechat/settings")["enabled"]
+        checks.append("WeChat defaults disabled; encrypted settings and optional publication choice survive restart without exposing secrets or contacting WeChat")
         checks.append("Footer friend links persist after container restart and remain separate from header navigation")
         admin.call("admin/maintenance/backup", "POST")
         with zipfile.ZipFile(io.BytesIO(admin.call("admin/maintenance/download"))) as backup:
             assert json.loads(backup.read("manifest.json"))["Schema"] == manifest["schema"]
             assert json.loads(backup.read("database/SchemaVersion.json"))[0]["Version"] == manifest["schema"]
             assert any(item["Id"] == friend["id"] for item in json.loads(backup.read("database/MenuItem.json")))
+            assert wechat_secret.encode() not in backup.read("database/WeChatAccountSettings.json")
+            assert len(json.loads(backup.read("database/WeChatAccountSettings.json"))) == 1
+            assert json.loads(backup.read("database/WeChatDraft.json")) == []
+            assert json.loads(backup.read("database/WeChatPublication.json")) == []
         checks.append("Packaged schema matches actual database and backup; product SEO/fields, asset groups, inquiry definitions and disabled notifications work")
         if args.browser:
             credentials = local / "browser-credentials.json"

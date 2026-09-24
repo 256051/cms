@@ -4,6 +4,12 @@ using FreeSql;
 using FreeSql.DataAnnotations;
 using SQLitePCL;
 
+if (args.Contains("--wechat"))
+{
+    await WeChatChecks.RunAsync();
+    return;
+}
+
 if (args.Contains("--geolocation"))
 {
     IpLocationChecks.Run();

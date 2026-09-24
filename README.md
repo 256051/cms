@@ -164,6 +164,7 @@ curl --fail https://你的域名/health/ready
 - [站点设置验收](docs/settings-verification.md)：当前 schema 5 升级和实际测试结果。
 - [登录保护](docs/login-security.md)：图形验证码、账号连续失败限制、IP 限流及单实例边界。
 - [Agent 与通用发布 API](docs/integration-api.md)：访问令牌、分项权限、24 小时请求去重、远程发文和脚本示例。
+- [微信公众号同步](docs/wechat-publishing.md)：发布后同步草稿、可选自动发布、账号配置、结果查询与失败处理，以及后续群发步骤。
 - [集成接口验收](docs/integration-verification.md)：schema 6 升级、四库、令牌权限和 HTTPS 浏览器验收记录。
 - [修改记录](CHANGELOG.md)：功能与依赖调整、部署影响及对应验证结果。
 

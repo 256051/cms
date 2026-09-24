@@ -176,9 +176,9 @@ public sealed class AdminController(
 
     /// <summary>Publish the expected version.</summary>
     [HttpPost("contents/{id}/publish")]
-    public async Task<ApiResponse<ContentView>> Publish(string id, VersionInput input)
+    public async Task<ApiResponse<ContentView>> Publish(string id, ContentPublishInput input)
     {
-        return Result(await content.PublishAsync(Actor, id, input.Version, true));
+        return Result(await content.PublishAsync(Actor, id, input.Version, true, input.SyncToWeChat));
     }
 
     /// <summary>Withdraw public content.</summary>

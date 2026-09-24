@@ -13,7 +13,8 @@ public sealed class IntegrationService(
     CmsRepository repository,
     ContentValidator validator,
     IConfiguration configuration,
-    TimeProvider clock)
+    TimeProvider clock,
+    WeChatSettingsService? wechatSettings = null)
 {
     /// <summary>List editorial content without full bodies.</summary>
     public Task<PageResult<ContentView>> ListAsync(string kind, string? query, int page)
@@ -45,7 +46,7 @@ public sealed class IntegrationService(
     }
 
     /// <summary>Publish the caller's expected version and return its public path.</summary>
-    public Task<IntegrationPublication> PublishAsync(string tokenId, string key, string id, VersionInput input)
+    public Task<IntegrationPublication> PublishAsync(string tokenId, string key, string id, ContentPublishInput input)
     {
         return OnceAsync(tokenId, key, IntegrationScopes.Publish, new { operation = "publish", id, input },
             async (repo, token) =>
@@ -53,7 +54,7 @@ public sealed class IntegrationService(
                 if ((await repo.FindAsync<Content>(id))?.Kind is "template" or "block")
                     throw new CmsException(404, "NOT_FOUND", "内容不存在。");
                 var content =
-                    await new ContentService(repo, validator).PublishAsync(token.UserId, id, input.Version, true);
+                    await new ContentService(repo, validator, wechatSettings).PublishAsync(token.UserId, id, input.Version, true, input.SyncToWeChat);
                 return new IntegrationPublication(content,
                     ContentService.PublicPath(content.Kind, content.Slug));
             });

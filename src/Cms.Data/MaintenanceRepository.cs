@@ -19,6 +19,7 @@ public sealed partial class CmsRepository
         await Table<ContentRedirect>();
         await Table<InquiryFormSettings>();
         await Table<ShopProduct>(); await Table<ShopFile>(); await Table<ShopSettings>(); await Table<ShopOrder>();
+        await Table<WeChatDraft>(); await Table<WeChatAccountSettings>(); await Table<WeChatPublication>();
     }
 
     /// <summary>Validate a complete snapshot then restore only into an empty initialized database.</summary>
@@ -36,6 +37,20 @@ public sealed partial class CmsRepository
                     throw new InvalidDataException("备份数据库版本不受支持。");
                 ((SchemaVersion)(object)rows[0]).Version = CurrentSchemaVersion;
             }
+            // External side effects after the backup cannot be rolled back; never replay restored jobs.
+            if (typeof(T) == typeof(WeChatDraft))
+                foreach (var job in rows.Cast<WeChatDraft>().Where(x => x.Status != "draft" && x.Status != "cancelled"))
+                {
+                    job.Status = "unknown";
+                    job.Error = "此记录从备份恢复，请先在公众号草稿箱核实，系统不会自动重发。";
+                }
+            if (typeof(T) == typeof(WeChatPublication))
+                foreach (var job in rows.Cast<WeChatPublication>().Where(x => x.Status is not ("published" or "cancelled")))
+                {
+                    // Known task IDs can be queried safely; never submit restored drafts automatically.
+                    job.Status = job.PublishId != "" ? "publishing" : "unknown";
+                    job.Error = "此记录从备份恢复；已有发布编号仅查询状态，其余请在微信后台核实，不会自动重发。";
+                }
             inserts.Add(async () => { if (seed) await db.Delete<T>().Where(x => true).ExecuteAffrowsAsync();
                 foreach (var row in rows) await InsertAsync(row); });
         }
@@ -49,6 +64,7 @@ public sealed partial class CmsRepository
         await Table<ContentRedirect>();
         await Table<InquiryFormSettings>();
         await Table<ShopProduct>(); await Table<ShopFile>(); await Table<ShopSettings>(); await Table<ShopOrder>();
+        await Table<WeChatDraft>(); await Table<WeChatAccountSettings>(); await Table<WeChatPublication>();
         foreach (var insert in inserts) await insert();
     }
 

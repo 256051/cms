@@ -60,7 +60,7 @@ SQLite 数据库、附件及密钥均位于 `cms-data` 卷，不需要额外数�
 
 SQLite 数据库、附件、认证密钥均位于 `cms-data` 卷。不要使用 `docker compose down -v` 删除运行数据。先停止写入再备份整个卷，并另外保存 `.env`，操作细节见 `docs/operations.md`。
 
-升级前停止旧 API、前端并备份，再导入新包的 `images.tar`，将 Compose 中的 API、web 镜像更新到新包版本。保持同一个 `COMPOSE_PROJECT_NAME`、原 `.env` 配置和数据卷，按原部署模式重新启动；新版 API 在提供服务前自动升级数据库，失败则退出。当前 schema 为 14，新增功能见 `docs/next-enhancements.md`。升级不需要重新设置初始管理员凭据；只加载镜像不会修改旧 Compose 引用的版本，旧离线包的行为仍以各自版本为准。
+升级前停止旧 API、前端并备份，再导入新包的 `images.tar`，将 Compose 中的 API、web 镜像更新到新包版本。保持同一个 `COMPOSE_PROJECT_NAME`、原 `.env` 配置和数据卷，按原部署模式重新启动；新版 API 在提供服务前自动升级数据库，失败则退出。当前 schema 为 19，新增公众号配置、草稿同步与可选自动发布见 [微信公众号同步](wechat-publishing.md)。升级后在「系统管理 → 公众号设置」配置接入，默认关闭同步和自动发布。升级不需要重新设置初始管理员凭据；只加载镜像不会修改旧 Compose 引用的版本，旧离线包的行为仍以各自版本为准。
 
 已有宿主 Nginx、使用 `./cms-data:/data` 和自定义端口的站点，请把包内 `compose.upgrade.yaml` 复制到**原部署目录**。该文件仅覆盖 API/web 镜像，保留原 `docker-compose.yml` 中的数据路径、端口、域名和环境设置：
 

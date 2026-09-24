@@ -37,6 +37,7 @@ import MaintenanceManager, { OperationsReminder } from "./MaintenanceManager";
 import ThemeManager from "./ThemeManager";
 import MenuManager from "./MenuManager";
 import SettingsManager from "./SettingsManager";
+import WeChatSettingsManager from "./WeChatSettingsManager";
 import TokenManager from "./TokenManager";
 import { TrafficOverview, VisitorManager, LeadManager } from "./TrafficManagement";
 import {
@@ -67,6 +68,7 @@ const navigationGroups: { label: string; items: [string, string, typeof FileText
   ] },
   { label: "系统管理", items: [
     ["settings", "站点设置", Settings, true], ["users", "成员与权限", Users, true],
+    ["wechat", "公众号设置", MessageSquare, true],
     ["access-tokens", "API 访问令牌", LockKeyhole, true], ["maintenance", "备份与维护", ShieldCheck, true],
     ["notifications", "通知记录", MessageSquare, true], ["audit", "操作记录", ShieldCheck, true],
   ] },
@@ -298,7 +300,7 @@ export default function AdminApp({ route }: { route: string[] }) {
           ) : section === "password" ? (
             <PasswordManager />
           ) : user.role === "Admin" ? (
-            section === "payments" ? <PaymentSettings /> : section === "commerce-products" ? <CommerceProducts id={route[1]} /> : section === "commerce-orders" ? <CommerceOrders /> : section === "inquiry-form" ? <InquiryFormManager /> : section === "notifications" ? <NotificationManager /> : section === "maintenance" ? <MaintenanceManager /> : section === "traffic" ? <TrafficOverview /> : section === "visitors" ? <VisitorManager initialId={route[1]} /> : section === "leads" ? <LeadManager user={user} /> : section === "themes" ? (
+            section === "wechat" ? <WeChatSettingsManager /> : section === "payments" ? <PaymentSettings /> : section === "commerce-products" ? <CommerceProducts id={route[1]} /> : section === "commerce-orders" ? <CommerceOrders /> : section === "inquiry-form" ? <InquiryFormManager /> : section === "notifications" ? <NotificationManager /> : section === "maintenance" ? <MaintenanceManager /> : section === "traffic" ? <TrafficOverview /> : section === "visitors" ? <VisitorManager initialId={route[1]} /> : section === "leads" ? <LeadManager user={user} /> : section === "themes" ? (
               <ThemeManager />
             ) : section === "settings" ? (
               <SettingsManager />

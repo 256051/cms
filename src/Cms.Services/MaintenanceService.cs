@@ -219,6 +219,9 @@ public sealed class MaintenanceService(CmsRepository repository, IConfiguration 
         if (manifest.Schema < 16)
             foreach (var table in new[] { "ShopProduct", "ShopFile", "ShopSettings", "ShopOrder" })
                 verified.TryAdd("database/" + table + ".json", "[]"u8.ToArray());
+        if (manifest.Schema < 17) verified.TryAdd("database/WeChatDraft.json", "[]"u8.ToArray());
+        if (manifest.Schema < 18) verified.TryAdd("database/WeChatAccountSettings.json", "[]"u8.ToArray());
+        if (manifest.Schema < 19) verified.TryAdd("database/WeChatPublication.json", "[]"u8.ToArray());
         foreach (var file in JsonSerializer.Deserialize<List<ShopFile>>(verified["database/ShopFile.json"])!)
             if (!verified.TryGetValue("uploads/" + CommerceService.FileName(file.Id), out var bytes) || bytes.LongLength != file.Size ||
                 Convert.ToHexString(SHA256.HashData(bytes)) != file.Sha256) throw new InvalidDataException("付费交付文件不完整。");

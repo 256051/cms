@@ -61,7 +61,7 @@ public sealed class IntegrationController(IntegrationService service) : ApiContr
     /// <summary>Publish the expected version once; requires content:publish and Idempotency-Key.</summary>
     [HttpPost("contents/{id}/publish")]
     [Authorize(Policy = IntegrationScopes.Publish)]
-    public async Task<ApiResponse<IntegrationPublication>> Publish(string id, VersionInput input,
+    public async Task<ApiResponse<IntegrationPublication>> Publish(string id, ContentPublishInput input,
         [FromHeader(Name = "Idempotency-Key")] string? key)
     {
         return Result(await service.PublishAsync(TokenId, key ?? "", id, input));

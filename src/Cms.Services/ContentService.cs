@@ -7,7 +7,7 @@ using FluentValidation;
 namespace Cms.Services;
 
 /// <summary>Draft isolation, publication and public content queries.</summary>
-public sealed partial class ContentService(CmsRepository repository, ContentValidator validator)
+public sealed partial class ContentService(CmsRepository repository, ContentValidator validator, WeChatSettingsService? wechatSettings = null)
 {
     /// <summary>Read sanitized editorial content.</summary>
     public async Task<ContentView> GetAsync(string id)
@@ -123,7 +123,7 @@ public sealed partial class ContentService(CmsRepository repository, ContentVali
     }
 
     /// <summary>Atomically publish or withdraw an expected content version.</summary>
-    public Task<ContentView> PublishAsync(string actor, string id, int version, bool publish)
+    public Task<ContentView> PublishAsync(string actor, string id, int version, bool publish, bool? syncToWeChat = null)
     {
         return repository.WriteAsync(actor, publish ? "content.publish" : "content.unpublish", async repo =>
         {
@@ -136,7 +136,7 @@ public sealed partial class ContentService(CmsRepository repository, ContentVali
             row.Published = publish;
             if (publish)
             {
-                await SetPublicationAsync(repo, row, Draft(row));
+                await SetPublicationAsync(repo, row, Draft(row), syncToWeChat);
             }
             row.ScheduledPublishAt = null;
             row.ScheduledJson = "";

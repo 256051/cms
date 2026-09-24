@@ -24,7 +24,7 @@ public record PageResult<T>(IReadOnlyList<T> Items, long Total, int Page, int Pa
 public sealed partial class CmsRepository(IFreeSql database)
 {
     /// <summary>Latest explicitly numbered database schema understood by this build.</summary>
-    public const int CurrentSchemaVersion = 16;
+    public const int CurrentSchemaVersion = 19;
     // ponytail: one writer per API process; single API instance only. Use database locks before scaling out.
     private static readonly SemaphoreSlim Writes = new(1, 1);
     private readonly IFreeSql db = database;
@@ -398,8 +398,26 @@ public sealed partial class CmsRepository(IFreeSql database)
         await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 15).ExecuteAffrowsAsync();
         }
         // v15 -> v16: additive commerce tables; existing editorial tables remain unchanged.
+        if (version < 16)
+        {
         db.CodeFirst.SyncStructure(typeof(ShopProduct), typeof(ShopFile), typeof(ShopSettings), typeof(ShopOrder));
         await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 16).ExecuteAffrowsAsync();
+        }
+        // v16 -> v17: independent WeChat delivery table; no existing table changes.
+        if (version < 17)
+        {
+        db.CodeFirst.SyncStructure(typeof(WeChatDraft));
+        await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 17).ExecuteAffrowsAsync();
+        }
+        // v17 -> v18: encrypted official account settings; existing business tables stay unchanged.
+        if (version < 18)
+        {
+        db.CodeFirst.SyncStructure(typeof(WeChatAccountSettings));
+        await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 18).ExecuteAffrowsAsync();
+        }
+        // v18 -> v19: independent optional publication state; no existing table changes.
+        db.CodeFirst.SyncStructure(typeof(WeChatPublication));
+        await db.Update<SchemaVersion>().Where(x => x.Id == "schema").Set(x => x.Version, 19).ExecuteAffrowsAsync();
     }
 
     /// <summary>Check database connectivity and expected schema without modifying it.</summary>

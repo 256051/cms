@@ -15,7 +15,7 @@ public sealed partial class ContentService
             (start + 200 < body.Length ? "…" : "");
     }
 
-    private static async Task SetPublicationAsync(CmsRepository repo, Content row, ContentView snapshot)
+    private async Task SetPublicationAsync(CmsRepository repo, Content row, ContentView snapshot, bool? syncToWeChat = null)
     {
         await ValidateSeoAsync(repo, snapshot.Seo);
         await PublishAddressAsync(repo, row, snapshot.Slug);
@@ -34,6 +34,7 @@ public sealed partial class ContentService
         row.PublishedCategoryId = snapshot.CategoryId;
         row.PublishedTagIds = Pack(snapshot.TagIds);
         row.PublishedText = PublishedSearchText(snapshot);
+        await WeChatDraftService.EnqueuePublicationAsync(repo, row, wechatSettings, syncToWeChat);
     }
 
     private static string PublishedSearchText(ContentView snapshot) => ContentText.Plain(snapshot.Html) + " " +

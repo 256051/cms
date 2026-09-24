@@ -6,7 +6,7 @@
   },
   "servers": [
     {
-      "url": "/"
+      "url": "http://127.0.0.1:55690/"
     }
   ],
   "paths": {
@@ -1601,17 +1601,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/VersionInput"
+                "$ref": "#/components/schemas/ContentPublishInput"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/VersionInput"
+                "$ref": "#/components/schemas/ContentPublishInput"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/VersionInput"
+                "$ref": "#/components/schemas/ContentPublishInput"
               }
             }
           },
@@ -4483,17 +4483,17 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/VersionInput"
+                "$ref": "#/components/schemas/ContentPublishInput"
               }
             },
             "text/json": {
               "schema": {
-                "$ref": "#/components/schemas/VersionInput"
+                "$ref": "#/components/schemas/ContentPublishInput"
               }
             },
             "application/*+json": {
               "schema": {
-                "$ref": "#/components/schemas/VersionInput"
+                "$ref": "#/components/schemas/ContentPublishInput"
               }
             }
           },
@@ -5834,6 +5834,252 @@
           }
         }
       }
+    },
+    "/api/v1/admin/wechat/settings": {
+      "get": {
+        "tags": [
+          "WeChat"
+        ],
+        "summary": "Read safe effective configuration status.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfWeChatSettings"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfWeChatSettings"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfWeChatSettings"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/wechat/configuration": {
+      "get": {
+        "tags": [
+          "WeChat"
+        ],
+        "summary": "Read the administrator's redacted account configuration.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfWeChatConfigurationView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfWeChatConfigurationView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfWeChatConfigurationView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "WeChat"
+        ],
+        "summary": "Encrypt and persist account settings; ordinary editors cannot change credentials.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WeChatOptions"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WeChatOptions"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/WeChatOptions"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfWeChatConfigurationView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfWeChatConfigurationView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfWeChatConfigurationView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/wechat/contents/{id}": {
+      "get": {
+        "tags": [
+          "WeChat"
+        ],
+        "summary": "Read the article's recent synchronization results.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfWeChatDraftView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfWeChatDraftView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfIReadOnlyListOfWeChatDraftView"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "WeChat"
+        ],
+        "summary": "Queue one frozen publication for draft synchronization.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/VersionInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfWeChatDraftView"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfWeChatDraftView"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfWeChatDraftView"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/wechat/{id}/retry": {
+      "post": {
+        "tags": [
+          "WeChat"
+        ],
+        "summary": "Retry a definitively failed operation.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponseOfboolean"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -6463,6 +6709,36 @@
             ],
             "items": {
               "$ref": "#/components/schemas/UserView"
+            }
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfIReadOnlyListOfWeChatDraftView": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "type": [
+              "null",
+              "array"
+            ],
+            "items": {
+              "$ref": "#/components/schemas/WeChatDraftView"
             }
           },
           "traceId": {
@@ -7610,6 +7886,99 @@
         },
         "description": "Consistent HTTP response envelope."
       },
+      "ApiResponseOfWeChatConfigurationView": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/WeChatConfigurationView"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfWeChatDraftView": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/WeChatDraftView"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
+      "ApiResponseOfWeChatSettings": {
+        "required": [
+          "code",
+          "message",
+          "data",
+          "traceId"
+        ],
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "data": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/WeChatSettings"
+              }
+            ]
+          },
+          "traceId": {
+            "type": "string"
+          }
+        },
+        "description": "Consistent HTTP response envelope."
+      },
       "AssetMetadataInput": {
         "required": [
           "name",
@@ -8241,6 +8610,25 @@
           }
         },
         "description": "Editorial input with optimistic version."
+      },
+      "ContentPublishInput": {
+        "required": [
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "syncToWeChat": {
+            "type": [
+              "null",
+              "boolean"
+            ]
+          }
+        },
+        "description": "Publish an expected version with an explicit WeChat choice, or the deployment default when omitted."
       },
       "ContentScheduleInput": {
         "required": [
@@ -11076,6 +11464,148 @@
           }
         },
         "description": "Accepted visit identifier; empty means intentionally excluded from telemetry."
+      },
+      "WeChatConfigurationView": {
+        "required": [
+          "values",
+          "hasSecret",
+          "deploymentManaged",
+          "errors"
+        ],
+        "type": "object",
+        "properties": {
+          "values": {
+            "$ref": "#/components/schemas/WeChatOptions"
+          },
+          "hasSecret": {
+            "type": "boolean"
+          },
+          "deploymentManaged": {
+            "type": "boolean"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "Administrator view with the secret removed and its presence reported separately."
+      },
+      "WeChatDraftView": {
+        "required": [
+          "id",
+          "status",
+          "mediaId",
+          "error",
+          "updatedAt"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "mediaId": {
+            "type": "string"
+          },
+          "error": {
+            "type": "string"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "publicationStatus": {
+            "type": "string",
+            "default": ""
+          },
+          "publishId": {
+            "type": "string",
+            "default": ""
+          },
+          "publicationError": {
+            "type": "string",
+            "default": ""
+          },
+          "canRetryPublication": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "description": "Safe editorial delivery status."
+      },
+      "WeChatOptions": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean",
+            "default": false
+          },
+          "autoSync": {
+            "type": "boolean",
+            "default": false
+          },
+          "appId": {
+            "type": "string",
+            "default": ""
+          },
+          "appSecret": {
+            "type": "string",
+            "default": ""
+          },
+          "author": {
+            "type": "string",
+            "default": ""
+          },
+          "siteUrl": {
+            "type": "string",
+            "default": ""
+          },
+          "version": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          },
+          "autoPublish": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "description": "Official account settings; blank secrets on save preserve the same account's saved secret."
+      },
+      "WeChatSettings": {
+        "required": [
+          "enabled",
+          "autoSync",
+          "appId",
+          "errors"
+        ],
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "autoSync": {
+            "type": "boolean"
+          },
+          "appId": {
+            "type": "string"
+          },
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "autoPublish": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "description": "Public configuration status with no secrets."
       }
     },
     "securitySchemes": {
@@ -11125,6 +11655,9 @@
     },
     {
       "name": "Traffic"
+    },
+    {
+      "name": "WeChat"
     }
   ]
 }

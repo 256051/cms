@@ -25,9 +25,14 @@ public sealed class WeChatClient(HttpClient http)
     public async Task<string> UploadAsync(FileView file, bool cover, WeChatOptions account, CancellationToken cancellation)
     {
         using var body = new MultipartFormDataContent();
+        // Match WeChat's curl -F format instead of .NET's quoted boundary and filename* extension.
+        var boundary = body.Headers.ContentType!.Parameters.Single(x => x.Name == "boundary");
+        boundary.Value = boundary.Value!.Trim('"');
         var stream = new StreamContent(File.OpenRead(file.Path));
         stream.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
-        body.Add(stream, "media", cover ? "cover" + Path.GetExtension(file.Path) : "image" + Path.GetExtension(file.Path));
+        stream.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+        { Name = "\"media\"", FileName = $"\"{(cover ? "cover" : "image")}{Path.GetExtension(file.Path)}\"" };
+        body.Add(stream);
         var response = await SendAsync(cover ? "material/add_material" : "media/uploadimg", body,
             await TokenAsync(account, cancellation), cancellation, cover ? "&type=image" : "");
         return Required(response, cover ? "media_id" : "url", cover ? "material/add_material" : "media/uploadimg");
@@ -81,6 +86,7 @@ public sealed class WeChatClient(HttpClient http)
                     {
                         40164 => "请将服务器出口 IP 加入公众号 IP 白名单。",
                         40013 or 40125 => "请检查公众号 AppID 和 AppSecret。",
+                        41005 => "微信未识别到上传的文件数据，请检查素材上传请求格式。",
                         48001 => "账号没有此接口权限，请在公众号开发者后台核实。",
                         53503 => "草稿未通过发布检查，请在微信后台检查内容。",
                         53504 or 53505 => "此草稿需要在微信公众平台手动保存或发布。",

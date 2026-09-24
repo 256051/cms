@@ -11,6 +11,7 @@ using SQLitePCL;
 /// <summary>Isolated draft-delivery checks; no real WeChat account or network is used.</summary>
 public static class WeChatChecks
 {
+    private static readonly byte[] ImageBytes = Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a7S8AAAAASUVORK5CYII=");
     /// <summary>Exercise publication boundaries, media replacement, deduplication and uncertain outcomes.</summary>
     public static async Task RunAsync()
     {
@@ -57,7 +58,7 @@ public static class WeChatChecks
         Check(!JsonSerializer.Serialize(await service.SettingsAsync()).Contains("test-secret"), "secret is not exposed");
         var asset = new Asset { ContentType = "image/png", Name = "test.png", StorageName = "test.png", Size = 68 };
         await repo.InsertAsync(asset);
-        await File.WriteAllBytesAsync(Path.Combine(directory, asset.StorageName), Convert.FromBase64String("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a7S8AAAAASUVORK5CYII="));
+        await File.WriteAllBytesAsync(Path.Combine(directory, asset.StorageName), ImageBytes);
         var contents = new ContentService(repo, new ContentValidator(), accountSettings);
         var input = new ContentInput("post", "wechat-check", "已发布标题", "摘要", $"<p>正文</p><img src=\"/media/{asset.Id}\"><img src=\"/media/{asset.Id}\">", asset.Id, "", [], 0);
         var draft = await contents.SaveAsync("check", null, input);
@@ -141,6 +142,7 @@ public static class WeChatChecks
             ("http", "/cgi-bin/material/add_material", "上传微信封面", "HTTP 502", "failed"),
             ("json", "/cgi-bin/media/uploadimg", "上传正文图片", "JSON", "failed"),
             ("missing", "/cgi-bin/material/add_material", "上传微信封面", "media_id", "failed"),
+            ("media-missing", "/cgi-bin/material/add_material", "上传微信封面", "未识别到上传的文件数据", "failed"),
             ("http", "/cgi-bin/draft/add", "创建微信草稿", "HTTP 502", "unknown") })
         {
             fake.FaultKind = fault.Item1; fake.FaultEndpoint = fault.Item2;
@@ -151,6 +153,7 @@ public static class WeChatChecks
             var outcome = (await diagnosticService.HistoryAsync(failedInput.Id)).Single();
             Check(outcome.Status == fault.Item5 && outcome.Error.Contains(fault.Item3) && outcome.Error.Contains(fault.Item4),
                 "failure identifies actual step and safe reason: " + fault.Item1);
+            Check(!outcome.Error.Contains(fault.Item3 + "：" + fault.Item3), "failure step is not duplicated");
             Check(!outcome.Error.Contains("must-not-leak") && diagnostics.Messages.Any(x => x.Contains(outcome.Id) && x.Contains(fault.Item3)),
                 "diagnostic is correlated with the job without leaking credentials");
             if (outcome.Status == "unknown") await Reject(() => diagnosticService.RetryAsync("check", outcome.Id), "detailed transport errors preserve unknown submission safety");
@@ -302,13 +305,27 @@ public static class WeChatChecks
             // WeChat returns HTTP 412 for chunked JSON; inspect length before reading can buffer it.
             if (request.Content!.Headers.ContentLength == null || request.Headers.TransferEncodingChunked == true)
                 return new HttpResponseMessage(HttpStatusCode.PreconditionFailed);
+            if (request.RequestUri.AbsolutePath is "/cgi-bin/material/add_material" or "/cgi-bin/media/uploadimg")
+            {
+                // Match the official curl -F wire format, including actual file bytes, for both upload paths.
+                var type = request.Content.Headers.ContentType!;
+                var boundary = type.Parameters.Single(x => x.Name == "boundary").Value!;
+                Check(type.MediaType == "multipart/form-data" && !boundary.Contains('"'), "upload boundary matches curl format");
+                var wire = await request.Content.ReadAsByteArrayAsync(cancellationToken);
+                var filename = request.RequestUri.AbsolutePath.EndsWith("add_material") ? "cover.png" : "image.png";
+                var header = System.Text.Encoding.UTF8.GetBytes($"--{boundary}\r\nContent-Type: image/png\r\nContent-Disposition: form-data; name=\"media\"; filename=\"{filename}\"\r\n\r\n");
+                var ending = System.Text.Encoding.UTF8.GetBytes($"\r\n--{boundary}--\r\n");
+                Check(wire.SequenceEqual(header.Concat(ImageBytes).Concat(ending)), "media part includes quoted file fields and unchanged image bytes");
+                Check(request.Content.Headers.ContentLength == wire.Length, "upload length matches serialized body bytes");
+            }
             if (request.RequestUri.AbsolutePath == FaultEndpoint)
             {
                 if (FaultKind == "dns") throw new HttpRequestException(HttpRequestError.NameResolutionError, "https://api.weixin.qq.com/?access_token=must-not-leak");
                 if (FaultKind == "tls") throw new HttpRequestException(HttpRequestError.SecureConnectionError, "must-not-leak");
                 if (FaultKind == "timeout") throw new TaskCanceledException("must-not-leak");
                 return new HttpResponseMessage(FaultKind == "http" ? HttpStatusCode.BadGateway : HttpStatusCode.OK)
-                { Content = new StringContent(FaultKind == "missing" ? "{\"errcode\":0,\"errmsg\":\"must-not-leak\"}" : "<html>must-not-leak</html>") };
+                { Content = new StringContent(FaultKind == "media-missing" ? "{\"errcode\":41005,\"errmsg\":\"must-not-leak\"}" :
+                    FaultKind == "missing" ? "{\"errcode\":0,\"errmsg\":\"must-not-leak\"}" : "<html>must-not-leak</html>") };
             }
             object result;
             switch (request.RequestUri.AbsolutePath)

@@ -184,7 +184,7 @@ public sealed class WeChatDraftService(CmsRepository repository, WeChatSettingsS
                 }
                 catch (CmsException error)
                 {
-                    job.Status = "failed"; job.Error = $"{step}：{error.Message}";
+                    job.Status = "failed"; job.Error = error.Code == "WECHAT_REJECTED" ? error.Message : $"{step}：{error.Message}";
                     LogFailure(job.Id, job.ContentId, step, assetId, error, job.Error);
                 }
                 catch (Exception error) when (!cancellation.IsCancellationRequested)

@@ -6,7 +6,14 @@ using SQLitePCL;
 
 if (args.Contains("--wechat"))
 {
+    WeChatFormattingChecks.Run();
     await WeChatChecks.RunAsync();
+    return;
+}
+
+if (args.Contains("--wechat-layout-preview"))
+{
+    Console.Write(WeChatFormattingChecks.Run());
     return;
 }
 

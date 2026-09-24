@@ -48,7 +48,7 @@ public sealed class WeChatDraftService(CmsRepository repository, WeChatSettingsS
         var article = new WeChatArticle(snapshot.Title, snapshot.Summary, snapshot.Html, snapshot.CoverId,
             options.Author, options.SiteUrl.TrimEnd('/') + ContentService.PublicPath("post", snapshot.Slug));
         var json = JsonSerializer.Serialize(article);
-        var hash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(json)));
+        var hash = Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(WeChatArticleFormatter.Version + "\n" + json)));
         var app = options.AppId;
         var previous = await repo.FirstAsync<WeChatDraft>(x => x.AppId == app && x.ContentId == row.Id && x.Fingerprint == hash);
         if (previous != null)
@@ -162,14 +162,13 @@ public sealed class WeChatDraftService(CmsRepository repository, WeChatSettingsS
                     foreach (var image in document.QuerySelectorAll("img"))
                     {
                         image.SetAttribute("src", urls[image.GetAttribute("src")![7..]]);
-                        image.SetAttribute("style", "max-width:100%;height:auto;");
                     }
                     foreach (var link in document.QuerySelectorAll("a[href]"))
                     {
                         var href = link.GetAttribute("href")!;
                         if (href.StartsWith('/') && !href.StartsWith("//")) link.SetAttribute("href", new Uri(new Uri(article.SourceUrl), href).AbsoluteUri);
                     }
-                    var html = document.Body!.InnerHtml;
+                    var html = WeChatArticleFormatter.Format(document.Body!);
                     if (html.Length >= 20000 || Encoding.UTF8.GetByteCount(html) >= 1_000_000) throw Bad("转换后的正文超过微信限制，请缩短文章。");
                     job.Status = "submitting"; await SaveAsync(job);
                     step = "创建微信草稿";

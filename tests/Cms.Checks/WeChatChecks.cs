@@ -74,6 +74,8 @@ public static class WeChatChecks
         Check(fake.LastArticle.GetProperty("title").GetString() == "已发布标题", "unpublished edits never leave CMS");
         Check(fake.LastArticle.GetProperty("content").GetString()!.Contains("https://mmbiz.qpic.cn/check.png") &&
             !fake.LastArticle.GetProperty("content").GetString()!.Contains("/media/"), "local images are replaced");
+        Check(fake.LastArticle.GetProperty("content").GetString()!.StartsWith("<section style=") &&
+            fake.LastArticle.GetProperty("content").GetString()!.Contains("font-size:16px"), "draft payload includes mobile inline typography");
         Check(fake.LastArticle.GetProperty("thumb_media_id").GetString() == "cover-id" &&
             fake.LastArticle.GetProperty("content_source_url").GetString() == "https://example.com/posts/wechat-check", "cover and original URL");
         await service.QueueAsync("check", draft.Id, edited.Version); await service.RunAsync(default);
@@ -266,7 +268,19 @@ public static class WeChatChecks
         submissions = fake.Submissions;
         await restoredService.RunAsync(default);
         Check(fake.Submissions == submissions && (await restored.FindAsync<WeChatPublication>(wrongAccount.Id))!.Status == "published", "restore resumes only known task queries");
-        Console.WriteLine("PASS: WeChat images, settings, draft isolation, optional publication, status polling, safe retry, unknown outcomes, cancellation and backup/restore");
+        config["WeChat:AutoPublish"] = "false";
+        var legacyContent = await contents.SaveAsync("check", null, input with { Slug = "legacy-layout" });
+        var legacyPublished = await contents.PublishAsync("check", legacyContent.Id, legacyContent.Version, true, false);
+        var legacyView = await service.QueueAsync("check", legacyContent.Id, legacyPublished.Version);
+        var legacyJob = (await repo.FindAsync<WeChatDraft>(legacyView.Id))!;
+        legacyJob.Fingerprint = Convert.ToHexStringLower(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(legacyJob.SnapshotJson)));
+        legacyJob.Status = "draft"; legacyJob.MediaId = "legacy-media";
+        await repo.UpdateAsync(legacyJob);
+        var refreshed = await service.QueueAsync("check", legacyContent.Id, legacyPublished.Version);
+        Check(refreshed.Id != legacyJob.Id && refreshed.Status == "queued", "explicit resync creates new layout without editing article content");
+        Check((await service.QueueAsync("check", legacyContent.Id, legacyPublished.Version)).Id == refreshed.Id, "same new layout remains deduplicated");
+        Check((await repo.FindAsync<WeChatDraft>(legacyJob.Id))!.MediaId == "legacy-media", "layout upgrade preserves existing WeChat draft records");
+        Console.WriteLine("PASS: WeChat formatting, media, settings, draft isolation, optional publication, safe retry, unknown outcomes and backup/restore");
     }
 
     private static void Check(bool condition, string message) { if (!condition) throw new Exception(message); }

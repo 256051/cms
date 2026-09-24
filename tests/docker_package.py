@@ -183,7 +183,7 @@ def main():
         assert "Docker 验收" in rendered and "部署 SEO" in rendered and "noindex" in rendered
         friend = admin.call("admin/friend-links", "POST", dict(label="离线包友情链接", url="https://example.com/partner", sort=-1, openInNewTab=True))
         assert friend["id"] not in {item["id"] for item in admin.call("public/menu")}
-        command(compose + ["restart", "api", "web"])
+        command(compose + ["restart", "api", "web", "gateway"])
         ready()
         assert any(item["id"] == friend["id"] for item in admin.call("public/friend-links"))
         assert "https://example.com/partner" in admin.call("/posts/package-proof").decode()

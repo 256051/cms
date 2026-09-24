@@ -4,6 +4,7 @@ import base64
 import datetime
 import hashlib
 import io
+import ipaddress
 import json
 import os
 from pathlib import Path
@@ -87,8 +88,14 @@ def main():
     (tls / "privkey.pem").write_bytes(key.private_bytes(serialization.Encoding.PEM, serialization.PrivateFormat.PKCS8, serialization.NoEncryption()))
     password = "Package!" + secrets.token_hex(16)
     env = (bundle / ".env.example").read_text().splitlines()
+    networks = json.loads(command(["docker", "network", "inspect", *command(["docker", "network", "ls", "-q"]).splitlines()]))
+    occupied = [ipaddress.ip_network(config["Subnet"]) for network in networks for config in network["IPAM"]["Config"] or [] if config.get("Subnet")]
+    subnet = next((str(candidate) for block in range(20, 32) for candidate in ipaddress.ip_network(f"172.{block}.0.0/16").subnets(new_prefix=24)
+                   if not any(candidate.overlaps(existing) for existing in occupied)), None)
+    if subnet is None:
+        raise RuntimeError("No unused private test subnet; existing Docker networks were left unchanged.")
     overrides = {"SETUP_USERNAME": "cmsadmin", "SETUP_PASSWORD": password, "SITE_URL": base,
-                 "TLS_DIRECTORY": tls.as_posix(), "CMS_NETWORK_SUBNET": "172.30.48.0/24"}
+                 "TLS_DIRECTORY": tls.as_posix(), "CMS_NETWORK_SUBNET": subnet}
     env_path = local / ".env"
     env_path.write_text("\n".join(key + "=" + overrides[key] if (key := line.partition("=")[0]) in overrides else line for line in env) + "\n")
     override = local / "ports.yaml"

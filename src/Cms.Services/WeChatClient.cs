@@ -62,6 +62,8 @@ public sealed class WeChatClient(HttpClient http)
         {
             using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
             timeout.CancelAfter(TimeSpan.FromSeconds(30));
+            // WeChat rejects chunked JSON with HTTP 412; buffering supplies Content-Length.
+            if (body is JsonContent) await body.LoadIntoBufferAsync(timeout.Token);
             using var response = await http.PostAsync("https://api.weixin.qq.com/cgi-bin/" + endpoint +
                 (accessToken == "" ? "" : "?access_token=" + Uri.EscapeDataString(accessToken)) + suffix, body, timeout.Token);
             if (!response.IsSuccessStatusCode) throw new WeChatRequestException(endpoint, $"微信接口返回 HTTP {(int)response.StatusCode}。");

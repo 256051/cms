@@ -299,6 +299,9 @@ public static class WeChatChecks
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             Check(request.RequestUri!.Host == "api.weixin.qq.com", "requests use official host");
+            // WeChat returns HTTP 412 for chunked JSON; inspect length before reading can buffer it.
+            if (request.Content!.Headers.ContentLength == null || request.Headers.TransferEncodingChunked == true)
+                return new HttpResponseMessage(HttpStatusCode.PreconditionFailed);
             if (request.RequestUri.AbsolutePath == FaultEndpoint)
             {
                 if (FaultKind == "dns") throw new HttpRequestException(HttpRequestError.NameResolutionError, "https://api.weixin.qq.com/?access_token=must-not-leak");

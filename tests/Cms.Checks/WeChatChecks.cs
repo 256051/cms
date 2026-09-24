@@ -5,6 +5,7 @@ using Cms.Services;
 using FreeSql;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Logging;
 using SQLitePCL;
 
 /// <summary>Isolated draft-delivery checks; no real WeChat account or network is used.</summary>
@@ -50,7 +51,8 @@ public static class WeChatChecks
         using var http = new HttpClient(fake);
         var client = new WeChatClient(http);
         var assets = new AssetService(repo, config);
-        var service = new WeChatDraftService(repo, accountSettings, assets, client);
+        var diagnostics = new DiagnosticLogger();
+        var service = new WeChatDraftService(repo, accountSettings, assets, client, diagnostics);
         Check((await service.SettingsAsync()).Errors.Length == 0, "valid redacted settings");
         Check(!JsonSerializer.Serialize(await service.SettingsAsync()).Contains("test-secret"), "secret is not exposed");
         var asset = new Asset { ContentType = "image/png", Name = "test.png", StorageName = "test.png", Size = 68 };
@@ -132,6 +134,30 @@ public static class WeChatChecks
         Check((await service.HistoryAsync(row.Id)).Single().Status == "queued", "republishing a cancelled snapshot requeues it");
         await service.RunAsync(default);
         Check((await service.HistoryAsync(row.Id)).Single().Status == "draft", "republished cancelled content can synchronize");
+        foreach (var fault in new[] {
+            ("dns", "/cgi-bin/stable_token", "获取微信访问凭据", "DNS", "failed"),
+            ("tls", "/cgi-bin/stable_token", "获取微信访问凭据", "TLS", "failed"),
+            ("timeout", "/cgi-bin/stable_token", "获取微信访问凭据", "超时", "failed"),
+            ("http", "/cgi-bin/material/add_material", "上传微信封面", "HTTP 502", "failed"),
+            ("json", "/cgi-bin/media/uploadimg", "上传正文图片", "JSON", "failed"),
+            ("missing", "/cgi-bin/material/add_material", "上传微信封面", "media_id", "failed"),
+            ("http", "/cgi-bin/draft/add", "创建微信草稿", "HTTP 502", "unknown") })
+        {
+            fake.FaultKind = fault.Item1; fake.FaultEndpoint = fault.Item2;
+            var diagnosticService = new WeChatDraftService(repo, accountSettings, assets, new WeChatClient(http), diagnostics);
+            var failedInput = await contents.SaveAsync("check", null, input with { Slug = "diagnostic-" + Guid.NewGuid().ToString("N") });
+            await contents.PublishAsync("check", failedInput.Id, failedInput.Version, true, true);
+            await diagnosticService.RunAsync(default);
+            var outcome = (await diagnosticService.HistoryAsync(failedInput.Id)).Single();
+            Check(outcome.Status == fault.Item5 && outcome.Error.Contains(fault.Item3) && outcome.Error.Contains(fault.Item4),
+                "failure identifies actual step and safe reason: " + fault.Item1);
+            Check(!outcome.Error.Contains("must-not-leak") && diagnostics.Messages.Any(x => x.Contains(outcome.Id) && x.Contains(fault.Item3)),
+                "diagnostic is correlated with the job without leaking credentials");
+            if (outcome.Status == "unknown") await Reject(() => diagnosticService.RetryAsync("check", outcome.Id), "detailed transport errors preserve unknown submission safety");
+            fake.FaultKind = fake.FaultEndpoint = "";
+        }
+        Check(!string.Join("\n", diagnostics.Messages).Contains("must-not-leak"), "logs exclude raw exceptions, request URLs and response bodies");
+        Check(WeChatClient.Diagnostic(new UnauthorizedAccessException("must-not-leak")).Contains("权限"), "file permissions have a safe diagnostic");
         Check(await repo.CountAsync<WeChatPublication>() == 0, "automatic publication defaults off");
         foreach (var key in new[] { "Enabled", "AutoSync", "AppSecret" }) config["WeChat:" + key] = null;
         settingsView = await accountSettings.SaveAsync("check", (await accountSettings.ViewAsync()).Values with { AutoPublish = true });
@@ -247,16 +273,40 @@ public static class WeChatChecks
         throw new Exception(message);
     }
 
+    private sealed class DiagnosticLogger : ILogger<WeChatDraftService>
+    {
+        public List<string> Messages { get; } = [];
+        /// <summary>No external logging scope is required for this isolated check.</summary>
+        public IDisposable? BeginScope<TState>(TState state) where TState : notnull => null;
+        /// <summary>Capture every diagnostic emitted by the service.</summary>
+        public bool IsEnabled(LogLevel logLevel) => true;
+        /// <summary>Assert sensitive exception objects are excluded and retain rendered fields.</summary>
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
+        {
+            Check(exception == null, "raw exception objects must not be passed to logging providers");
+            Messages.Add(formatter(state, exception));
+        }
+    }
+
     private sealed class FakeWeChat : HttpMessageHandler
     {
         public string Mode = "ok";
         public int Covers, Images, Drafts, Tokens;
         public int Submissions, PublishStatus = 1;
         public string PublishMode = "ok", QueryMode = "ok", LastSubmittedMediaId = "";
+        public string FaultKind = "", FaultEndpoint = "";
         public JsonElement LastArticle;
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             Check(request.RequestUri!.Host == "api.weixin.qq.com", "requests use official host");
+            if (request.RequestUri.AbsolutePath == FaultEndpoint)
+            {
+                if (FaultKind == "dns") throw new HttpRequestException(HttpRequestError.NameResolutionError, "https://api.weixin.qq.com/?access_token=must-not-leak");
+                if (FaultKind == "tls") throw new HttpRequestException(HttpRequestError.SecureConnectionError, "must-not-leak");
+                if (FaultKind == "timeout") throw new TaskCanceledException("must-not-leak");
+                return new HttpResponseMessage(FaultKind == "http" ? HttpStatusCode.BadGateway : HttpStatusCode.OK)
+                { Content = new StringContent(FaultKind == "missing" ? "{\"errcode\":0,\"errmsg\":\"must-not-leak\"}" : "<html>must-not-leak</html>") };
+            }
             object result;
             switch (request.RequestUri.AbsolutePath)
             {

@@ -131,6 +131,14 @@ services:
 
 ## 验证
 
+### 同步失败排查
+
+后台记录会显示具体失败步骤，例如「获取微信访问凭据：DNS 解析失败」「上传微信封面：微信接口返回 HTTP 502」或「读取封面文件失败」。旧版本的「素材准备或网络请求失败」只表示创建草稿前遇到未分类异常，不能据此判断是白名单、密钥还是网络问题；旧记录不会自动补出细节，更新后需重试明确失败的任务。
+
+在服务器原部署目录沿用现有 Compose 参数执行 `docker compose logs --since 10m api`，查找 `WeChat operation failed` 或 `WeChat worker failed`。日志通过 `JobId`、`ContentId`、`AssetId` 和 `Step` 定位，不输出密钥、请求查询串或原始响应。web 容器不带参数访问 `stable_token` 返回 `41002 appid missing`，只能证明该容器到微信接口连通，不能替代 API 容器上传流程验证。
+
+### 本地检查
+
 ```powershell
 dotnet build Cms.slnx -c Release --no-restore
 dotnet run --project tests/Cms.Checks --no-restore -- --wechat

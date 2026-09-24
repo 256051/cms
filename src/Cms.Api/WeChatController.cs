@@ -40,7 +40,11 @@ public sealed class WeChatWorker(IServiceScopeFactory scopes, ILogger<WeChatWork
         {
             using var scope = scopes.CreateScope();
             try { await scope.ServiceProvider.GetRequiredService<WeChatDraftService>().RunAsync(stoppingToken); }
-            catch (Exception) when (!stoppingToken.IsCancellationRequested) { logger.LogError("WeChat processing failed; inspect delivery records and database availability."); }
+            catch (Exception error) when (!stoppingToken.IsCancellationRequested)
+            {
+                logger.LogError("WeChat worker failed. ExceptionType={ExceptionType} Detail={Detail} Stack={Stack}",
+                    error.GetType().Name, WeChatClient.Diagnostic(error), error.StackTrace);
+            }
         } while (await timer.WaitForNextTickAsync(stoppingToken));
     }
 }

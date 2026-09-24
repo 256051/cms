@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using AngleSharp.Html.Parser;
 using Cms.Data;
+using Microsoft.Extensions.Logging;
 
 namespace Cms.Services;
 
@@ -16,7 +17,8 @@ public record WeChatDraftView(string Id, string Status, string MediaId, string E
     string PublicationStatus = "", string PublishId = "", string PublicationError = "", bool CanRetryPublication = false);
 
 /// <summary>Durable single-account draft delivery using only published website snapshots.</summary>
-public sealed class WeChatDraftService(CmsRepository repository, WeChatSettingsService accountSettings, AssetService assets, WeChatClient client)
+public sealed class WeChatDraftService(CmsRepository repository, WeChatSettingsService accountSettings, AssetService assets, WeChatClient client,
+    ILogger<WeChatDraftService>? logger = null)
 {
     // ponytail: one sender per API process, matching CmsRepository; use database leases before multiple API replicas.
     private static readonly SemaphoreSlim Sender = new(1, 1);
@@ -130,6 +132,8 @@ public sealed class WeChatDraftService(CmsRepository repository, WeChatSettingsS
                 // Hold one account snapshot for the entire request chain; never send an old account's job to a new account.
                 var account = await accountSettings.LoadAsync();
                 if (!account.Enabled || account.AppId != job.AppId || WeChatSettingsService.Errors(account).Length != 0) return;
+                var step = "读取网站文章";
+                var assetId = "";
                 try
                 {
                     var content = await repository.FindAsync<Content>(job.ContentId);
@@ -139,16 +143,22 @@ public sealed class WeChatDraftService(CmsRepository repository, WeChatSettingsS
                         await SaveAsync(job); continue;
                     }
                     job.Status = "preparing"; await SaveAsync(job);
+                    step = "校验文章快照";
                     var article = JsonSerializer.Deserialize<WeChatArticle>(job.SnapshotJson)!;
                     Validate(article);
                     var document = new HtmlParser().ParseDocument(article.Html);
                     var imageIds = document.QuerySelectorAll("img").Select(x => (x.GetAttribute("src") ?? "")[7..]).Distinct().ToArray();
+                    step = "读取封面文件"; assetId = article.CoverId;
                     var cover = await ImageAsync(article.CoverId, true);
                     var images = new Dictionary<string, FileView>();
-                    foreach (var id in imageIds) images[id] = await ImageAsync(id, false);
+                    step = "读取正文图片";
+                    foreach (var id in imageIds) { assetId = id; images[id] = await ImageAsync(id, false); }
+                    step = "上传微信封面"; assetId = article.CoverId;
                     var coverId = await client.UploadAsync(cover, true, account, cancellation);
                     var urls = new Dictionary<string, string>();
-                    foreach (var (id, file) in images) urls[id] = await client.UploadAsync(file, false, account, cancellation);
+                    step = "上传正文图片";
+                    foreach (var (id, file) in images) { assetId = id; urls[id] = await client.UploadAsync(file, false, account, cancellation); }
+                    step = "转换公众号正文"; assetId = "";
                     foreach (var image in document.QuerySelectorAll("img"))
                     {
                         image.SetAttribute("src", urls[image.GetAttribute("src")![7..]]);
@@ -162,19 +172,26 @@ public sealed class WeChatDraftService(CmsRepository repository, WeChatSettingsS
                     var html = document.Body!.InnerHtml;
                     if (html.Length >= 20000 || Encoding.UTF8.GetByteCount(html) >= 1_000_000) throw Bad("转换后的正文超过微信限制，请缩短文章。");
                     job.Status = "submitting"; await SaveAsync(job);
+                    step = "创建微信草稿";
                     var response = await client.PostAsync("draft/add", new { articles = new[] { new {
                         article_type = "news", title = article.Title, author = article.Author, digest = article.Digest,
                         content = html, content_source_url = article.SourceUrl, thumb_media_id = coverId,
                         need_open_comment = 0, only_fans_can_comment = 0
                     } } }, account, cancellation);
-                    job.MediaId = WeChatClient.Required(response, "media_id");
+                    job.MediaId = WeChatClient.Required(response, "media_id", "draft/add");
                     if (job.MediaId.Length > 128) throw new HttpRequestException("Invalid draft identifier.");
                     job.Status = "draft"; job.Error = "";
                 }
-                catch (CmsException error) { job.Status = "failed"; job.Error = error.Message; }
-                catch (Exception) when (!cancellation.IsCancellationRequested)
+                catch (CmsException error)
                 {
-                    job.Error = job.Status == "submitting" ? "提交结果未知，请在公众号草稿箱核实；系统不会自动重发。" : "素材准备或网络请求失败，请检查附件和配置后重试。";
+                    job.Status = "failed"; job.Error = $"{step}：{error.Message}";
+                    LogFailure(job.Id, job.ContentId, step, assetId, error, job.Error);
+                }
+                catch (Exception error) when (!cancellation.IsCancellationRequested)
+                {
+                    var detail = Failure(step, error);
+                    job.Error = job.Status == "submitting" ? $"提交结果未知，请在公众号草稿箱核实；系统不会自动重发。{detail}" : detail;
+                    LogFailure(job.Id, job.ContentId, step, assetId, error, job.Error);
                     job.Status = job.Status == "submitting" ? "unknown" : "failed";
                 }
                 await SaveAsync(job);
@@ -214,15 +231,20 @@ public sealed class WeChatDraftService(CmsRepository repository, WeChatSettingsS
                 try
                 {
                     var response = await client.PostAsync("freepublish/submit", new { media_id = draft.MediaId }, account, cancellation);
-                    var id = WeChatClient.Required(response, "publish_id");
+                    var id = WeChatClient.Required(response, "publish_id", "freepublish/submit");
                     if (id.Length > 128) throw new HttpRequestException("Invalid publication identifier.");
                     job.PublishId = id; job.Status = "publishing";
                 }
-                catch (CmsException error) { job.Status = "failed"; job.Error = error.Message; }
-                catch (Exception) when (!cancellation.IsCancellationRequested)
+                catch (CmsException error)
+                {
+                    job.Status = "failed"; job.Error = error.Message;
+                    LogFailure(job.Id, draft.ContentId, "提交微信发布", "", error, job.Error);
+                }
+                catch (Exception error) when (!cancellation.IsCancellationRequested)
                 {
                     job.Status = "unknown";
-                    job.Error = "发布提交结果未知，请在微信后台核实；系统不会自动重发。";
+                    job.Error = "发布提交结果未知，请在微信后台核实；系统不会自动重发。" + Failure("提交微信发布", error);
+                    LogFailure(job.Id, draft.ContentId, "提交微信发布", "", error, job.Error);
                 }
                 // A confirmed task must be durable before polling; a failed database write must not trigger another submission.
                 await SavePublicationAsync(job);
@@ -243,9 +265,16 @@ public sealed class WeChatDraftService(CmsRepository repository, WeChatSettingsS
                 };
                 // Deliberately retain only status; article_id, article_detail and article URLs are not stored.
             }
-            catch (CmsException error) { job.Error = "状态查询失败，将继续查询：" + error.Message; }
-            catch (Exception) when (!cancellation.IsCancellationRequested)
-            { job.Error = "暂时无法查询微信发布结果，将继续查询；不会重复提交发布。"; }
+            catch (CmsException error)
+            {
+                job.Error = "状态查询失败，将继续查询：" + error.Message;
+                LogFailure(job.Id, "", "查询微信发布状态", "", error, job.Error);
+            }
+            catch (Exception error) when (!cancellation.IsCancellationRequested)
+            {
+                job.Error = "将继续查询，不会重复提交发布。" + Failure("查询微信发布状态", error);
+                LogFailure(job.Id, "", "查询微信发布状态", "", error, job.Error);
+            }
             await SavePublicationAsync(job);
         }
     }
@@ -255,6 +284,15 @@ public sealed class WeChatDraftService(CmsRepository repository, WeChatSettingsS
         job.UpdatedAt = DateTime.UtcNow;
         return repository.RecordTrafficAsync(repo => repo.UpdateAsync(job));
     }
+
+    private static string Failure(string step, Exception error) => error is WeChatRequestException safe
+        ? safe.Message : $"{step}失败：{WeChatClient.Diagnostic(error)}";
+
+    private void LogFailure(string jobId, string contentId, string step, string assetId, Exception error, string detail) =>
+        // Do not pass the exception object: HTTP exception messages can contain access_token query strings.
+        logger?.LogWarning("WeChat operation failed. JobId={JobId} ContentId={ContentId} Step={Step} AssetId={AssetId} ExceptionType={ExceptionType} Detail={Detail} Stack={Stack}",
+            jobId, contentId, error is WeChatRequestException safe ? WeChatClient.Step(safe.Endpoint) : step,
+            assetId, error.GetType().Name, detail, error.StackTrace);
 
     private async Task<FileView> ImageAsync(string id, bool cover)
     {
